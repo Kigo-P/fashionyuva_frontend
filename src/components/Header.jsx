@@ -8,16 +8,15 @@ const Header = () => {
 
   const navItems = [
     { name: 'Home', href: '/' },
-    { name: 'Collections', href: '/collections' },
-    { name: 'New Arrivals', href: '/new-arrivals' },
-    { name: 'Sale', href: '/sale' },
-    { name: 'About', href: '/about' },
+    { name: 'Listings', href: '/listing' },
+    { name: 'About', href: '/about-us' },
+    { name: 'Contact', href: '/contact-us' },
   ]
 
   return (
     <header className="bg-[#242424] shadow-md">
       <div className="container mx-auto px-4 py-4 flex items-center justify-between">
-        <Link href="/" className="text-2xl font-bold text-white">
+        <Link to="/" className="text-2xl font-bold text-white">
           LUXE
         </Link>
 
@@ -25,7 +24,7 @@ const Header = () => {
           {navItems.map((item) => (
             <Link
               key={item.name}
-              href={item.href}
+              to={item.href}
               className="text-white hover:text-gray-100 transition-colors"
             >
               {item.name}
@@ -35,13 +34,13 @@ const Header = () => {
 
         <div className="hidden md:flex items-center space-x-4">
           <Link
-            href="/login"
+            to="/login"
             className="border border-slate-200 py-2 px-4 rounded-md cursor-pointer text-white text-xs"
           >
             Sign in / Sign up
           </Link>
           <Link
-            href="/cart"
+            to="/cart"
             className="text-white hover:text-white transition-colors"
           >
             <ShoppingBag className="h-6 w-6" />
@@ -66,7 +65,7 @@ const Header = () => {
           {navItems.map((item) => (
             <Link
               key={item.name}
-              href={item.href}
+              to={item.href}
               className="block px-4 py-2 text-white transition-colors"
               onClick={toggleMenu}
             >
@@ -75,13 +74,13 @@ const Header = () => {
           ))}
           <div className="px-4 py-2 flex items-center justify-between">
             <Link
-              href="/login"
+              to="/login"
               className="border border-slate-200 py-2 px-4 rounded-md cursor-pointer text-white text-xs"
             >
               Sign in / Sign up
             </Link>
             <Link
-              href="/cart"
+              to="/cart"
               className="text-white hover:text-white transition-colors"
             >
               <ShoppingBag className="h-6 w-6 text-white" />
