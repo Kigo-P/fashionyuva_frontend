@@ -10,6 +10,8 @@ import NotFound from './routes/NotFound'
 import Home from './routes/Home'
 import About from './routes/About'
 import Listing from './routes/Listing'
+import NewProductForm from './routes/NewProductForm'
+import Product from './routes/Product'
 
 const router = createBrowserRouter(
   createRoutesFromElements(
@@ -28,6 +30,11 @@ const router = createBrowserRouter(
       <Route
         path="/new-product-form"
         element={<NewProductForm />}
+        errorElement={<ErrorBoundary />}
+      />
+      <Route
+        path="/product/:id"
+        element={<Product />}
         errorElement={<ErrorBoundary />}
       />
       <Route path="*" element={<NotFound />} errorElement={<ErrorBoundary />} />
