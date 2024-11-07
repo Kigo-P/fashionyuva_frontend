@@ -16,6 +16,7 @@ import Login from './routes/Login'
 import Register from './routes/Register'
 import ContactUs from './routes/ContactUs.jsx'
 import AdminDashboard from './routes/AdminDashboard.jsx'
+import UpdateProductForm from './routes/UpdateProductForm.jsx'
 
 const router = createBrowserRouter(
   createRoutesFromElements(
@@ -59,6 +60,11 @@ const router = createBrowserRouter(
       <Route
         path="/product/:id"
         element={<Product />}
+        errorElement={<ErrorBoundary />}
+      />
+      <Route
+        path="/update-product"
+        element={<UpdateProductForm />}
         errorElement={<ErrorBoundary />}
       />
       <Route path="*" element={<NotFound />} errorElement={<ErrorBoundary />} />
