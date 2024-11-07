@@ -1,0 +1,11 @@
+@import url('https://fonts.googleapis.com/css2?family=Rubik+Wet+Paint&display=swap');
+
+.rubik-wet-paint {
+    font-family: 'Rubik Wet Paint', cursive;
+    /* Add any other styles as needed */
+    .rubik-wet-paint {
+        font-family: 'Rubik Wet Paint', cursive;
+        transform: skewX(-5deg); /* Adjust the angle as needed */
+      }
+      
+}
