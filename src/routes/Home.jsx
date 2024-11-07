@@ -2,13 +2,28 @@ import Footer from '../components/Footer'
 import Header from '../components/Header'
 import { Star } from 'lucide-react'
 import Landing from '../components/Landing'
+import Product from '../components/Product'
 
 const Home = () => {
   return (
     <div>
       <Header />
-      <section>
-        <Landing />
+      <Landing />
+      <section className="py-10 px-4 md:px-8">
+        <h2 className="text-3xl md:text-4xl font-bold mb-12">New Arrivals</h2>
+        <div className="flex items-center justify-evenly gap-4">
+          {Array.from({ length: 4 }).map((product, i) => (
+            <Product product={product} i={i} />
+          ))}
+        </div>
+      </section>
+      <section className="py-10 px-4 md:px-8">
+        <h2 className="text-3xl md:text-4xl font-bold mb-12">Best Sellers</h2>
+        <div className="flex items-center justify-evenly gap-4">
+          {Array.from({ length: 4 }).map((product, i) => (
+            <Product product={product} i={i} />
+          ))}
+        </div>
       </section>
       <section className="py-20 px-4 md:px-8 bg-gray-100">
         <h2 className="text-3xl md:text-4xl font-bold text-center mb-12">
@@ -30,7 +45,7 @@ const Home = () => {
                 ))}
               </div>
               <p className="text-gray-600 mb-4">{testimonial}</p>
-              <p className="font-semibold">- Satisfied Customer</p>
+              <p className="font-semibold">- Mr. Rono</p>
             </div>
           ))}
         </div>
