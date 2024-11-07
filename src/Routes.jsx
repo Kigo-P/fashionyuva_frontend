@@ -16,6 +16,8 @@ import Login from './routes/Login'
 import Register from './routes/Register'
 import ContactUs from './routes/ContactUs.jsx'
 import AdminDashboard from './routes/AdminDashboard.jsx'
+import Cart from './routes/Cart.jsx'
+import Checkout from './routes/Checkout.jsx'
 
 const router = createBrowserRouter(
   createRoutesFromElements(
@@ -49,6 +51,12 @@ const router = createBrowserRouter(
       <Route
         path="/contact"
         element={<ContactUs />}
+        errorElement={<ErrorBoundary />}
+      />
+      <Route path="/cart" element={<Cart />} errorElement={<ErrorBoundary />} />
+      <Route
+        path="/checkout"
+        element={<Checkout />}
         errorElement={<ErrorBoundary />}
       />
       <Route
