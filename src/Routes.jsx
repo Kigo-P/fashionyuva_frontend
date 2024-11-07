@@ -15,6 +15,7 @@ import Product from './routes/Product'
 import Login from './routes/Login'
 import Register from './routes/Register'
 import ContactUs from './routes/ContactUs.jsx'
+import AdminDashboard from './routes/AdminDashboard.jsx'
 
 const router = createBrowserRouter(
   createRoutesFromElements(
