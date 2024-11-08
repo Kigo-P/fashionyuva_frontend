@@ -25,9 +25,6 @@ const Landing = () => {
           >
             Shop Now
           </Link>
-          <button className="border-2 border-white text-white px-8 py-3 rounded-full font-semibold hover:bg-white hover:text-black transition duration-300">
-            View Lookbook
-          </button>
         </div>
       </div>
     </div>
