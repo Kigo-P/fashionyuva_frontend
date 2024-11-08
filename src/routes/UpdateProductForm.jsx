@@ -25,12 +25,12 @@ function UpdateProductForm() {
   };
 
   return (
-    <div className="w-full max-w-2xl mx-auto shadow-lg hover:shadow-xl transition-shadow duration-300 pt-8 p-8 rounded-lg bg-white">
+    <div className="w-full max-w-2xl mx-auto shadow-lg hover:shadow-xl transition-shadow duration-300 pt-8 p-8 rounded-lg bg-white mt-12">
       <h2 className="text-2xl font-bold text-center mb-6">Update Product</h2>
       <form onSubmit={handleSubmit} className="space-y-8"> {/* Increased space between form elements */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8"> {/* Increased gap */}
           <div className="space-y-3"> {/* Increased space between label and input */}
-            <label htmlFor="title" className="block font-medium text-gray-900">Title</label>
+            <label htmlFor="title" className="block font-xl  text-black">Title</label>
             <input
               type="text"
               id="title"
@@ -133,7 +133,7 @@ function UpdateProductForm() {
         <div className="flex justify-center pt-8">
           <button 
             type="submit" 
-            className="bg-[#800000] hover:bg-[#600000] text-white px-8 py-3 rounded-lg transition-colors duration-200"
+            className="bg-[#050303] hover:bg-[#a7a7a7] text-white px-8 py-3 rounded-lg transition-colors duration-200"
           >
             Update Product
           </button>

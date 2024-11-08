@@ -70,7 +70,7 @@ const NewProductForm = () => {
       onSubmit={handleSubmit}
     >
       {({ setFieldValue, values }) => (
-        <Form className="max-w-4xl mx-auto p-8 bg-white rounded-xl shadow-[0_4px_10px_rgba(0,0,0,0.2)] pt-12 mt-6">
+        <Form className="max-w-4xl mx-auto p-8 bg-white rounded-xl shadow-[0_4px_10px_rgba(0,0,0,0.2)] pt-12 mt-16">
           <h2 className="text-3xl font-semibold text-gray-800 mb-8 text-center">Add New Product</h2>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -205,7 +205,7 @@ const NewProductForm = () => {
 
           <button
             type="submit"
-            className="mt-8 w-full bg-green-600 text-white py-3 px-6 rounded-lg hover:bg-green-700 transition-colors focus:ring-2 focus:ring-green-500 focus:ring-offset-2"
+            className="mt-8 w-full bg-black text-white py-3 px-6 rounded-lg hover:bg-gray-600 transition-colors focus:ring-2 focus:ring-green-500 focus:ring-offset-2"
           >
             Add Product
           </button>

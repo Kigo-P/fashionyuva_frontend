@@ -4,6 +4,8 @@ import StarRating from './StarRating';
 import Review from './Review';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
+import DenimJeansImage from "../assets/DenimJeans1.jpg";
+import Denim from "../assets/img/DenimJeans2.jpg"
 
 function Product() {
   const [showReviews, setShowReviews] = useState(false);
@@ -22,7 +24,7 @@ function Product() {
       date: "2024-03-09"
     }
   ]);
-
+  const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const averageRating = reviews.reduce((acc, review) => acc + review.rating, 0) / reviews.length;
 
   const handleSubmitReview = (rating, text) => {
@@ -34,22 +36,40 @@ function Product() {
     };
     setReviews([newReview, ...reviews]);
   };
+  const images = [DenimJeansImage, Denim];
 
+  const handleNextImage = () => {
+    setCurrentImageIndex((prevIndex) =>
+      prevIndex === images.length - 1 ? 0 : prevIndex + 1
+    );
+  };
+
+  const handlePrevImage = () => {
+    setCurrentImageIndex((prevIndex) =>
+      prevIndex === 0 ? images.length - 1 : prevIndex - 1
+    );
+  };
   return (
     <div className="min-h-screen bg-gray-50">
         <Header/>
       <div className="max-w-7xl mx-auto px-4 py-8 grid grid-cols-1 md:grid-cols-2 gap-8">
         {/* Product Image */}
-        <div className="relative aspect-square bg-gray-100 rounded-lg overflow-hidden">
+         <div className="relative aspect-square bg-gray-100 rounded-lg overflow-hidden">
           <img
-            src="https://images.unsplash.com/photo-1542272604-787c3835535d?auto=format&fit=crop&q=80"
+            src={images[currentImageIndex]}
             alt="Denim jeans"
             className="w-full h-full object-cover"
           />
-          <button className="absolute left-4 top-1/2 -translate-y-1/2 bg-white p-2 rounded-full shadow-md hover:bg-gray-100">
+          <button
+            onClick={handlePrevImage}
+            className="absolute left-4 top-1/2 -translate-y-1/2 bg-white p-2 rounded-full shadow-md hover:bg-gray-100"
+          >
             <ChevronLeft size={20} />
           </button>
-          <button className="absolute right-4 top-1/2 -translate-y-1/2 bg-white p-2 rounded-full shadow-md hover:bg-gray-100">
+          <button
+            onClick={handleNextImage}
+            className="absolute right-4 top-1/2 -translate-y-1/2 bg-white p-2 rounded-full shadow-md hover:bg-gray-100"
+          >
             <ChevronRight size={20} />
           </button>
         </div>
@@ -70,10 +90,6 @@ function Product() {
           {/* Color Selection */}
           <div>
             <h3 className="font-medium text-gray-900">Color</h3>
-            <div className="flex gap-2 mt-2">
-              <button className="w-8 h-8 rounded-full bg-black ring-2 ring-offset-2 ring-black" />
-              <button className="w-8 h-8 rounded-full bg-red-900" />
-            </div>
           </div>
 
           {/* Size Selection */}
