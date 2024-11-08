@@ -279,7 +279,7 @@ const Checkout = () => {
                 <div>
                   <button
                     type="submit"
-                    className="flex w-full items-center justify-center rounded-lg bg-blue-600 px-5 py-2.5 text-sm font-medium text-white hover:bg-blue-700 focus:outline-none focus:ring-4 focus:ring-blue-300"
+                    className="flex w-full items-center justify-center rounded-lg bg-black-600 px-5 py-2.5 text-sm font-medium text-white hover:bg-gray-700 focus:outline-none focus:ring-4 focus:ring-gray-300"
                   >
                     <CreditCard className="mr-2 h-5 w-5" />
                     Complete Purchase
@@ -327,7 +327,7 @@ const Checkout = () => {
           <div className="mt-8">
             <Link
               to="/cart"
-              className="text-blue-600 hover:text-blue-800 flex items-center"
+              className="text-black hover:text-gray-500 flex items-center"
             >
               <ChevronLeft className="mr-1 h-5 w-5" />
               Return to Cart

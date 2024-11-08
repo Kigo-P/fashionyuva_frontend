@@ -106,7 +106,7 @@ const Cart = () => {
                             onClick={() =>
                               updateQuantity(item.id, item.quantity - 1)
                             }
-                            className="inline-flex h-8 w-8 items-center justify-center rounded-md border border-gray-300 bg-white text-gray-500 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+                            className="inline-flex h-8 w-8 items-center justify-center rounded-md border border-gray-300 bg-white text-gray-500 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-black-500 focus:ring-offset-2"
                           >
                             <Minus className="h-4 w-4" />
                           </button>
@@ -122,7 +122,7 @@ const Cart = () => {
                             onClick={() =>
                               updateQuantity(item.id, item.quantity + 1)
                             }
-                            className="inline-flex h-8 w-8 items-center justify-center rounded-md border border-gray-300 bg-white text-gray-500 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+                            className="inline-flex h-8 w-8 items-center justify-center rounded-md border border-gray-300 bg-white text-gray-500 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-black-500 focus:ring-offset-2"
                           >
                             <Plus className="h-4 w-4" />
                           </button>
@@ -178,7 +178,7 @@ const Cart = () => {
 
                 <Link
                   to="/checkout"
-                  className="flex w-full items-center justify-center rounded-lg bg-blue-600 px-5 py-2.5 text-sm font-medium text-white hover:bg-blue-700 focus:outline-none focus:ring-4 focus:ring-blue-300"
+                  className="flex w-full items-center justify-center rounded-lg bg-black-600 px-5 py-2.5 text-sm font-medium text-white hover:bg-black-700 focus:outline-none focus:ring-4 focus:ring-black-300"
                 >
                   <ShoppingCart className="mr-2 h-5 w-5" />
                   Proceed to Checkout
@@ -188,7 +188,7 @@ const Cart = () => {
                   <span className="text-sm font-normal text-gray-500">or</span>
                   <Link
                     to="/listing"
-                    className="inline-flex items-center gap-2 text-sm font-medium text-blue-600 hover:underline"
+                    className="inline-flex items-center gap-2 text-sm font-medium text-black-600 hover:underline"
                   >
                     Continue Shopping
                     <ArrowRight className="h-5 w-5" />
@@ -208,14 +208,14 @@ const Cart = () => {
                     <input
                       type="text"
                       id="voucher"
-                      className="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500"
+                      className="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-black-500 focus:ring-black-500"
                       placeholder="Enter code"
                       required
                     />
                   </div>
                   <button
                     type="submit"
-                    className="flex w-full items-center justify-center rounded-lg bg-blue-600 px-5 py-2.5 text-sm font-medium text-white hover:bg-blue-700 focus:outline-none focus:ring-4 focus:ring-blue-300"
+                    className="flex w-full items-center justify-center rounded-lg bg-black-600 px-5 py-2.5 text-sm font-medium text-white hover:bg-black-700 focus:outline-none focus:ring-4 focus:ring-black-300"
                   >
                     Apply Code
                   </button>
