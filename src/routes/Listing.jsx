@@ -134,28 +134,6 @@ const Listing = () => {
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
               {currentProducts.map((product, i) => (
                 <ProductCard key={i} product={product} i={i} />
-                // <div
-                //   key={product.id}
-                //   className="border rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-shadow"
-                // >
-                //   <img
-                //     src={product.image}
-                //     alt={product.name}
-                //     width={300}
-                //     height={400}
-                //     className="w-full h-64 object-cover"
-                //   />
-                //   <div className="p-4">
-                //     <h3 className="font-semibold text-lg mb-2">
-                //       {product.name}
-                //     </h3>
-                //     <p className="text-gray-600 mb-2">{product.category}</p>
-                //     <p className="font-bold">${product.price}</p>
-                //     <button className="w-full mt-4 bg-black hover:bg-[#242424] transition-colors text-white rounded-md p-2">
-                //       Add to Cart
-                //     </button>
-                //   </div>
-                // </div>
               ))}
             </div>
 
