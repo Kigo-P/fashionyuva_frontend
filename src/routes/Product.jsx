@@ -53,7 +53,6 @@ function Product() {
     <div className="min-h-screen bg-gray-50">
         <Header/>
       <div className="max-w-7xl mx-auto px-4 py-8 grid grid-cols-1 md:grid-cols-2 gap-8">
-        {/* Product Image */}
          <div className="relative aspect-square bg-gray-100 rounded-lg overflow-hidden">
           <img
             src={images[currentImageIndex]}
@@ -74,7 +73,7 @@ function Product() {
           </button>
         </div>
 
-        {/* Product Details */}
+
         <div className="space-y-6">
           <div>
             <h1 className="text-3xl font-bold text-gray-900">Denim jeans</h1>
@@ -87,12 +86,12 @@ function Product() {
             </div>
           </div>
 
-          {/* Color Selection */}
+
           <div>
             <h3 className="font-medium text-gray-900">Color</h3>
           </div>
 
-          {/* Size Selection */}
+
           <div>
             <h3 className="font-medium text-gray-900">Size</h3>
             <select className="mt-2 w-full border-gray-300 rounded-lg py-2 px-4 focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
@@ -104,19 +103,18 @@ function Product() {
             </select>
           </div>
 
-          {/* Quantity */}
           <div>
             <h3 className="font-medium text-gray-900">Quantity</h3>
             <input
                 type="number"
                 className="mt-2 w-full border-gray-300 rounded-lg py-2 px-4 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                 placeholder="Enter quantity"
-                min="1" // Optional: Set a minimum value
-                step="1" // Optional: Set step size to whole numbers
+                min="1" 
+                step="1" 
             />
             </div>
 
-          {/* Add to Cart */}
+
           <div className="flex gap-4">
             <button className="flex-1 bg-black text-white py-3 rounded-lg hover:bg-gray-800 transition-colors duration-200">
               Add to Cart
@@ -126,7 +124,7 @@ function Product() {
             </button>
           </div>
 
-          {/* Product Details */}
+
           <div className="border-t pt-6">
             <h3 className="font-semibold text-gray-900 mb-2">Product Details</h3>
             <p className="text-gray-600">
@@ -141,7 +139,7 @@ function Product() {
             </ul>
           </div>
 
-          {/* Reviews Section */}
+
           <div className="border-t pt-6">
             <button
               onClick={() => setShowReviews(!showReviews)}

@@ -42,7 +42,7 @@ const Review = ({ onClose, onSubmitReview }) => {
             <textarea
               id="review"
               rows={4}
-              className="w-full border rounded-lg p-2 resize-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+              className="w-full border rounded-lg p-2  focus:ring-2 focus:ring-black focus:border-gray-700"
               placeholder="Write your review here..."
               value={review}
               onChange={(e) => setReview(e.target.value)}
@@ -52,7 +52,7 @@ const Review = ({ onClose, onSubmitReview }) => {
           
           <button
             type="submit"
-            className="w-full bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700 transition-colors duration-200"
+            className="w-full bg-black text-white py-2 rounded-lg hover:bg-gray-500 transition-colors duration-200"
             disabled={rating === 0}
           >
             Submit Review
