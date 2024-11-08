@@ -9,42 +9,34 @@ const Home = () => {
     {
       name: 'Elegant Watch',
       price: 1299,
-      image: '/placeholder.svg?height=400&width=300',
     },
     {
       name: 'Designer Handbag',
       price: 2499,
-      image: '/placeholder.svg?height=400&width=300',
     },
     {
       name: 'Luxury Perfume',
       price: 199,
-      image: '/placeholder.svg?height=400&width=300',
     },
     {
       name: 'Diamond Necklace',
       price: 5999,
-      image: '/placeholder.svg?height=400&width=300',
     },
     {
       name: 'Silk Scarf',
       price: 399,
-      image: '/placeholder.svg?height=400&width=300',
     },
     {
       name: 'Leather Wallet',
       price: 599,
-      image: '/placeholder.svg?height=400&width=300',
     },
     {
       name: 'Gold Bracelet',
       price: 1799,
-      image: '/placeholder.svg?height=400&width=300',
     },
     {
       name: 'Crystal Glasses Set',
       price: 899,
-      image: '/placeholder.svg?height=400&width=300',
     },
   ]
   return (

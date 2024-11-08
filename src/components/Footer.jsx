@@ -42,16 +42,6 @@ const Footer = () => {
                   Best Sellers
                 </Link>
               </li>
-              <li>
-                <Link to="#" className="hover:underline">
-                  Sale
-                </Link>
-              </li>
-              <li>
-                <Link to="#" className="hover:underline">
-                  Collections
-                </Link>
-              </li>
             </ul>
           </div>
           <div>
@@ -60,21 +50,6 @@ const Footer = () => {
               <li>
                 <Link to="#" className="hover:underline">
                   Our Story
-                </Link>
-              </li>
-              <li>
-                <Link to="#" className="hover:underline">
-                  Sustainability
-                </Link>
-              </li>
-              <li>
-                <Link to="#" className="hover:underline">
-                  Careers
-                </Link>
-              </li>
-              <li>
-                <Link to="#" className="hover:underline">
-                  Press
                 </Link>
               </li>
             </ul>
@@ -90,11 +65,6 @@ const Footer = () => {
               <li>
                 <Link to="#" className="hover:underline">
                   Shipping & Returns
-                </Link>
-              </li>
-              <li>
-                <Link to="#" className="hover:underline">
-                  Size Guide
                 </Link>
               </li>
               <li>
@@ -124,7 +94,7 @@ const Footer = () => {
         </div>
         <div className="mt-12 text-center text-sm">
           <p>
-            &copy; {new Date().getFullYear()} Luxury Fashion Shop. All rights
+            &copy; {new Date().getFullYear()} Fasionayuva shop. All rights
             reserved.
           </p>
         </div>

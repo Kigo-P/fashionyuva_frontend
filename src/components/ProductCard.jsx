@@ -4,7 +4,7 @@ import { ShoppingCart, Star } from 'lucide-react'
 
 const ProductCard = ({ product, i }) => {
   return (
-    <Link to="/">
+    <Link to={`/product/${product.id}`}>
       <div className="max-w-sm rounded-lg overflow-hidden shadow-lg bg-white border border-white">
         <img
           className="w-full h-48 object-cover"
