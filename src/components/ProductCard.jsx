@@ -5,7 +5,7 @@ import { ShoppingCart, Star } from 'lucide-react'
 const ProductCard = ({ product, i }) => {
   return (
     <Link to="/">
-      <div className="max-w-sm rounded-lg overflow-hidden shadow-lg bg-white border border-gray-500">
+      <div className="max-w-sm rounded-lg overflow-hidden shadow-lg bg-white border border-white">
         <img
           className="w-full h-48 object-cover"
           src={`https://picsum.photos/400/300?id=${i + 1}`}
