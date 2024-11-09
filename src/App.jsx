@@ -1,11 +1,12 @@
-import Register from './components/Register'
+
 import Routes from './Routes'
+import './index.css'
 
 const App = () => {
   return (
     <>
-      {/* <Routes /> */}
-      < Register />
+      <Routes />
+   
     </>
   )
 }
