@@ -1,261 +1,191 @@
-import { useState, useEffect } from 'react';
-import { Star, Heart, Share2, ChevronLeft, ChevronRight, MessageSquare } from 'lucide-react';
+import React, { useState } from 'react';
+import { Heart, ChevronLeft, ChevronRight } from 'lucide-react';
+import StarRating from './StarRating';
+import Review from './Review';
+import Header from '../components/Header';
+import Footer from '../components/Footer';
+import DenimJeansImage from "../assets/DenimJeans1.jpg";
+import Denim from "../assets/img/DenimJeans2.jpg"
 
-export default function Product() {
-  const [currentImage, setCurrentImage] = useState(0);
-  const [selectedSize, setSelectedSize] = useState('');
-  const [selectedColor, setSelectedColor] = useState('black');
-  const [quantity, setQuantity] = useState(1);
-  const [userRating, setUserRating] = useState(0);
-  const [comment, setComment] = useState('');
-  const [ratings, setRatings] = useState({ average: 4.5, count: 24 });
-  const [comments, setComments] = useState([]);
-  const [isSheetOpen, setIsSheetOpen] = useState(false); // For the review drawer
-  const [images, setImages] = useState([]); // For fetched images
+function Product() {
+  const [showReviews, setShowReviews] = useState(false);
+  const [showReviewModal, setShowReviewModal] = useState(false);
+  const [reviews, setReviews] = useState([
+    {
+      id: 1,
+      rating: 4,
+      text: "Great fit and very comfortable!",
+      date: "2024-03-10"
+    },
+    {
+      id: 2,
+      rating: 5,
+      text: "Perfect denim quality, highly recommend!",
+      date: "2024-03-09"
+    }
+  ]);
+  const [currentImageIndex, setCurrentImageIndex] = useState(0);
+  const averageRating = reviews.reduce((acc, review) => acc + review.rating, 0) / reviews.length;
 
-  const colors = [
-    { name: 'Black', value: 'black' },
-    { name: 'White', value: 'white' },
-    { name: 'Maroon', value: 'maroon' },
-  ];
-
-  const sizes = ['XS', 'S', 'M', 'L', 'XL'];
-
-  // Fetch images and product details from the backend (API endpoint example)
-  useEffect(() => {
-    const fetchProductImages = async () => {
-      try {
-        const res = await fetch('/api/products/1/images'); // Replace with your product's image API endpoint
-        if (!res.ok) {
-          throw new Error('Failed to fetch images');
-        }
-        const data = await res.json();
-        setImages(data.images); // Assume the response is { images: [imageURLs] }
-      } catch (error) {
-        console.error(error);
-      }
+  const handleSubmitReview = (rating, text) => {
+    const newReview = {
+      id: reviews.length + 1,
+      rating,
+      text,
+      date: new Date().toISOString().split('T')[0]
     };
+    setReviews([newReview, ...reviews]);
+  };
+  const images = [DenimJeansImage, Denim];
 
-    fetchProductImages();
-  }, []);
-
-  const handleRatingSubmit = () => {
-    if (userRating > 0) {
-      setRatings(prev => ({
-        average: (prev.average * prev.count + userRating) / (prev.count + 1),
-        count: prev.count + 1,
-      }));
-      setUserRating(0);
-    }
+  const handleNextImage = () => {
+    setCurrentImageIndex((prevIndex) =>
+      prevIndex === images.length - 1 ? 0 : prevIndex + 1
+    );
   };
 
-  const handleCommentSubmit = () => {
-    if (comment.trim()) {
-      setComments(prev => [...prev, { text: comment, date: new Date().toISOString() }]);
-      setComment('');
-    }
+  const handlePrevImage = () => {
+    setCurrentImageIndex((prevIndex) =>
+      prevIndex === 0 ? images.length - 1 : prevIndex - 1
+    );
   };
-
   return (
-    <div className="min-h-screen bg-white">
-      <div className="max-w-7xl mx-auto px-4 py-8">
-        <div className="grid lg:grid-cols-2 gap-8">
-          {/* Image Gallery */}
-          <div className="space-y-4">
-            <div className="relative aspect-square overflow-hidden rounded-lg bg-gray-100">
-              {images.length > 0 ? (
-                <img
-                  src={images[currentImage]}
-                  alt="Product image"
-                  className="object-cover w-full h-full"
-                />
-              ) : (
-                <div className="h-full w-full bg-gray-200">Loading Image...</div>
-              )}
-              <button
-                onClick={() => setCurrentImage(prev => (prev > 0 ? prev - 1 : images.length - 1))}
-                className="absolute left-4 top-1/2 -translate-y-1/2 bg-white/80 p-2 rounded-full"
-              >
-                <ChevronLeft className="h-6 w-6" />
-              </button>
-              <button
-                onClick={() => setCurrentImage(prev => (prev < images.length - 1 ? prev + 1 : 0))}
-                className="absolute right-4 top-1/2 -translate-y-1/2 bg-white/80 p-2 rounded-full"
-              >
-                <ChevronRight className="h-6 w-6" />
-              </button>
-            </div>
-            <div className="grid grid-cols-4 gap-4">
-              {images.map((img, idx) => (
-                <button
-                  key={idx}
-                  onClick={() => setCurrentImage(idx)}
-                  className={`aspect-square rounded-md overflow-hidden ${
-                    currentImage === idx ? 'ring-2 ring-maroon' : ''
-                  }`}
-                >
-                  <img
-                    src={img}
-                    alt={`Thumbnail ${idx + 1}`}
-                    className="object-cover w-full h-full"
-                  />
-                </button>
-              ))}
+    <div className="min-h-screen bg-gray-50">
+        <Header/>
+      <div className="max-w-7xl mx-auto px-4 py-8 grid grid-cols-1 md:grid-cols-2 gap-8">
+        <div className="relative aspect-square bg-gray-100 rounded-lg overflow-hidden">
+          <img
+            src={images[currentImageIndex]}
+            alt="Denim jeans"
+            className="w-full h-full object-cover"
+          />
+          <button
+            onClick={handlePrevImage}
+            className="absolute left-4 top-1/2 -translate-y-1/2 bg-white p-2 rounded-full shadow-md hover:bg-gray-100"
+          >
+            <ChevronLeft size={20} />
+          </button>
+          <button
+            onClick={handleNextImage}
+            className="absolute right-4 top-1/2 -translate-y-1/2 bg-white p-2 rounded-full shadow-md hover:bg-gray-100"
+          >
+            <ChevronRight size={20} />
+          </button>
+        </div>
+
+
+        <div className="space-y-6">
+          <div>
+            <h1 className="text-3xl font-bold text-gray-900">Denim jeans</h1>
+            <p className="text-2xl font-semibold text-gray-900 mt-2">Ksh1,299.00</p>
+            <div className="flex items-center gap-2 mt-2">
+              <StarRating rating={averageRating} />
+              <span className="text-sm text-gray-500">
+                ({reviews.length} reviews)
+              </span>
             </div>
           </div>
 
-          {/* Product Details */}
-          <div className="space-y-6">
-            <div>
-              <h1 className="text-3xl font-bold text-gray-900">Luxury Leather Crossbody Bag</h1>
-              <p className="text-2xl font-bold text-maroon mt-2">$1,299.00</p>
+
+          <div>
+            <h3 className="font-medium text-gray-900">Color</h3>
+          </div>
+
+
+          <div>
+            <h3 className="font-medium text-gray-900">Size</h3>
+            <select className="mt-2 w-full border-gray-300 rounded-lg py-2 px-4 focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+              <option value="">Select size</option>
+              <option value="s">Small</option>
+              <option value="m">Medium</option>
+              <option value="l">Large</option>
+              <option value="xl">X-Large</option>
+            </select>
+          </div>
+
+          <div>
+            <h3 className="font-medium text-gray-900">Quantity</h3>
+            <input
+                type="number"
+                className="mt-2 w-full border-gray-300 rounded-lg py-2 px-4 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                placeholder="Enter quantity"
+                min="1" 
+                step="1" 
+            />
             </div>
 
-            <div className="flex items-center gap-4">
-              {[1, 2, 3, 4, 5].map(star => (
-                <Star
-                  key={star}
-                  className={`w-6 h-6 ${
-                    star <= (ratings?.average || 4.5) ? 'fill-maroon text-maroon' : 'text-gray-300'
-                  }`}
-                />
-              ))}
-              <span className="text-sm text-gray-600">({ratings?.count || 24} reviews)</span>
-            </div>
 
-            <div className="space-y-4">
-              <div>
-                <label className="text-sm font-medium text-gray-900">Color</label>
-                <div className="flex gap-3 mt-2">
-                  {colors.map(color => (
-                    <button
-                      key={color.value}
-                      onClick={() => setSelectedColor(color.value)}
-                      className={`w-8 h-8 rounded-full border-2 ${
-                        selectedColor === color.value ? 'border-maroon' : 'border-transparent'
-                      }`}
-                      style={{ backgroundColor: color.value }}
-                    >
-                      <span className="sr-only">{color.name}</span>
-                    </button>
-                  ))}
-                </div>
-              </div>
-
-              <div>
-                <label className="text-sm font-medium text-gray-900">Size</label>
-                <select
-                  value={selectedSize}
-                  onChange={e => setSelectedSize(e.target.value)}
-                  className="w-full mt-2 border border-gray-300 rounded px-3 py-2"
-                >
-                  <option value="">Select size</option>
-                  {sizes.map(size => (
-                    <option key={size} value={size}>
-                      {size}
-                    </option>
-                  ))}
-                </select>
-              </div>
-
-              <div>
-                <label className="text-sm font-medium text-gray-900">Quantity</label>
-                <select
-                  value={quantity}
-                  onChange={e => setQuantity(Number(e.target.value))}
-                  className="w-32 mt-2 border border-gray-300 rounded px-3 py-2"
-                >
-                  {[1, 2, 3, 4, 5].map(num => (
-                    <option key={num} value={num}>
-                      {num}
-                    </option>
-                  ))}
-                </select>
-              </div>
-            </div>
-
-            <div className="flex gap-4">
-              <button className="flex-1 bg-black text-white hover:bg-gray-800 px-4 py-2 rounded">
-                Add to Cart
-              </button>
-              <button className="bg-white border border-gray-300 px-4 py-2 rounded">
-                <Heart className="w-5 h-5" />
-              </button>
-              <button className="bg-white border border-gray-300 px-4 py-2 rounded">
-                <Share2 className="w-5 h-5" />
-              </button>
-            </div>
-
-            <div className="p-4 bg-white shadow rounded-lg">
-              <h3 className="font-medium text-lg mb-2">Product Details</h3>
-              <p className="text-gray-600">
-                Crafted from premium materials, this luxury item features exceptional craftsmanship
-                and attention to detail. The perfect blend of style and functionality.
-              </p>
-              <div className="mt-4 space-y-2 text-sm text-gray-600">
-                <p>Material: Premium Italian Leather</p>
-                <p>Dimensions: 12" x 8" x 4"</p>
-                <p>Made in Italy</p>
-              </div>
-            </div>
-
-            {/* Reviews Section */}
-            <button
-              onClick={() => setIsSheetOpen(true)}
-              className="w-full bg-gray-100 border border-gray-300 px-4 py-2 rounded flex items-center justify-center"
-            >
-              <MessageSquare className="w-5 h-5 mr-2" />
-              Show Reviews & Ratings
+          <div className="flex gap-4">
+            <button className="flex-1 bg-black text-white py-3 rounded-lg hover:bg-gray-800 transition-colors duration-200">
+              Add to Cart
             </button>
-            {isSheetOpen && (
-              <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-end">
-                <div className="w-96 bg-white p-6">
-                  <button onClick={() => setIsSheetOpen(false)} className="mb-4">Close</button>
-                  <h3 className="font-medium text-lg mb-2">Reviews & Ratings</h3>
-                  <div className="space-y-4">
-                    {comments.map((comment, index) => (
-                      <div key={index} className="border-b pb-2">
-                        <p className="text-gray-800">{comment.text}</p>
-                        <p className="text-gray-500 text-sm">{new Date(comment.date).toLocaleDateString()}</p>
-                      </div>
-                    ))}
-                  </div>
-                  <div className="mt-4">
-                    <h4 className="font-medium">Leave a Review</h4>
-                    <div className="flex items-center gap-2 mt-2">
-                      {[1, 2, 3, 4, 5].map(star => (
-                        <button
-                          key={star}
-                          onClick={() => setUserRating(star)}
-                          className={star <= userRating ? 'text-maroon' : 'text-gray-400'}
-                        >
-                          <Star />
-                        </button>
-                      ))}
+            <button className="p-3 border rounded-lg hover:bg-gray-50 transition-colors duration-200">
+              <Heart className="w-6 h-6" />
+            </button>
+          </div>
+
+
+          <div className="border-t pt-6">
+            <h3 className="font-semibold text-gray-900 mb-2">Product Details</h3>
+            <p className="text-gray-600">
+              Crafted from premium materials, this luxury item features exceptional
+              craftsmanship and attention to detail. The perfect blend of style and
+              functionality.
+            </p>
+            <ul className="mt-4 space-y-2 text-sm text-gray-600">
+              <li>Material: Premium Italian Leather</li>
+              <li>Dimensions: 12" x 8" x 4"</li>
+              <li>Made in Italy</li>
+            </ul>
+          </div>
+
+
+          <div className="border-t pt-6">
+            <button
+              onClick={() => setShowReviews(!showReviews)}
+              className="w-full py-2 px-4 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors duration-200 flex items-center justify-center gap-2"
+            >
+              {showReviews ? 'Hide' : 'Show'} Reviews & Ratings
+            </button>
+
+            {showReviews && (
+              <div className="mt-6 space-y-6">
+                <div className="flex justify-between items-center">
+                  <h3 className="font-semibold text-gray-900">Customer Reviews</h3>
+                  <button
+                    onClick={() => setShowReviewModal(true)}
+                    className="text-blue-600 hover:text-blue-700 font-medium"
+                  >
+                    Write a Review
+                  </button>
+                </div>
+
+                <div className="space-y-4">
+                  {reviews.map((review) => (
+                    <div key={review.id} className="border-b pb-4">
+                      <StarRating rating={review.rating} />
+                      <p className="mt-2 text-gray-600">{review.text}</p>
+                      <p className="mt-1 text-sm text-gray-500">
+                        Posted on {review.date}
+                      </p>
                     </div>
-                    <textarea
-                      value={comment}
-                      onChange={e => setComment(e.target.value)}
-                      className="w-full mt-2 border border-gray-300 rounded p-2"
-                      rows={4}
-                      placeholder="Write your review here..."
-                    ></textarea>
-                    <button
-                      onClick={() => {
-                        handleRatingSubmit();
-                        handleCommentSubmit();
-                      }}
-                      className="w-full bg-maroon text-white mt-2 p-2 rounded"
-                    >
-                      Submit
-                    </button>
-                  </div>
+                  ))}
                 </div>
               </div>
             )}
           </div>
         </div>
       </div>
+
+      {showReviewModal && (
+        <Review
+          onClose={() => setShowReviewModal(false)}
+          onSubmitReview={handleSubmitReview}
+        />
+      )}
+      <Footer/>
     </div>
   );
 }
+
+export default Product;

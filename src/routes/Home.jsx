@@ -2,29 +2,49 @@ import Footer from '../components/Footer'
 import Header from '../components/Header'
 import { Star } from 'lucide-react'
 import Landing from '../components/Landing'
-import Product from '../components/Product'
+import ProductSection from '../components/ProdSpotlight'
 
 const Home = () => {
+  const products = [
+    {
+      name: 'Elegant Watch',
+      price: 1299,
+    },
+    {
+      name: 'Designer Handbag',
+      price: 2499,
+    },
+    {
+      name: 'Luxury Perfume',
+      price: 199,
+    },
+    {
+      name: 'Diamond Necklace',
+      price: 5999,
+    },
+    {
+      name: 'Silk Scarf',
+      price: 399,
+    },
+    {
+      name: 'Leather Wallet',
+      price: 599,
+    },
+    {
+      name: 'Gold Bracelet',
+      price: 1799,
+    },
+    {
+      name: 'Crystal Glasses Set',
+      price: 899,
+    },
+  ]
   return (
     <div>
       <Header />
       <Landing />
-      <section className="py-10 px-4 md:px-8">
-        <h2 className="text-3xl md:text-4xl font-bold mb-12">New Arrivals</h2>
-        <div className="flex items-center justify-evenly gap-4">
-          {Array.from({ length: 4 }).map((product, i) => (
-            <Product product={product} i={i} />
-          ))}
-        </div>
-      </section>
-      <section className="py-10 px-4 md:px-8">
-        <h2 className="text-3xl md:text-4xl font-bold mb-12">Best Sellers</h2>
-        <div className="flex items-center justify-evenly gap-4">
-          {Array.from({ length: 4 }).map((product, i) => (
-            <Product product={product} i={i} />
-          ))}
-        </div>
-      </section>
+      <ProductSection title="New Arrivals" products={products.slice(0, 6)} />
+      <ProductSection title="Best Sellers" products={products.slice(2)} />
       <section className="py-20 px-4 md:px-8 bg-gray-100">
         <h2 className="text-3xl md:text-4xl font-bold text-center mb-12">
           What Our Customers Say
@@ -48,31 +68,6 @@ const Home = () => {
               <p className="font-semibold">- Mr. Rono</p>
             </div>
           ))}
-        </div>
-      </section>
-
-      {/* Newsletter Signup */}
-      <section className="py-20 px-4 md:px-8 bg-black text-white">
-        <div className="max-w-4xl mx-auto text-center">
-          <h2 className="text-3xl md:text-4xl font-bold mb-6">Stay in Style</h2>
-          <p className="text-lg mb-8">
-            Subscribe to our newsletter for exclusive offers and fashion
-            insights.
-          </p>
-          <form className="flex flex-col md:flex-row gap-4 justify-center">
-            <input
-              type="email"
-              placeholder="Enter your email"
-              className="p-3 rounded-md md:w-96 bg-white text-black"
-            />
-            <button
-              type="submit"
-              size="lg"
-              className="px-4 rounded-md bg-white text-black hover:bg-gray-200"
-            >
-              Subscribe
-            </button>
-          </form>
         </div>
       </section>
       <Footer />

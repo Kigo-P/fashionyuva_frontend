@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { ChevronLeft, ChevronRight, Filter, X } from 'lucide-react'
 import Header from '../components/Header'
 import Footer from '../components/Footer'
+import ProductCard from '../components/ProductCard'
 
 const products = Array.from({ length: 20 }, (_, i) => ({
   id: i + 1,
@@ -51,6 +52,10 @@ const Listing = () => {
     setCurrentPage(1)
   }
 
+  const handlePriceRangeChange = (value) => {
+    handleFilterChange('priceRange', [0, parseInt(value, 10)])
+  }
+
   return (
     <>
       <Header />
@@ -79,7 +84,7 @@ const Listing = () => {
               <h2 className="font-semibold mb-2">Search</h2>
               <input
                 type="text"
-                className="px-2 py-3 border-2 border-black rounded-md w-full"
+                className="px-2 py-3 border border-black rounded-md w-full"
                 placeholder="Search products..."
                 value={filters.search}
                 onChange={(e) => handleFilterChange('search', e.target.value)}
@@ -90,7 +95,8 @@ const Listing = () => {
               <h2 className="font-semibold mb-2">Category</h2>
               <select
                 value={filters.category}
-                onChange={(value) => handleFilterChange('category', value)}
+                onChange={(e) => handleFilterChange('category', e.target.value)}
+                className="w-full border border-black p-2 rounded-md"
               >
                 <option value="">All Categories</option>
                 <option value="Dresses">Dresses</option>
@@ -101,47 +107,33 @@ const Listing = () => {
 
             <div>
               <h2 className="font-semibold mb-2">Price Range</h2>
-              <slider
-                min={0}
-                max={2000}
-                step={10}
-                value={filters.priceRange}
-                onChange={(value) => handleFilterChange('priceRange', value)}
+              <input
+                type="range"
+                min="0"
+                max="2000"
+                step="10"
+                value={filters.priceRange[1]}
+                onChange={(e) => handlePriceRangeChange(e.target.value)}
+                className="w-full"
               />
               <div className="flex justify-between mt-2">
-                <span>${filters.priceRange[0]}</span>
+                <span>$0</span>
                 <span>${filters.priceRange[1]}</span>
               </div>
             </div>
 
-            <button onClick={clearFilters} className="w-full">
+            <button
+              onClick={clearFilters}
+              className="w-full mt-4 bg-black hover:bg-[#242424] transition-colors text-white rounded-md p-2"
+            >
               Clear Filters
             </button>
           </aside>
 
           <div className="w-full md:w-3/4">
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-              {currentProducts.map((product) => (
-                <div
-                  key={product.id}
-                  className="border rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-shadow"
-                >
-                  <img
-                    src={product.image}
-                    alt={product.name}
-                    width={300}
-                    height={400}
-                    className="w-full h-64 object-cover"
-                  />
-                  <div className="p-4">
-                    <h3 className="font-semibold text-lg mb-2">
-                      {product.name}
-                    </h3>
-                    <p className="text-gray-600 mb-2">{product.category}</p>
-                    <p className="font-bold">${product.price}</p>
-                    <button className="w-full mt-4">Add to Cart</button>
-                  </div>
-                </div>
+              {currentProducts.map((product, i) => (
+                <ProductCard key={i} product={product} i={i} />
               ))}
             </div>
 
@@ -150,13 +142,20 @@ const Listing = () => {
                 <button
                   onClick={() => handlePageChange(currentPage - 1)}
                   disabled={currentPage === 1}
-                  size="icon"
                 >
                   <ChevronLeft className="h-4 w-4" />
                 </button>
                 {Array.from({ length: totalPages }, (_, i) => i + 1).map(
                   (page) => (
-                    <button key={page} onClick={() => handlePageChange(page)}>
+                    <button
+                      key={page}
+                      onClick={() => handlePageChange(page)}
+                      className={`${
+                        page === currentPage
+                          ? 'font-bold text-blue-600'
+                          : 'text-gray-500'
+                      }`}
+                    >
                       {page}
                     </button>
                   )
@@ -164,7 +163,6 @@ const Listing = () => {
                 <button
                   onClick={() => handlePageChange(currentPage + 1)}
                   disabled={currentPage === totalPages}
-                  size="icon"
                 >
                   <ChevronRight className="h-4 w-4" />
                 </button>
