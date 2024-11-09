@@ -19,31 +19,34 @@ header, footer {
   width: 600px;
   max-width: 90%;
   margin: 20px auto;
+  margin-top: 75px;
+  margin-bottom: 50px;
   padding: 20px;
-  border: 1px solid #8B2113;
+  border: 1px solid #0a0a0a;
   border-radius: 8px;
-  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-  background-color: #a799bd;
+  box-shadow: 0 0 10px rgba(46, 45, 45, 0.507);
+  background-color: #ffffff;
 }
 
 .add-user-title {
   font-size: 1.8em;
   margin-bottom: 20px;
   text-align: center;
-  color: #333;
+  color: #020202;
 }
 
 .input-field {
   width: 100%;
   padding: 10px;
   margin: 10px 0;
-  border: 1px solid #ccc;
+  border: 2px solid #49444483;
   border-radius: 4px;
   font-size: 1em;
+  background-color: #ffffff;
 }
 
 .error-message {
-  color: red;
+  color: rgb(17, 8, 8);
   text-align: center;
   margin-bottom: 15px;
 }
@@ -57,16 +60,16 @@ header, footer {
 .submit-button {
   width: 100%;
   padding: 12px;
-  background-color: #007bff;
+  background-color: #000;
   color: white;
   border: none;
-  border-radius: 4px;
+  border-radius: 8px;
   cursor: pointer;
   transition: background-color 0.3s;
 }
 
 .submit-button:hover {
-  background-color: #0056b3;
+  background-color: #4e4b4b;
 }
 
 .submit-button:disabled {

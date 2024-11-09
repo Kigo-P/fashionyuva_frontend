@@ -8,7 +8,7 @@ const AddUser = () => {
   const [user, setUser] = useState({
     name: '',
     email: '',
-    phoneNumber: '',
+    password: '',
     role: ''
   });
   const [error, setError] = useState('');
@@ -23,7 +23,7 @@ const AddUser = () => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    if (!user.name || !user.email || !user.phoneNumber || !user.role) {
+    if (!user.name || !user.email || !user.password || !user.role) {
       setError("Please fill out all fields.");
       return;
     }  
@@ -31,7 +31,7 @@ const AddUser = () => {
     console.log("User Data Submitted:", user);
     
     
-    setUser({ name: '', email: '', phoneNumber: '', role: '' });
+    setUser({ name: '', email: '', password: '', role: '' });
     setError('');
     setSuccess(true);
     
@@ -88,7 +88,7 @@ const AddUser = () => {
           <label>
             Password:
             <input
-              type="tel"
+              type="password"
               name="password"
               value={user.phoneNumber}
               onChange={handleChange}
