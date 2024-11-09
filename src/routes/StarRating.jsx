@@ -9,7 +9,7 @@ const StarRating = ({ rating, onRatingChange, isInteractive = false, size = 20 }
           key={star}
           onClick={() => isInteractive && onRatingChange?.(star)}
           className={`${isInteractive ? 'cursor-pointer hover:scale-110' : 'cursor-default'} 
-                     transition-transform duration-200`}
+                    transition-transform duration-200`}
           disabled={!isInteractive}
         >
           <Star

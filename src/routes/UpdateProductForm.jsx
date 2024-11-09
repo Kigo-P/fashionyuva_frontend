@@ -27,9 +27,9 @@ function UpdateProductForm() {
   return (
     <div className="w-full max-w-2xl mx-auto shadow-lg hover:shadow-xl transition-shadow duration-300 pt-8 p-8 rounded-lg bg-white mt-12">
       <h2 className="text-2xl font-bold text-center mb-6">Update Product</h2>
-      <form onSubmit={handleSubmit} className="space-y-8"> {/* Increased space between form elements */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8"> {/* Increased gap */}
-          <div className="space-y-3"> {/* Increased space between label and input */}
+      <form onSubmit={handleSubmit} className="space-y-8"> 
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8"> 
+          <div className="space-y-3"> 
             <label htmlFor="title" className="block font-xl  text-black">Title</label>
             <input
               type="text"
@@ -37,7 +37,7 @@ function UpdateProductForm() {
               placeholder="Product title"
               value={formData.title}
               onChange={(e) => handleChange('title', e.target.value)}
-              className="w-full border-gray-300 rounded-lg py-3 px-4 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+              className="w-full border-gray-300 rounded-lg py-3 px-4 "
             />
           </div>
 
@@ -49,7 +49,7 @@ function UpdateProductForm() {
               placeholder="0.00"
               value={formData.price}
               onChange={(e) => handleChange('price', Number(e.target.value))}
-              className="w-full border-gray-300 rounded-lg py-3 px-4 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+              className="w-full border-gray-300 rounded-lg py-3 px-4 "
             />
           </div>
 
@@ -58,7 +58,7 @@ function UpdateProductForm() {
             <select
               id="size"
               onChange={(e) => handleChange('size', e.target.value)}
-              className="w-full border-gray-300 rounded-lg py-3 px-4 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+              className="w-full border-gray-300 rounded-lg py-3 px-4 "
             >
               <option value="" disabled>Select size</option>
               <option value="small">Small</option>
@@ -75,7 +75,7 @@ function UpdateProductForm() {
               placeholder="Product color"
               value={formData.color}
               onChange={(e) => handleChange('color', e.target.value)}
-              className="w-full border-gray-300 rounded-lg py-3 px-4 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+              className="w-full border-gray-300 rounded-lg py-3 px-4 "
             />
           </div>
 
@@ -87,7 +87,7 @@ function UpdateProductForm() {
               placeholder="Product material"
               value={formData.material}
               onChange={(e) => handleChange('material', e.target.value)}
-              className="w-full border-gray-300 rounded-lg py-3 px-4 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+              className="w-full border-gray-300 rounded-lg py-3 px-4 "
             />
           </div>
 
@@ -99,7 +99,7 @@ function UpdateProductForm() {
               placeholder="Available quantity"
               value={formData.quantity}
               onChange={(e) => handleChange('quantity', e.target.value)}
-              className="w-full border-gray-300 rounded-lg py-3 px-4 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+              className="w-full border-gray-300 rounded-lg py-3 px-4 "
             />
           </div>
 
@@ -108,7 +108,7 @@ function UpdateProductForm() {
             <select
               id="category"
               onChange={(e) => handleChange('category', e.target.value)}
-              className="w-full border-gray-300 rounded-lg py-3 px-4 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+              className="w-full border-gray-300 rounded-lg py-3 px-4 "
             >
               <option value="" disabled>Select category</option>
               <option value="men">Men</option>
@@ -122,14 +122,13 @@ function UpdateProductForm() {
             <textarea
               id="description"
               placeholder="Product description"
-              className="w-full border-gray-300 rounded-lg py-3 px-4 min-h-[120px] focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+              className="w-full border-gray-300 rounded-lg py-3 px-4 min-h-[120px] "
               value={formData.description}
               onChange={(e) => handleChange('description', e.target.value)}
             />
           </div>
         </div>
 
-        {/* Center the button in the middle with more spacing */}
         <div className="flex justify-center pt-8">
           <button 
             type="submit" 
