@@ -44,18 +44,31 @@ const AddUser = () => {
   ];
 
   return (
+<>
+<Header/>
     <div className="add-user-page">
-      <Header />
+      
       <div className="add-user-container">
         <h2 className="add-user-title">Add New User</h2>
         {error && <p className="error-message">{error}</p>}
         <form onSubmit={handleSubmit} className="add-user-form">
           <label>
-            Name:
+            First Name:
             <input
               type="text"
               name="name"
-              value={user.name}
+              value={user.first_name}
+              onChange={handleChange}
+              required
+              className="input-field"
+            />
+          </label>
+          <label>
+            Last Name:
+            <input
+              type="text"
+              name="name"
+              value={user.last_name}
               onChange={handleChange}
               required
               className="input-field"
@@ -73,10 +86,10 @@ const AddUser = () => {
             />
           </label>
           <label>
-            Phone Number:
+            Password:
             <input
               type="tel"
-              name="phoneNumber"
+              name="password"
               value={user.phoneNumber}
               onChange={handleChange}
               required
@@ -102,8 +115,10 @@ const AddUser = () => {
           <button type="submit" className="submit-button">Add User</button>
         </form>
       </div>
-      <Footer />
     </div>
+    <Footer />
+
+    </>
   );
 };
 
