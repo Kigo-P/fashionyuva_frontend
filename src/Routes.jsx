@@ -14,11 +14,10 @@ import NewProductForm from './routes/NewProductForm'
 import Product from './routes/Product'
 import Login from './routes/Login'
 import ContactUs from './routes/ContactUs.jsx'
-import AdminDashboard from './routes/AdminDashboard.jsx'
 import UpdateProductForm from './routes/UpdateProductForm.jsx'
 import Cart from './routes/Cart.jsx'
 import Checkout from './routes/Checkout.jsx'
-
+import Dashboard from './routes/admin/Dashboard.jsx'
 
 const router = createBrowserRouter(
   createRoutesFromElements(
@@ -29,10 +28,10 @@ const router = createBrowserRouter(
         element={<Login />}
         errorElement={<ErrorBoundary />}
       />
-     
+
       <Route
         path="/dashboard"
-        element={<AdminDashboard />}
+        element={<Dashboard />}
         errorElement={<ErrorBoundary />}
       />
       <Route
