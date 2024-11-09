@@ -1,3 +1,4 @@
+import { useState, useEffect } from 'react'
 import Footer from '../components/Footer'
 import Header from '../components/Header'
 import { Star } from 'lucide-react'
@@ -5,40 +6,20 @@ import Landing from '../components/Landing'
 import ProductSection from '../components/ProdSpotlight'
 
 const Home = () => {
-  const products = [
-    {
-      name: 'Elegant Watch',
-      price: 1299,
-    },
-    {
-      name: 'Designer Handbag',
-      price: 2499,
-    },
-    {
-      name: 'Luxury Perfume',
-      price: 199,
-    },
-    {
-      name: 'Diamond Necklace',
-      price: 5999,
-    },
-    {
-      name: 'Silk Scarf',
-      price: 399,
-    },
-    {
-      name: 'Leather Wallet',
-      price: 599,
-    },
-    {
-      name: 'Gold Bracelet',
-      price: 1799,
-    },
-    {
-      name: 'Crystal Glasses Set',
-      price: 899,
-    },
-  ]
+  const [products, setProducts] = useState([])
+  const fetchProducts = async () => {
+    const res = await fetch('http://127.0.0.1:5555/products')
+    const data = await res.json()
+    if (res.ok) {
+      setProducts(data)
+    } else {
+      console.log(data.message)
+    }
+  }
+
+  useEffect(() => {
+    fetchProducts()
+  }, [])
   return (
     <div>
       <Header />
