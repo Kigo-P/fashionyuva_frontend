@@ -15,9 +15,11 @@ import Product from './routes/Product'
 import Login from './routes/Login'
 import ContactUs from './routes/ContactUs.jsx'
 import AdminDashboard from './routes/AdminDashboard.jsx'
+import AddUser from './routes/AddUser.jsx'
 import UpdateProductForm from './routes/UpdateProductForm.jsx'
 import Cart from './routes/Cart.jsx'
 import Checkout from './routes/Checkout.jsx'
+
 
 
 const router = createBrowserRouter(
@@ -64,6 +66,11 @@ const router = createBrowserRouter(
       <Route
         path="/product/:id"
         element={<Product />}
+        errorElement={<ErrorBoundary />}
+      />
+       <Route
+        path="/adduser"
+        element={<AddUser/>}
         errorElement={<ErrorBoundary />}
       />
       <Route
