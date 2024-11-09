@@ -1,6 +1,10 @@
-    import React, { useState } from 'react';
+import React, { useState } from 'react';
 import { Eye, EyeOff } from 'lucide-react';
 import {useNavigate} from 'react-router-dom'
+import Header from '../components/Header';
+import Footer from '../components/Footer';
+import { doSignInWithEmailAndPassword, doSignInWithGoogle } from '../firebase/auth';
+import { useAuth} from '../contexts/authContext'
 
  
 
@@ -11,8 +15,36 @@ const Login= () => {
   const navigate = useNavigate();
   const toggleForm = () => setIsLogin(!isLogin);
   const togglePasswordVisibility = () => setShowPassword(!showPassword);
+  const onSubmit = async (e) => {
+    e.preventDefault();
+    const { email, password } = e.target.elements;
+    if (isLogin) {
+      await doSignInWithEmailAndPassword(email.value, password.value);
+    } else {
+      await doSignInWithGoogle();
+    }
+  }
+  const onGoogleSignIn = (e) => {
+    e.preventDefault();
+    if(!IsSignIn) {
+      setIsSignIn(true)
+      doSignInWithGoogle().catch(err =>{
+        setIsSignIn(false)
+      })
+    }
+  }
 
   return (
+    <div>
+      {/* const Login = () => {
+  if (userLoggedIn) {
+    // some logic
+     {userLoggedIn && navigate('/')}
+  }
+};
+       */}
+      <Header />
+   
     <div className="min-h-screen bg-gray-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
       <div className="sm:mx-auto sm:w-full sm:max-w-md">
         <h2 className="text-center text-3xl font-bold tracking-tight text-gray-900">
@@ -117,6 +149,8 @@ const Login= () => {
           </div>
         </div>
       </div>
+    </div>
+    <Footer />
     </div>
   );
 };
