@@ -13,7 +13,6 @@ import Listing from './routes/Listing'
 import NewProductForm from './routes/NewProductForm'
 import Product from './routes/Product'
 import Login from './routes/Login'
-import Register from './routes/Register'
 import ContactUs from './routes/ContactUs.jsx'
 import AdminDashboard from './routes/AdminDashboard.jsx'
 import UpdateProductForm from './routes/UpdateProductForm.jsx'
@@ -30,11 +29,7 @@ const router = createBrowserRouter(
         element={<Login />}
         errorElement={<ErrorBoundary />}
       />
-      <Route
-        path="/register"
-        element={<Register />}
-        errorElement={<ErrorBoundary />}
-      />
+     
       <Route
         path="/dashboard"
         element={<AdminDashboard />}
