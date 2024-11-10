@@ -8,7 +8,7 @@ import ProductSection from '../components/ProdSpotlight'
 const Home = () => {
   const [products, setProducts] = useState([])
   const fetchProducts = async () => {
-    const res = await fetch('http://127.0.0.1:5555/products')
+    const res = await fetch(`${import.meta.env.VITE_BACKEND_URL}/products`)
     const data = await res.json()
     if (res.ok) {
       setProducts(data)
