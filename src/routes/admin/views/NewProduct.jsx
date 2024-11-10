@@ -2,7 +2,8 @@ import React, { useState, useEffect } from 'react'
 import { Upload, X } from 'lucide-react'
 import { Formik, Field, Form, ErrorMessage } from 'formik'
 import * as Yup from 'yup'
-import ImageUpload from '../utils/ImageUpload'
+import ImageUpload from '../../../utils/ImageUpload'
+
 
 const NewProduct = () => {
   const [images, setImages] = useState([])
