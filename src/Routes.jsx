@@ -10,11 +10,9 @@ import NotFound from './routes/NotFound'
 import Home from './routes/Home'
 import AboutUs from './routes/AboutUs.jsx'
 import Listing from './routes/Listing'
-import NewProductForm from './routes/NewProductForm'
 import Product from './routes/Product'
 import Login from './routes/Login'
 import ContactUs from './routes/ContactUs.jsx'
-import AdminDashboard from './routes/AdminDashboard.jsx'
 import AddUser from './routes/AddUser.jsx'
 import UpdateProductForm from './routes/UpdateProductForm.jsx'
 import Cart from './routes/Cart.jsx'
@@ -56,11 +54,6 @@ const router = createBrowserRouter(
       <Route
         path="/checkout"
         element={<Checkout />}
-        errorElement={<ErrorBoundary />}
-      />
-      <Route
-        path="/new-product-form"
-        element={<NewProductForm />}
         errorElement={<ErrorBoundary />}
       />
       <Route
