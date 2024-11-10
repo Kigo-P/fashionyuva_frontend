@@ -1,18 +1,19 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { ChevronLeft, ChevronRight, Filter, X } from 'lucide-react'
 import Header from '../components/Header'
 import Footer from '../components/Footer'
 import ProductCard from '../components/ProductCard'
 
-const products = Array.from({ length: 20 }, (_, i) => ({
-  id: i + 1,
-  name: `Luxury Item ${i + 1}`,
-  price: Math.floor(Math.random() * (2000 - 100 + 1) + 100),
-  category: ['Dresses', 'Suits', 'Accessories'][Math.floor(Math.random() * 3)],
-  image: `https://picsum.photos/400/300?id=${i + 1}`,
-}))
+// const products = Array.from({ length: 20 }, (_, i) => ({
+//   id: i + 1,
+//   name: `Luxury Item ${i + 1}`,
+//   price: Math.floor(Math.random() * (2000 - 100 + 1) + 100),
+//   category: ['Dresses', 'Suits', 'Accessories'][Math.floor(Math.random() * 3)],
+//   image: `https://picsum.photos/400/300?id=${i + 1}`,
+// }))
 
 const Listing = () => {
+  const [products, setProducts] = useState([])
   const [currentPage, setCurrentPage] = useState(1)
   const [filters, setFilters] = useState({
     category: '',
@@ -22,13 +23,27 @@ const Listing = () => {
   const [showFilters, setShowFilters] = useState(false)
   const productsPerPage = 12
 
+  const fetchProducts = async () => {
+    const res = await fetch('http://127.0.0.1:5555/products')
+    const data = await res.json()
+    if (res.ok) {
+      setProducts(data)
+    } else {
+      console.log(data.message)
+    }
+  }
+
+  useEffect(() => {
+    fetchProducts()
+  }, [])
+
   const filteredProducts = products.filter(
     (product) =>
       (filters.category === '' || product.category === filters.category) &&
       product.price >= filters.priceRange[0] &&
       product.price <= filters.priceRange[1] &&
       (filters.search === '' ||
-        product.name.toLowerCase().includes(filters.search.toLowerCase()))
+        product.title.toLowerCase().includes(filters.search.toLowerCase()))
   )
 
   const totalPages = Math.ceil(filteredProducts.length / productsPerPage)

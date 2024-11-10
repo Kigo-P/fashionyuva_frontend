@@ -19,7 +19,7 @@ import AddUser from './routes/AddUser.jsx'
 import UpdateProductForm from './routes/UpdateProductForm.jsx'
 import Cart from './routes/Cart.jsx'
 import Checkout from './routes/Checkout.jsx'
-
+import Dashboard from './routes/admin/Dashboard.jsx'
 
 
 const router = createBrowserRouter(
@@ -31,10 +31,10 @@ const router = createBrowserRouter(
         element={<Login />}
         errorElement={<ErrorBoundary />}
       />
-     
+
       <Route
         path="/dashboard"
-        element={<AdminDashboard />}
+        element={<Dashboard />}
         errorElement={<ErrorBoundary />}
       />
       <Route
