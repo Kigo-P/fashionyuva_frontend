@@ -1,13 +1,5 @@
 import React, { useState } from 'react'
-import {
-  Pencil,
-  Trash2,
-  Plus,
-  X,
-  Check,
-  ChevronUp,
-  ChevronDown,
-} from 'lucide-react'
+import { Pencil, Trash2, ChevronUp, ChevronDown, X } from 'lucide-react'
 
 const Users = () => {
   const [users, setUsers] = useState([
@@ -41,17 +33,13 @@ const Users = () => {
     },
   ])
 
-  const [isModalOpen, setIsModalOpen] = useState(false)
-  const [editingUser, setEditingUser] = useState(null)
-  const [newUser, setNewUser] = useState({
-    name: '',
-    email: '',
-    role: 'Viewer',
-  })
   const [sortConfig, setSortConfig] = useState({
     key: null,
     direction: 'ascending',
   })
+
+  const [isModalOpen, setIsModalOpen] = useState(false)
+  const [editingUser, setEditingUser] = useState(null)
 
   const handleSort = (key) => {
     let direction = 'ascending'
@@ -75,25 +63,16 @@ const Users = () => {
     return 0
   })
 
-  const handleAddUser = (e) => {
-    e.preventDefault()
-    if (newUser.name && newUser.email) {
-      setUsers([...users, { ...newUser, id: Date.now(), lastLogin: 'N/A' }])
-      setNewUser({ name: '', email: '', role: 'Viewer' })
-      setIsModalOpen(false)
-    }
-  }
-
   const handleEditUser = (user) => {
     setEditingUser(user)
-    setNewUser(user)
     setIsModalOpen(true)
   }
 
   const handleUpdateUser = (e) => {
     e.preventDefault()
-    setUsers(users.map((user) => (user.id === editingUser.id ? newUser : user)))
-    setNewUser({ name: '', email: '', role: 'Viewer' })
+    setUsers(
+      users.map((user) => (user.id === editingUser.id ? editingUser : user))
+    )
     setEditingUser(null)
     setIsModalOpen(false)
   }
@@ -106,17 +85,6 @@ const Users = () => {
     <div className="container mx-auto px-4 py-8 bg-white text-black">
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-3xl font-bold">Users</h1>
-        <button
-          onClick={() => {
-            setNewUser({ name: '', email: '', role: 'Viewer' })
-            setEditingUser(null)
-            setIsModalOpen(true)
-          }}
-          className="px-4 py-2 bg-black text-white rounded-md hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-gray-500"
-        >
-          <Plus className="w-5 h-5 inline-block mr-2" />
-          Add User
-        </button>
       </div>
 
       <div className="overflow-x-auto">
@@ -221,13 +189,11 @@ const Users = () => {
         </table>
       </div>
 
-      {isModalOpen && (
+      {isModalOpen && editingUser && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4">
           <div className="bg-white rounded-lg p-6 w-full max-w-md">
             <div className="flex justify-between items-center mb-4">
-              <h2 className="text-2xl font-bold">
-                {editingUser ? 'Edit User' : 'Add New User'}
-              </h2>
+              <h2 className="text-2xl font-bold">Edit User</h2>
               <button
                 onClick={() => setIsModalOpen(false)}
                 className="text-gray-500 hover:text-gray-700 focus:outline-none"
@@ -236,7 +202,7 @@ const Users = () => {
                 <X className="w-6 h-6" />
               </button>
             </div>
-            <form onSubmit={editingUser ? handleUpdateUser : handleAddUser}>
+            <form onSubmit={handleUpdateUser}>
               <div className="mb-4">
                 <label
                   htmlFor="userName"
@@ -247,9 +213,9 @@ const Users = () => {
                 <input
                   type="text"
                   id="userName"
-                  value={newUser.name}
+                  value={editingUser.name}
                   onChange={(e) =>
-                    setNewUser({ ...newUser, name: e.target.value })
+                    setEditingUser({ ...editingUser, name: e.target.value })
                   }
                   className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-black"
                   required
@@ -265,9 +231,9 @@ const Users = () => {
                 <input
                   type="email"
                   id="userEmail"
-                  value={newUser.email}
+                  value={editingUser.email}
                   onChange={(e) =>
-                    setNewUser({ ...newUser, email: e.target.value })
+                    setEditingUser({ ...editingUser, email: e.target.value })
                   }
                   className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-black"
                   required
@@ -282,25 +248,24 @@ const Users = () => {
                 </label>
                 <select
                   id="userRole"
-                  value={newUser.role}
+                  value={editingUser.role}
                   onChange={(e) =>
-                    setNewUser({ ...newUser, role: e.target.value })
+                    setEditingUser({ ...editingUser, role: e.target.value })
                   }
                   className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-black"
+                  required
                 >
-                  <option value="Viewer">Viewer</option>
-                  <option value="Editor">Editor</option>
                   <option value="Admin">Admin</option>
+                  <option value="Editor">Editor</option>
+                  <option value="Viewer">Viewer</option>
                 </select>
               </div>
-              <div className="flex justify-end">
-                <button
-                  type="submit"
-                  className="px-4 py-2 bg-black text-white rounded-md hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-gray-500"
-                >
-                  {editingUser ? 'Update User' : 'Add User'}
-                </button>
-              </div>
+              <button
+                type="submit"
+                className="w-full bg-blue-500 hover:bg-blue-600 text-white py-2 rounded-md focus:outline-none focus:ring-2 focus:ring-black"
+              >
+                Save Changes
+              </button>
             </form>
           </div>
         </div>
