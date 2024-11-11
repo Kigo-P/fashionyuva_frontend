@@ -1,13 +1,13 @@
-import React from "react";
-import { Building2, Users, Trophy, ShoppingBag } from "lucide-react";
-import Header from "../components/Header";
-import Footer from "../components/Footer";
+import React from 'react'
+import { Building2, Users, Trophy, ShoppingBag } from 'lucide-react'
+import Header from '../components/Header'
+import Footer from '../components/Footer'
 
 const AboutUs = () => {
   return (
     <>
       <Header />
-      <div className="relative min-h-screen w-full">
+      <div className="relative min-h-screen w-full mt-24">
         <div
           className="fixed inset-0 bg-cover bg-center bg-no-repeat -z-10"
           style={{
@@ -119,7 +119,7 @@ const AboutUs = () => {
       </div>
       <Footer />
     </>
-  );
-};
+  )
+}
 
-export default AboutUs;
+export default AboutUs

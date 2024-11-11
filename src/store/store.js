@@ -1,6 +1,7 @@
 import { configureStore } from '@reduxjs/toolkit'
 import identityReducer from './slices/identitySlice'
 import adminTabReducer from './slices/admintabSlice'
+import cartSlice from './slices/cartSlice'
 import { persistReducer, persistStore } from 'redux-persist'
 import { combineReducers } from 'redux'
 import storage from './useWebStorage'
@@ -13,6 +14,7 @@ const persistConfig = {
 const allReducers = combineReducers({
   identity: identityReducer,
   admintab: adminTabReducer,
+  cart: cartSlice,
 })
 
 const persistedReducer = persistReducer(persistConfig, allReducers)
