@@ -18,6 +18,7 @@ import UpdateProductForm from './routes/UpdateProductForm.jsx'
 import Cart from './routes/Cart.jsx'
 import Checkout from './routes/Checkout.jsx'
 import Dashboard from './routes/admin/Dashboard.jsx'
+import Invoice from './routes/Invoice.jsx'
 
 
 const router = createBrowserRouter(
@@ -69,6 +70,11 @@ const router = createBrowserRouter(
       <Route
         path="/update-product"
         element={<UpdateProductForm />}
+        errorElement={<ErrorBoundary />}
+      />
+      <Route
+        path="/invoice"
+        element={<Invoice />}
         errorElement={<ErrorBoundary />}
       />
       <Route path="*" element={<NotFound />} errorElement={<ErrorBoundary />} />
