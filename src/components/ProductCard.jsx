@@ -2,14 +2,18 @@ import React from 'react'
 import { Link } from 'react-router-dom'
 import { ShoppingCart, Star } from 'lucide-react'
 
-const ProductCard = ({ product, i }) => {
+const ProductCard = ({ product, i, tab = 'home' }) => {
   return (
     <Link to={`/product/${product.id}`}>
-      <div className="max-w-sm rounded-lg overflow-hidden shadow-lg bg-white border border-white">
+      <div
+        className={`max-w-sm ${
+          tab === 'home' ? 'w-[350px]' : ''
+        } rounded-lg overflow-hidden shadow-lg bg-white border border-white`}
+      >
         <img
           className="w-full h-48 object-cover"
-          // src={`https://picsum.photos/400/300?id=${i + 1}`}
-          src={product.images.url}
+          src={`https://picsum.photos/400/300?id=${i + 1}`}
+          // src={product.images.url}
           alt="Product Image"
         />
         <div className="px-6 py-4">
@@ -22,8 +26,8 @@ const ProductCard = ({ product, i }) => {
             </span>
           </div>
           <p className="text-gray-700 text-base mb-4">{product.description}</p>
-          <div className="flex justify-between items-center mb-4">
-            <span className="text-2xl font-bold text-primary">
+          <div className="flex justify-between gap-4 items-center mb-4">
+            <span className="text-2xl font-bold text-primary whitespace-nowrap">
               Ksh {product.price.toLocaleString()}
             </span>
             <div className="flex items-center">
@@ -39,7 +43,7 @@ const ProductCard = ({ product, i }) => {
                     />
                   ))
                 : null}
-              <span className="text-sm text-gray-600 ml-2">
+              <span className="text-sm text-gray-600 ml-2 whitespace-nowrap">
                 ({product.reviews.length} reviews)
               </span>
             </div>
