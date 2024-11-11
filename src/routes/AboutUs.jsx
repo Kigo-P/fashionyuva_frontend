@@ -11,7 +11,7 @@ const AboutUs = () => {
         <div
           className="fixed inset-0 bg-cover bg-center bg-no-repeat -z-10"
           style={{
-            backgroundImage: `url('/src/assets/back.jpg')`,
+            backgroundImage: `url('./back.jpg')`,
           }}
         >
           <div className="absolute inset-0 bg-white/20"></div>
@@ -108,7 +108,7 @@ const AboutUs = () => {
               </div>
               <div className="bg-white/80 backdrop-blur-sm p-3 md:p-4 rounded-xl shadow-sm">
                 <img
-                  src="/src/assets/girl.jpg"
+                  src="./girl.jpg"
                   alt="Fashionyuva store"
                   className="rounded-lg w-full h-auto"
                 />
