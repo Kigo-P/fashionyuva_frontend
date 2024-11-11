@@ -1,5 +1,7 @@
 import React from "react";
 import { Store } from "lucide-react";
+import Header from "../components/Header";
+import Footer from "../components/Footer";
 
 const Invoice = () => {
   const invoiceData = {
@@ -24,6 +26,8 @@ const Invoice = () => {
   };
 
   return (
+    <>
+    <Header/>
     <div className="min-h-screen bg-gray-50 py-8 relative">
       <div
         className="absolute inset-0 bg-cover bg-center opacity-70"
@@ -132,6 +136,8 @@ const Invoice = () => {
         </div>
       </div>
     </div>
+    <Footer/>
+    </>
   );
 };
 
