@@ -1,6 +1,8 @@
 import { useEffect } from 'react'
 import Routes from './Routes'
+import { ToastContainer } from 'react-toastify'
 import './index.css'
+import 'react-toastify/dist/ReactToastify.css'
 
 const App = () => {
   useEffect(() => {
@@ -21,6 +23,7 @@ const App = () => {
 
   return (
     <>
+      <ToastContainer />
       <Routes />
     </>
   )

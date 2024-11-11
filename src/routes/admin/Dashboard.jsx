@@ -12,7 +12,7 @@ const Dashboard = () => {
           <div
             className={`${
               minified ? 'w-[7%]' : 'w-[20%]'
-            } border-r border-slate-500 transition-all`}
+            } border-r border-slate-500 transition-all bg-gradient-to-b from-indigo-500 to-indigo-500`}
           >
             <Sidebar minified={minified} />
           </div>

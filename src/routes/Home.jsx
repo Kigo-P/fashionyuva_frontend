@@ -7,7 +7,9 @@ import ProductSection from '../components/ProdSpotlight'
 
 const Home = () => {
   const [products, setProducts] = useState([])
+  const [isLoading, setIsLoading] = useState(false)
   const fetchProducts = async () => {
+    setIsLoading(true)
     const res = await fetch(`${import.meta.env.VITE_BACKEND_URL}/products`)
     const data = await res.json()
     if (res.ok) {
@@ -15,6 +17,7 @@ const Home = () => {
     } else {
       console.log(data.message)
     }
+    setIsLoading(false)
   }
 
   useEffect(() => {
@@ -24,8 +27,16 @@ const Home = () => {
     <div>
       <Header />
       <Landing />
-      <ProductSection title="New Arrivals" products={products.slice(0, 6)} />
-      <ProductSection title="Best Sellers" products={products.slice(2)} />
+      <ProductSection
+        title="New Arrivals"
+        products={products.slice(0, 6)}
+        isLoading={isLoading}
+      />
+      <ProductSection
+        title="Best Sellers"
+        products={products.slice(2)}
+        isLoading={isLoading}
+      />
       <section className="py-20 px-4 md:px-8 bg-gray-100">
         <h2 className="text-3xl md:text-4xl font-bold text-center mb-12">
           What Our Customers Say
