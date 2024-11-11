@@ -27,7 +27,7 @@ const ProductSection = ({ title, products }) => {
             {products
               .slice(currentIndex, currentIndex + 4)
               .map((product, i) => (
-                <ProductCard key={i} product={product} i={i} />
+                <ProductCard key={i} product={product} i={i} tab="home" />
               ))}
           </div>
           <button
