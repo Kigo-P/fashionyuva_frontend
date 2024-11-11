@@ -4,14 +4,6 @@ import Header from '../components/Header'
 import Footer from '../components/Footer'
 import ProductCard from '../components/ProductCard'
 
-// const products = Array.from({ length: 20 }, (_, i) => ({
-//   id: i + 1,
-//   name: `Luxury Item ${i + 1}`,
-//   price: Math.floor(Math.random() * (2000 - 100 + 1) + 100),
-//   category: ['Dresses', 'Suits', 'Accessories'][Math.floor(Math.random() * 3)],
-//   image: `https://picsum.photos/400/300?id=${i + 1}`,
-// }))
-
 const Listing = () => {
   const [products, setProducts] = useState([])
   const [currentPage, setCurrentPage] = useState(1)
@@ -24,7 +16,7 @@ const Listing = () => {
   const productsPerPage = 12
 
   const fetchProducts = async () => {
-    const res = await fetch('http://127.0.0.1:5555/products')
+    const res = await fetch(`${import.meta.env.VITE_BACKEND_URL}/products`)
     const data = await res.json()
     if (res.ok) {
       setProducts(data)
