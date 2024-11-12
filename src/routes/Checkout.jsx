@@ -1,8 +1,10 @@
-import React, { useState } from 'react'
+
+import React, { useState, useEffect } from 'react'
 import { CreditCard, ShoppingBag, ChevronLeft } from 'lucide-react'
 import Header from '../components/Header'
 import Footer from '../components/Footer'
 import { Link } from 'react-router-dom'
+import Mpesa from '/src/routes/Mpesa.jsx'
 
 const Checkout = () => {
   const [formData, setFormData] = useState({
@@ -31,6 +33,13 @@ const Checkout = () => {
     e.preventDefault()
     console.log('Form submitted:', formData)
   }
+  // const PurchaseButton = () => {
+  // const navigate = useNavigate();
+
+  // const handleClick = () => {
+  //   // Navigate to the Mpesa component
+  //   navigate('/mpesa');
+  // };
 
   const cartItems = [
     { id: 1, name: 'iMac 27"', price: 1499, quantity: 2 },
@@ -198,8 +207,11 @@ const Checkout = () => {
                     </div>
                   </div>
                 </div>
+              
 
                 <div>
+               
+                   
                   <h2 className="text-xl font-medium mb-4">
                     Payment Information
                   </h2>
@@ -221,10 +233,11 @@ const Checkout = () => {
                         required
                       />
                     </div>
-                  </div>
+                  </div> 
                 </div>
 
                 <div>
+                  
                   <button
                     type="submit"
                     className="flex w-full items-center justify-center rounded-lg bg-black px-5 py-2.5 text-sm font-medium text-white hover:bg-gray-700 focus:outline-none focus:ring-4 focus:ring-gray-300"
