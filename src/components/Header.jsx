@@ -6,6 +6,7 @@ import { useAppSelector } from '../store/hooks'
 const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
   const [profDrop, setProfDrop] = useState(false)
+  const cart = useAppSelector((state) => state.cart).cart
   const toggleMenu = () => setIsMenuOpen(!isMenuOpen)
   const profDropRef = useRef(null)
 
@@ -32,7 +33,7 @@ const Header = () => {
   ]
 
   return (
-    <header className="bg-[#242424] shadow-md">
+    <header className="bg-[#242424] shadow-md !p-[unset] !border-none fixed top-0 z-50">
       <div className="container mx-auto px-4 py-4 flex items-center justify-between">
         <Link to="/" className="text-2xl font-bold text-white">
           FASHIONYUVA
@@ -114,9 +115,16 @@ const Header = () => {
           )}
           <Link
             to="/cart"
-            className="text-white hover:text-white transition-colors"
+            className="text-white hover:text-white transition-colors relative"
           >
             <ShoppingBag className="h-6 w-6" />
+            {Array.isArray(cart) ? (
+              <div className="absolute top-0 right-0 -mr-2 -mt-2 bg-red-600 h-4 w-4  rounded-full flex items-center justify-center gap-2">
+                <span className="font-semibold text-white text-[11px]">
+                  {cart.length}
+                </span>
+              </div>
+            ) : null}
           </Link>
         </div>
 
@@ -154,9 +162,16 @@ const Header = () => {
             </Link>
             <Link
               to="/cart"
-              className="text-white hover:text-white transition-colors"
+              className="text-white hover:text-white transition-colors relative"
             >
               <ShoppingBag className="h-6 w-6 text-white" />
+              {Array.isArray(cart) ? (
+                <div className="absolute top-0 right-0 -mr-2 -mt-2 bg-red-600 h-4 w-4  rounded-full flex items-center justify-center gap-2">
+                  <span className="font-semibold text-white text-[11px]">
+                    {cart.length}
+                  </span>
+                </div>
+              ) : null}
             </Link>
           </div>
         </nav>

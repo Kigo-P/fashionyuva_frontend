@@ -1,3 +1,4 @@
+import { useState, useEffect } from 'react'
 import Footer from '../components/Footer'
 import Header from '../components/Header'
 import { Star } from 'lucide-react'
@@ -5,46 +6,37 @@ import Landing from '../components/Landing'
 import ProductSection from '../components/ProdSpotlight'
 
 const Home = () => {
-  const products = [
-    {
-      name: 'Elegant Watch',
-      price: 1299,
-    },
-    {
-      name: 'Designer Handbag',
-      price: 2499,
-    },
-    {
-      name: 'Luxury Perfume',
-      price: 199,
-    },
-    {
-      name: 'Diamond Necklace',
-      price: 5999,
-    },
-    {
-      name: 'Silk Scarf',
-      price: 399,
-    },
-    {
-      name: 'Leather Wallet',
-      price: 599,
-    },
-    {
-      name: 'Gold Bracelet',
-      price: 1799,
-    },
-    {
-      name: 'Crystal Glasses Set',
-      price: 899,
-    },
-  ]
+  const [products, setProducts] = useState([])
+  const [isLoading, setIsLoading] = useState(false)
+  const fetchProducts = async () => {
+    setIsLoading(true)
+    const res = await fetch(`${import.meta.env.VITE_BACKEND_URL}/products`)
+    const data = await res.json()
+    if (res.ok) {
+      setProducts(data)
+    } else {
+      console.log(data.message)
+    }
+    setIsLoading(false)
+  }
+
+  useEffect(() => {
+    fetchProducts()
+  }, [])
   return (
     <div>
       <Header />
       <Landing />
-      <ProductSection title="New Arrivals" products={products.slice(0, 6)} />
-      <ProductSection title="Best Sellers" products={products.slice(2)} />
+      <ProductSection
+        title="New Arrivals"
+        products={products.slice(0, 6)}
+        isLoading={isLoading}
+      />
+      <ProductSection
+        title="Best Sellers"
+        products={products.slice(2)}
+        isLoading={isLoading}
+      />
       <section className="py-20 px-4 md:px-8 bg-gray-100">
         <h2 className="text-3xl md:text-4xl font-bold text-center mb-12">
           What Our Customers Say

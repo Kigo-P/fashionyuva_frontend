@@ -1,8 +1,10 @@
-import React, { useState } from 'react'
+
+import React, { useState, useEffect } from 'react'
 import { CreditCard, ShoppingBag, ChevronLeft } from 'lucide-react'
 import Header from '../components/Header'
 import Footer from '../components/Footer'
 import { Link } from 'react-router-dom'
+import Mpesa from '/src/routes/Mpesa.jsx'
 
 const Checkout = () => {
   const [formData, setFormData] = useState({
@@ -14,7 +16,7 @@ const Checkout = () => {
     country: '',
     postalCode: '',
     cardName: '',
-    cardNumber: '',
+    phoneNumber: '',
     expirationDate: '',
     cvv: '',
   })
@@ -31,6 +33,13 @@ const Checkout = () => {
     e.preventDefault()
     console.log('Form submitted:', formData)
   }
+  // const PurchaseButton = () => {
+  // const navigate = useNavigate();
+
+  // const handleClick = () => {
+  //   // Navigate to the Mpesa component
+  //   navigate('/mpesa');
+  // };
 
   const cartItems = [
     { id: 1, name: 'iMac 27"', price: 1499, quantity: 2 },
@@ -58,7 +67,7 @@ const Checkout = () => {
       <div className="bg-white min-h-screen">
         <div className="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
           <div className="md:flex md:gap-8">
-            <div className="md:w-2/3">
+            <div className="md:w-2/3 border border-gray-200 bg-white p-4 shadow-md mt-20 rounded-lg">
               <h1 className="text-4xl font-semibold mb-6">Checkout</h1>
               <form onSubmit={handleSubmit} className="space-y-6">
                 <div>
@@ -198,85 +207,37 @@ const Checkout = () => {
                     </div>
                   </div>
                 </div>
+              
 
                 <div>
+               
+                   
                   <h2 className="text-xl font-medium mb-4">
                     Payment Information
                   </h2>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div className="md:col-span-2">
                       <label
-                        htmlFor="cardName"
+                        htmlFor="phoneNumber"
                         className="block text-sm font-medium text-gray-700"
                       >
-                        Name on Card
+                        Phone Number (MPesa STK)
                       </label>
                       <input
                         type="text"
-                        id="cardName"
-                        name="cardName"
-                        value={formData.cardName}
+                        id="phoneNumber"
+                        name="phoneNumber"
+                        value={formData.phoneNumber}
                         onChange={handleInputChange}
                         className="p-2 mt-1 outline-none block w-full rounded-md border border-gray-500 shadow-sm focus:border-blue-500 focus:ring-blue-500"
                         required
                       />
                     </div>
-                    <div className="md:col-span-2">
-                      <label
-                        htmlFor="cardNumber"
-                        className="block text-sm font-medium text-gray-700"
-                      >
-                        Card Number
-                      </label>
-                      <input
-                        type="text"
-                        id="cardNumber"
-                        name="cardNumber"
-                        value={formData.cardNumber}
-                        onChange={handleInputChange}
-                        className="p-2 mt-1 outline-none block w-full rounded-md border border-gray-500 shadow-sm focus:border-blue-500 focus:ring-blue-500"
-                        required
-                      />
-                    </div>
-                    <div>
-                      <label
-                        htmlFor="expirationDate"
-                        className="block text-sm font-medium text-gray-700"
-                      >
-                        Expiration Date
-                      </label>
-                      <input
-                        type="text"
-                        id="expirationDate"
-                        name="expirationDate"
-                        value={formData.expirationDate}
-                        onChange={handleInputChange}
-                        placeholder="MM/YY"
-                        className="p-2 mt-1 outline-none block w-full rounded-md border border-gray-500 shadow-sm focus:border-blue-500 focus:ring-blue-500"
-                        required
-                      />
-                    </div>
-                    <div>
-                      <label
-                        htmlFor="cvv"
-                        className="block text-sm font-medium text-gray-700"
-                      >
-                        CVV
-                      </label>
-                      <input
-                        type="text"
-                        id="cvv"
-                        name="cvv"
-                        value={formData.cvv}
-                        onChange={handleInputChange}
-                        className="p-2 mt-1 outline-none block w-full rounded-md border border-gray-500 shadow-sm focus:border-blue-500 focus:ring-blue-500"
-                        required
-                      />
-                    </div>
-                  </div>
+                  </div> 
                 </div>
 
                 <div>
+                  
                   <button
                     type="submit"
                     className="flex w-full items-center justify-center rounded-lg bg-black px-5 py-2.5 text-sm font-medium text-white hover:bg-gray-700 focus:outline-none focus:ring-4 focus:ring-gray-300"
@@ -289,7 +250,7 @@ const Checkout = () => {
             </div>
 
             <div className="md:w-1/3 mt-8 md:mt-0">
-              <div className="rounded-lg border border-gray-200 bg-white p-4 shadow-md sticky top-6">
+              <div className="rounded-lg border border-gray-200 bg-white p-4 shadow-md sticky top-24">
                 <h2 className="text-xl font-semibold mb-4">Order Summary</h2>
                 <div className="space-y-4">
                   {cartItems.map((item) => (

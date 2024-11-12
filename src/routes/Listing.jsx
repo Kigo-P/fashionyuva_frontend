@@ -1,18 +1,15 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { ChevronLeft, ChevronRight, Filter, X } from 'lucide-react'
 import Header from '../components/Header'
 import Footer from '../components/Footer'
 import ProductCard from '../components/ProductCard'
 
-const products = Array.from({ length: 20 }, (_, i) => ({
-  id: i + 1,
-  name: `Luxury Item ${i + 1}`,
-  price: Math.floor(Math.random() * (2000 - 100 + 1) + 100),
-  category: ['Dresses', 'Suits', 'Accessories'][Math.floor(Math.random() * 3)],
-  image: `https://picsum.photos/400/300?id=${i + 1}`,
-}))
+const SkeletonLoader = () => (
+  <div className="animate-pulse bg-gray-200 rounded-md h-64"></div>
+)
 
 const Listing = () => {
+  const [products, setProducts] = useState([])
   const [currentPage, setCurrentPage] = useState(1)
   const [filters, setFilters] = useState({
     category: '',
@@ -20,7 +17,29 @@ const Listing = () => {
     search: '',
   })
   const [showFilters, setShowFilters] = useState(false)
+  const [isLoading, setIsLoading] = useState(true)
   const productsPerPage = 12
+
+  const fetchProducts = async () => {
+    setIsLoading(true)
+    try {
+      const res = await fetch(`${import.meta.env.VITE_BACKEND_URL}/products`)
+      const data = await res.json()
+      if (res.ok) {
+        setProducts(data)
+      } else {
+        console.log(data.message)
+      }
+    } catch (error) {
+      console.error('Error fetching products:', error)
+    } finally {
+      setIsLoading(false)
+    }
+  }
+
+  useEffect(() => {
+    fetchProducts()
+  }, [])
 
   const filteredProducts = products.filter(
     (product) =>
@@ -28,7 +47,7 @@ const Listing = () => {
       product.price >= filters.priceRange[0] &&
       product.price <= filters.priceRange[1] &&
       (filters.search === '' ||
-        product.name.toLowerCase().includes(filters.search.toLowerCase()))
+        product.title.toLowerCase().includes(filters.search.toLowerCase()))
   )
 
   const totalPages = Math.ceil(filteredProducts.length / productsPerPage)
@@ -64,7 +83,7 @@ const Listing = () => {
 
         <button
           onClick={() => setShowFilters(!showFilters)}
-          className="md:hidden mb-4"
+          className="md:hidden mb-4 flex items-center"
         >
           {showFilters ? (
             <X className="mr-2 h-4 w-4" />
@@ -84,7 +103,7 @@ const Listing = () => {
               <h2 className="font-semibold mb-2">Search</h2>
               <input
                 type="text"
-                className="px-2 py-3 border border-black rounded-md w-full"
+                className="px-2 py-3 border border-gray-300 rounded-md w-full"
                 placeholder="Search products..."
                 value={filters.search}
                 onChange={(e) => handleFilterChange('search', e.target.value)}
@@ -96,7 +115,7 @@ const Listing = () => {
               <select
                 value={filters.category}
                 onChange={(e) => handleFilterChange('category', e.target.value)}
-                className="w-full border border-black p-2 rounded-md"
+                className="w-full border border-gray-300 p-2 rounded-md"
               >
                 <option value="">All Categories</option>
                 <option value="Dresses">Dresses</option>
@@ -124,7 +143,7 @@ const Listing = () => {
 
             <button
               onClick={clearFilters}
-              className="w-full mt-4 bg-black hover:bg-[#242424] transition-colors text-white rounded-md p-2"
+              className="w-full mt-4 bg-black hover:bg-gray-800 transition-colors text-white rounded-md p-2"
             >
               Clear Filters
             </button>
@@ -132,16 +151,26 @@ const Listing = () => {
 
           <div className="w-full md:w-3/4">
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-              {currentProducts.map((product, i) => (
-                <ProductCard key={i} product={product} i={i} />
-              ))}
+              {isLoading
+                ? Array.from({ length: productsPerPage }).map((_, index) => (
+                    <SkeletonLoader key={index} />
+                  ))
+                : currentProducts.map((product, i) => (
+                    <ProductCard
+                      key={i}
+                      product={product}
+                      i={i}
+                      tab="listing"
+                    />
+                  ))}
             </div>
 
-            {totalPages > 1 && (
+            {!isLoading && totalPages > 1 && (
               <div className="flex justify-center items-center space-x-2 mt-8">
                 <button
                   onClick={() => handlePageChange(currentPage - 1)}
                   disabled={currentPage === 1}
+                  className="p-2 rounded-md bg-gray-200 hover:bg-gray-300 transition-colors disabled:opacity-50"
                 >
                   <ChevronLeft className="h-4 w-4" />
                 </button>
@@ -150,11 +179,11 @@ const Listing = () => {
                     <button
                       key={page}
                       onClick={() => handlePageChange(page)}
-                      className={`${
+                      className={`p-2 rounded-md ${
                         page === currentPage
-                          ? 'font-bold text-blue-600'
-                          : 'text-gray-500'
-                      }`}
+                          ? 'bg-blue-600 text-white'
+                          : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+                      } transition-colors`}
                     >
                       {page}
                     </button>
@@ -163,6 +192,7 @@ const Listing = () => {
                 <button
                   onClick={() => handlePageChange(currentPage + 1)}
                   disabled={currentPage === totalPages}
+                  className="p-2 rounded-md bg-gray-200 hover:bg-gray-300 transition-colors disabled:opacity-50"
                 >
                   <ChevronRight className="h-4 w-4" />
                 </button>

@@ -10,14 +10,15 @@ import NotFound from './routes/NotFound'
 import Home from './routes/Home'
 import AboutUs from './routes/AboutUs.jsx'
 import Listing from './routes/Listing'
-import NewProductForm from './routes/NewProductForm'
 import Product from './routes/Product'
 import Login from './routes/Login'
 import ContactUs from './routes/ContactUs.jsx'
-import AdminDashboard from './routes/AdminDashboard.jsx'
+import AddUser from './routes/AddUser.jsx'
 import UpdateProductForm from './routes/UpdateProductForm.jsx'
 import Cart from './routes/Cart.jsx'
 import Checkout from './routes/Checkout.jsx'
+import Dashboard from './routes/admin/Dashboard.jsx'
+import Invoice from './routes/Invoice.jsx'
 
 
 const router = createBrowserRouter(
@@ -29,10 +30,10 @@ const router = createBrowserRouter(
         element={<Login />}
         errorElement={<ErrorBoundary />}
       />
-     
+
       <Route
         path="/dashboard"
-        element={<AdminDashboard />}
+        element={<Dashboard />}
         errorElement={<ErrorBoundary />}
       />
       <Route
@@ -57,18 +58,23 @@ const router = createBrowserRouter(
         errorElement={<ErrorBoundary />}
       />
       <Route
-        path="/new-product-form"
-        element={<NewProductForm />}
-        errorElement={<ErrorBoundary />}
-      />
-      <Route
         path="/product/:id"
         element={<Product />}
+        errorElement={<ErrorBoundary />}
+      />
+       <Route
+        path="/adduser"
+        element={<AddUser/>}
         errorElement={<ErrorBoundary />}
       />
       <Route
         path="/update-product"
         element={<UpdateProductForm />}
+        errorElement={<ErrorBoundary />}
+      />
+      <Route
+        path="/invoice"
+        element={<Invoice />}
         errorElement={<ErrorBoundary />}
       />
       <Route path="*" element={<NotFound />} errorElement={<ErrorBoundary />} />

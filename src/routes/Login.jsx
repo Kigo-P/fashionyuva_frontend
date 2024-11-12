@@ -3,8 +3,8 @@ import { Eye, EyeOff } from 'lucide-react';
 import {useNavigate} from 'react-router-dom'
 import Header from '../components/Header';
 import Footer from '../components/Footer';
-import { doSignInWithEmailAndPassword, doSignInWithGoogle } from '../firebase/auth';
-import { useAuth} from '../contexts/authContext'
+
+
 
  
 
@@ -36,13 +36,7 @@ const Login= () => {
 
   return (
     <div>
-      {/* const Login = () => {
-  if (userLoggedIn) {
-    // some logic
-     {userLoggedIn && navigate('/')}
-  }
-};
-       */}
+   
       <Header />
    
     <div className="min-h-screen bg-gray-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
