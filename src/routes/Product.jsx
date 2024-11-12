@@ -1,43 +1,68 @@
-import React, { useState } from 'react'
-import { Heart, ChevronLeft, ChevronRight } from 'lucide-react'
+import React, { useEffect, useState } from 'react'
+import { Heart, ChevronLeft, ChevronRight, ShoppingCart } from 'lucide-react'
 import StarRating from './StarRating'
 import Review from './Review'
 import Header from '../components/Header'
 import Footer from '../components/Footer'
-import DenimJeansImage from '../assets/DenimJeans1.jpg'
-import Denim from '../assets/img/DenimJeans2.jpg'
+import { useParams } from 'react-router-dom'
+import { toast } from 'react-toastify'
+import { useAppDispatch, useAppSelector } from '../store/hooks'
+import { setCart } from '../store/slices/cartSlice'
 
 function Product() {
+  const cart = useAppSelector((state) => state.cart).cart
+  const dispatch = useAppDispatch()
+  const [product, setProduct] = useState(null)
   const [showReviews, setShowReviews] = useState(false)
   const [showReviewModal, setShowReviewModal] = useState(false)
-  const [reviews, setReviews] = useState([
-    {
-      id: 1,
-      rating: 4,
-      text: 'Great fit and very comfortable!',
-      date: '2024-03-10',
-    },
-    {
-      id: 2,
-      rating: 5,
-      text: 'Perfect denim quality, highly recommend!',
-      date: '2024-03-09',
-    },
-  ])
+  const [reviews, setReviews] = useState([])
   const [currentImageIndex, setCurrentImageIndex] = useState(0)
-  const averageRating =
-    reviews.reduce((acc, review) => acc + review.rating, 0) / reviews.length
+  let { id } = useParams()
 
-  const handleSubmitReview = (rating, text) => {
+  useEffect(() => {
+    const getProduct = async () => {
+      try {
+        const res = await fetch(
+          `${import.meta.env.VITE_BACKEND_URL}/products/${id}`
+        )
+        const data = await res.json()
+        if (res.ok) {
+          setProduct(data)
+          setReviews(data.reviews)
+        } else {
+          toast('Error Getting Product', { type: 'error' })
+        }
+      } catch (error) {
+        toast('Network Error', { type: 'error' })
+      }
+    }
+    getProduct()
+  }, [id])
+
+  const averageRating =
+    reviews.reduce((acc, review) => acc + parseInt(review.rating), 0) /
+    (reviews.length || 1)
+
+  const handleSubmitReview = async (rating, text) => {
     const newReview = {
       id: reviews.length + 1,
       rating,
-      text,
+      comment: text,
       date: new Date().toISOString().split('T')[0],
+      user_id: 1,
+      product_id: id,
     }
+    const res = await fetch(`${import.meta.env.VITE_BACKEND_URL}/reviews`, {
+      method: 'POST',
+      body: JSON.stringify(newReview),
+    })
+    console.log(reviews)
     setReviews([newReview, ...reviews])
   }
-  const images = [DenimJeansImage, Denim]
+
+  if (!product) return <p>Loading...</p>
+
+  const images = product.images.length ? product.images : ['/placeholder.jpg']
 
   const handleNextImage = () => {
     setCurrentImageIndex((prevIndex) =>
@@ -50,6 +75,7 @@ function Product() {
       prevIndex === 0 ? images.length - 1 : prevIndex - 1
     )
   }
+
   return (
     <div className="min-h-screen bg-gray-50">
       <Header />
@@ -57,7 +83,7 @@ function Product() {
         <div className="relative aspect-square bg-gray-100 rounded-lg overflow-hidden">
           <img
             src={images[currentImageIndex]}
-            alt="Denim jeans"
+            alt={product.title}
             className="w-full h-full object-cover"
           />
           <button
@@ -76,9 +102,11 @@ function Product() {
 
         <div className="space-y-6">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900">Denim jeans</h1>
+            <h1 className="text-3xl font-bold text-gray-900">
+              {product.title}
+            </h1>
             <p className="text-2xl font-semibold text-gray-900 mt-2">
-              Ksh1,299.00
+              ${product.price}
             </p>
             <div className="flex items-center gap-2 mt-2">
               <StarRating rating={averageRating} />
@@ -90,17 +118,12 @@ function Product() {
 
           <div>
             <h3 className="font-medium text-gray-900">Color</h3>
+            <p className="text-gray-700">{product.color}</p>
           </div>
 
           <div>
             <h3 className="font-medium text-gray-900">Size</h3>
-            <select className="mt-2 w-full border-gray-300 rounded-lg py-2 px-4 focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
-              <option value="">Select size</option>
-              <option value="s">Small</option>
-              <option value="m">Medium</option>
-              <option value="l">Large</option>
-              <option value="xl">X-Large</option>
-            </select>
+            <p className="text-gray-700">{product.size}</p>
           </div>
 
           <div>
@@ -115,8 +138,35 @@ function Product() {
           </div>
 
           <div className="flex gap-4">
-            <button className="flex-1 bg-black text-white py-3 rounded-lg hover:bg-gray-800 transition-colors duration-200">
-              Add to Cart
+            <button
+              onClick={(e) => {
+                e.stopPropagation()
+                const itemExists = cart.some((item) => item.id === product.id)
+                if (itemExists) {
+                  dispatch(
+                    setCart(cart.filter((item) => item.id !== product.id))
+                  )
+                } else {
+                  dispatch(
+                    setCart([
+                      ...cart,
+                      { id: product.id, quantity: 1, item: product },
+                    ])
+                  )
+                }
+              }}
+              className={`w-full p-2 rounded-md text-white flex items-center justify-center ${
+                cart.some((item) => item.id === product.id)
+                  ? 'bg-red-500'
+                  : 'bg-black'
+              }`}
+            >
+              <ShoppingCart className="mr-2 h-4 w-4" />
+              <span>
+                {cart.some((item) => item.id === product.id)
+                  ? 'Remove from Cart'
+                  : 'Add to Cart'}
+              </span>
             </button>
             <button className="p-3 border rounded-lg hover:bg-gray-50 transition-colors duration-200">
               <Heart className="w-6 h-6" />
@@ -127,15 +177,10 @@ function Product() {
             <h3 className="font-semibold text-gray-900 mb-2">
               Product Details
             </h3>
-            <p className="text-gray-600">
-              Crafted from premium materials, this luxury item features
-              exceptional craftsmanship and attention to detail. The perfect
-              blend of style and functionality.
-            </p>
+            <p className="text-gray-600">{product.description}</p>
             <ul className="mt-4 space-y-2 text-sm text-gray-600">
-              <li>Material: Premium Italian Leather</li>
-              <li>Dimensions: 12" x 8" x 4"</li>
-              <li>Made in Italy</li>
+              <li>Material: {product.material}</li>
+              <li>Quantity available: {product.quantity}</li>
             </ul>
           </div>
 
@@ -164,10 +209,10 @@ function Product() {
                 <div className="space-y-4">
                   {reviews.map((review) => (
                     <div key={review.id} className="border-b pb-4">
-                      <StarRating rating={review.rating} />
-                      <p className="mt-2 text-gray-600">{review.text}</p>
+                      <StarRating rating={parseInt(review.rating)} />
+                      <p className="mt-2 text-gray-600">{review.comment}</p>
                       <p className="mt-1 text-sm text-gray-500">
-                        Posted on {review.date}
+                        Posted on {review.created_at}
                       </p>
                     </div>
                   ))}

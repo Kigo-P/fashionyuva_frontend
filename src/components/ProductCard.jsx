@@ -3,7 +3,6 @@ import { Link, useNavigate } from 'react-router-dom'
 import { ShoppingCart, Star } from 'lucide-react'
 import { useAppDispatch, useAppSelector } from '../store/hooks'
 import { setCart } from '../store/slices/cartSlice'
-import { toast } from 'react-toastify'
 
 const ProductCard = ({ product, i, tab = 'home' }) => {
   const cart = useAppSelector((state) => state.cart).cart
