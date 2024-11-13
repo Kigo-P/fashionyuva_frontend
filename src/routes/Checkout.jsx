@@ -3,6 +3,7 @@ import { CreditCard, ShoppingBag, ChevronLeft, X } from 'lucide-react'
 import Header from '../components/Header'
 import Footer from '../components/Footer'
 import { Link } from 'react-router-dom'
+import { renderText } from 'chart.js/helpers'
 
 const PaymentStatus = {
   IDLE: 'idle',
@@ -153,6 +154,13 @@ const Checkout = () => {
 
   const calculateTotal = () => {
     return calculateSubtotal() + calculateTax()
+  }
+
+  const format = (amount) => {
+    return new Intl.NumberFormat('en-KE', {
+      style: 'currency',
+      currency: 'KES',
+    }).format(amount)
   }
 
   return (
@@ -354,7 +362,7 @@ const Checkout = () => {
                         </p>
                       </div>
                       <p className="font-medium">
-                        ${(item.price * item.quantity).toFixed(2)}
+                        {format((item.price * item.quantity).toFixed(2))}
                       </p>
                     </div>
                   ))}
@@ -362,16 +370,23 @@ const Checkout = () => {
                 <div className="border-t border-gray-200 mt-4 pt-4 space-y-2">
                   <div className="flex justify-between">
                     <p>Subtotal</p>
-                    <p>${calculateSubtotal().toFixed(2)}</p>
+                    <p>{format(calculateSubtotal().toFixed(2))}</p>
                   </div>
                   <div className="flex justify-between">
                     <p>Tax</p>
-                    <p>${calculateTax().toFixed(2)}</p>
+                    <p>{format(calculateTax().toFixed(2))}</p>
                   </div>
                   <div className="flex justify-between font-semibold">
                     <p>Total</p>
-                    <p>${calculateTotal().toFixed(2)}</p>
+                    <p>{format(calculateTotal().toFixed(2))}</p>
                   </div>
+                  <Link
+                    to="/invoice"
+                    className="flex w-full items-center justify-center rounded-lg bg-black px-5 py-2.5 text-sm font-medium text-white hover:bg-gray-700 focus:outline-none focus:ring-4 focus:ring-gray-300"
+                  >
+                    <CreditCard className="mr-2 h-5 w-5" />
+                    view invoice
+                  </Link>
                 </div>
               </div>
             </div>

@@ -2,6 +2,7 @@ import { useState } from 'react'
 import Header from '../components/Header'
 import Footer from '../components/Footer'
 import { Facebook, Instagram, MapPin, Phone, Twitter, Mail } from 'lucide-react'
+import { toast } from 'react-toastify'
 
 export default function ContactPage() {
   const [formData, setFormData] = useState({
@@ -18,14 +19,33 @@ export default function ContactPage() {
 
   const handleSubmit = async (e) => {
     e.preventDefault()
-    console.log('Form submitted:', formData)
-    setFormData({
-      firstName: '',
-      lastName: '',
-      email: '',
-      phone: '',
-      message: '',
+    const res = await fetch(`${import.meta.env.VITE_BACKEND_URL}/contact`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        first_name: formData.firstName,
+        last_name: formData.lastName,
+        email: formData.email,
+        contact: formData.phone,
+        message: formData.message,
+      }),
     })
+
+    const data = await res.json()
+    if (res.ok) {
+      toast('contact saved successfully!', { type: 'success' })
+      setFormData({
+        firstName: '',
+        lastName: '',
+        email: '',
+        phone: '',
+        message: '',
+      })
+    } else {
+      toast(data.message, { type: 'error' })
+    }
   }
 
   return (

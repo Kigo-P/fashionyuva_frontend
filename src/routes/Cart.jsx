@@ -10,7 +10,6 @@ const Cart = () => {
   const cartItems = useAppSelector((state) => state.cart).cart
   const dispatch = useAppDispatch()
 
-  // Update item quantity in the cart
   const updateQuantity = (id, newQuantity) => {
     dispatch(
       setCart(
@@ -23,17 +22,22 @@ const Cart = () => {
     )
   }
 
-  // Remove item from the cart
   const removeItem = (id) => {
     dispatch(setCart(cartItems.filter((item) => item.id !== id)))
   }
 
-  // Calculate total cost of items in the cart
   const calculateTotal = () => {
     return cartItems.reduce(
       (total, item) => total + item.item.price * item.quantity,
       0
     )
+  }
+
+  const format = (amount) => {
+    return new Intl.NumberFormat('en-KE', {
+      style: 'currency',
+      currency: 'KES',
+    }).format(amount)
   }
 
   return (
@@ -46,7 +50,6 @@ const Cart = () => {
           </h2>
 
           <div className="mt-6 sm:mt-8 md:gap-6 lg:flex lg:items-start xl:gap-8">
-            {/* Cart Items List */}
             <div className="mx-auto w-full flex-none lg:max-w-2xl xl:max-w-4xl">
               <div className="space-y-6">
                 {cartItems.map((item) => (
@@ -69,7 +72,7 @@ const Cart = () => {
                             {item.item.title}
                           </h3>
                           <p className="mt-1 text-sm text-gray-600">
-                            ${item.item.price}
+                            {format(item.item.price)}
                           </p>
                         </div>
                       </div>
@@ -115,7 +118,6 @@ const Cart = () => {
               </div>
             </div>
 
-            {/* Order Summary */}
             <div className="mx-auto mt-6 max-w-4xl flex-1 space-y-6 lg:mt-0 lg:w-full sticky top-6">
               <div className="space-y-4 rounded-lg border border-gray-200 bg-white p-4 shadow-sm sm:p-6">
                 <p className="text-xl font-semibold text-gray-900">
@@ -128,21 +130,21 @@ const Cart = () => {
                       Subtotal
                     </dt>
                     <dd className="text-base font-medium text-gray-900">
-                      ${calculateTotal().toFixed(2)}
+                      {format(calculateTotal().toFixed(2))}
                     </dd>
                   </dl>
 
                   <dl className="flex items-center justify-between gap-4">
                     <dt className="text-base font-normal text-gray-600">Tax</dt>
                     <dd className="text-base font-medium text-gray-900">
-                      ${(calculateTotal() * 0.1).toFixed(2)}
+                      {format((calculateTotal() * 0.1).toFixed(2))}
                     </dd>
                   </dl>
 
                   <dl className="flex items-center justify-between gap-4 border-t border-gray-200 pt-4">
                     <dt className="text-base font-bold text-gray-900">Total</dt>
                     <dd className="text-base font-bold text-gray-900">
-                      ${(calculateTotal() * 1.1).toFixed(2)}
+                      {format((calculateTotal() * 1.1).toFixed(2))}
                     </dd>
                   </dl>
                 </div>
