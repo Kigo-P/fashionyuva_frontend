@@ -3,6 +3,7 @@ import { Eye, EyeOff } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
 import Header from '../components/Header'
 import Footer from '../components/Footer'
+import { toast } from 'react-toastify'
 
 const Login = () => {
   const [isLogin, setIsLogin] = useState(true)
@@ -10,13 +11,43 @@ const Login = () => {
   const navigate = useNavigate()
   const toggleForm = () => setIsLogin(!isLogin)
   const togglePasswordVisibility = () => setShowPassword(!showPassword)
+
   const onSubmit = async (e) => {
     e.preventDefault()
     const { email, password, firstName, lastName, mobile } = e.target.elements
     if (isLogin) {
-      await doSignInWithEmailAndPassword(email.value, password.value)
+      // handle login logic here
+      const res = await fetch(`${import.meta.VITE_BACKEND_URL}/login`, {
+        method: 'POST',
+        body: JSON.stringify({ email, password }),
+      })
+      const data = await res.json()
+      if (res.ok) {
+        toast('Login successful!', { type: 'success' })
+      } else {
+        toast(data.message || 'something wrong happened!', { type: 'error' })
+      }
     } else {
-      await doSignInWithGoogle(email.value, password.value, firstName.value, lastName.value, mobile.value)
+      // handle registration logic
+      const res = await fetch(`${import.meta.VITE_BACKEND_URL}/users`, {
+        method: 'POST',
+        body: JSON.stringify({
+          first_name: firstName,
+          last_name: lastName,
+          email,
+          password,
+          contact: mobile,
+          user_role: 'user',
+        }),
+      })
+      const data = await res.json()
+      if (res.ok) {
+        toast('registration successful!', { type: 'success' })
+      } else {
+        toast(data.message || 'something wrong happened!', {
+          type: 'error',
+        })
+      }
     }
   }
 
