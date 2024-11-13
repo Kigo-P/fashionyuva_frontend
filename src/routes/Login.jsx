@@ -12,20 +12,11 @@ const Login = () => {
   const togglePasswordVisibility = () => setShowPassword(!showPassword)
   const onSubmit = async (e) => {
     e.preventDefault()
-    const { email, password } = e.target.elements
+    const { email, password, firstName, lastName, mobile } = e.target.elements
     if (isLogin) {
       await doSignInWithEmailAndPassword(email.value, password.value)
     } else {
-      await doSignInWithGoogle()
-    }
-  }
-  const onGoogleSignIn = (e) => {
-    e.preventDefault()
-    if (!IsSignIn) {
-      setIsSignIn(true)
-      doSignInWithGoogle().catch((err) => {
-        setIsSignIn(false)
-      })
+      await doSignInWithGoogle(email.value, password.value, firstName.value, lastName.value, mobile.value)
     }
   }
 
@@ -42,20 +33,60 @@ const Login = () => {
 
         <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
           <div className="bg-white py-8 px-4 shadow sm:rounded-lg sm:px-10">
-            <form className="space-y-6">
+            <form className="space-y-6" onSubmit={onSubmit}>
               {!isLogin && (
                 <div>
                   <label
-                    htmlFor="name"
+                    htmlFor="firstName"
                     className="block text-sm font-medium text-gray-700"
                   >
-                    Full Name
+                    First Name
                   </label>
                   <div className="mt-1">
                     <input
-                      id="name"
-                      name="name"
+                      id="firstName"
+                      name="firstName"
                       type="text"
+                      required
+                      className="block w-full appearance-none rounded-md border border-gray-300 px-3 py-2 placeholder-gray-400 shadow-sm focus:border-black focus:outline-none focus:ring-black sm:text-sm"
+                    />
+                  </div>
+                </div>
+              )}
+
+              {!isLogin && (
+                <div>
+                  <label
+                    htmlFor="lastName"
+                    className="block text-sm font-medium text-gray-700"
+                  >
+                    Last Name
+                  </label>
+                  <div className="mt-1">
+                    <input
+                      id="lastName"
+                      name="lastName"
+                      type="text"
+                      required
+                      className="block w-full appearance-none rounded-md border border-gray-300 px-3 py-2 placeholder-gray-400 shadow-sm focus:border-black focus:outline-none focus:ring-black sm:text-sm"
+                    />
+                  </div>
+                </div>
+              )}
+
+              {!isLogin && (
+                <div>
+                  <label
+                    htmlFor="mobile"
+                    className="block text-sm font-medium text-gray-700"
+                  >
+                    Mobile Number
+                  </label>
+                  <div className="mt-1">
+                    <input
+                      id="mobile"
+                      name="mobile"
+                      type="tel"
                       required
                       className="block w-full appearance-none rounded-md border border-gray-300 px-3 py-2 placeholder-gray-400 shadow-sm focus:border-black focus:outline-none focus:ring-black sm:text-sm"
                     />
@@ -114,8 +145,7 @@ const Login = () => {
 
               <div>
                 <button
-                  type="button"
-                  onClick={() => navigate('/')}
+                  type="submit"
                   className="flex w-full justify-center rounded-md border border-transparent bg-black py-2 px-4 text-sm font-medium text-white shadow-sm hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-black focus:ring-offset-2"
                 >
                   {isLogin ? 'Sign in' : 'Register'}
@@ -139,6 +169,7 @@ const Login = () => {
 
               <div className="mt-6 text-center">
                 <button
+                  type="button"
                   onClick={toggleForm}
                   className="font-medium text-black hover:text-gray-800"
                 >
