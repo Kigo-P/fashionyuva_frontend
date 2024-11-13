@@ -12,11 +12,11 @@ const Login = () => {
   const togglePasswordVisibility = () => setShowPassword(!showPassword)
   const onSubmit = async (e) => {
     e.preventDefault()
-    const { email, password, mobile } = e.target.elements
+    const { email, password, firstName, lastName, mobile } = e.target.elements
     if (isLogin) {
       await doSignInWithEmailAndPassword(email.value, password.value)
     } else {
-      await doSignInWithGoogle(email.value, password.value, mobile.value)
+      await doSignInWithGoogle(email.value, password.value, firstName.value, lastName.value, mobile.value)
     }
   }
 
@@ -37,15 +37,35 @@ const Login = () => {
               {!isLogin && (
                 <div>
                   <label
-                    htmlFor="name"
+                    htmlFor="firstName"
                     className="block text-sm font-medium text-gray-700"
                   >
-                    Full Name
+                    First Name
                   </label>
                   <div className="mt-1">
                     <input
-                      id="name"
-                      name="name"
+                      id="firstName"
+                      name="firstName"
+                      type="text"
+                      required
+                      className="block w-full appearance-none rounded-md border border-gray-300 px-3 py-2 placeholder-gray-400 shadow-sm focus:border-black focus:outline-none focus:ring-black sm:text-sm"
+                    />
+                  </div>
+                </div>
+              )}
+
+              {!isLogin && (
+                <div>
+                  <label
+                    htmlFor="lastName"
+                    className="block text-sm font-medium text-gray-700"
+                  >
+                    Last Name
+                  </label>
+                  <div className="mt-1">
+                    <input
+                      id="lastName"
+                      name="lastName"
                       type="text"
                       required
                       className="block w-full appearance-none rounded-md border border-gray-300 px-3 py-2 placeholder-gray-400 shadow-sm focus:border-black focus:outline-none focus:ring-black sm:text-sm"
