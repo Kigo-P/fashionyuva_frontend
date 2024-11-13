@@ -1,10 +1,43 @@
-
 import React, { useState, useEffect } from 'react'
-import { CreditCard, ShoppingBag, ChevronLeft } from 'lucide-react'
+import { CreditCard, ShoppingBag, ChevronLeft, X } from 'lucide-react'
 import Header from '../components/Header'
 import Footer from '../components/Footer'
 import { Link } from 'react-router-dom'
-import Mpesa from '/src/routes/Mpesa.jsx'
+
+const PaymentStatus = {
+  IDLE: 'idle',
+  PROCESSING: 'processing',
+  SUCCESS: 'success',
+  ERROR: 'error',
+}
+
+const Modal = ({ isOpen, onClose, status, message }) => {
+  if (!isOpen) return null
+
+  return (
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+      <div className="bg-white p-6 rounded-lg shadow-xl max-w-sm w-full">
+        <div className="flex justify-between items-center mb-4">
+          <h2 className="text-xl font-bold">
+            {status === PaymentStatus.SUCCESS
+              ? 'Payment Successful'
+              : 'Payment Failed'}
+          </h2>
+          <button onClick={onClose} className="text-black hover:text-gray-700">
+            <X size={24} />
+          </button>
+        </div>
+        <p className="mb-4">{message}</p>
+        <button
+          onClick={onClose}
+          className="w-full bg-black text-white py-2 px-4 rounded hover:bg-gray-800 transition duration-200"
+        >
+          Close
+        </button>
+      </div>
+    </div>
+  )
+}
 
 const Checkout = () => {
   const [formData, setFormData] = useState({
@@ -15,11 +48,47 @@ const Checkout = () => {
     city: '',
     country: '',
     postalCode: '',
-    cardName: '',
     phoneNumber: '',
-    expirationDate: '',
-    cvv: '',
   })
+  const [status, setStatus] = useState(PaymentStatus.IDLE)
+  const [error, setError] = useState('')
+  const [checkoutRequestId, setCheckoutRequestId] = useState(null)
+  const [isModalOpen, setIsModalOpen] = useState(false)
+
+  useEffect(() => {
+    let pollInterval
+
+    if (checkoutRequestId) {
+      pollInterval = setInterval(async () => {
+        try {
+          const response = await fetch(
+            `${
+              import.meta.env.VITE_BACKEND_URL
+            }/api/payment/status/${checkoutRequestId}`
+          )
+          const data = await response.json()
+          if (data.status === 'completed') {
+            setStatus(PaymentStatus.SUCCESS)
+            setIsModalOpen(true)
+            clearInterval(pollInterval)
+          } else if (data.status === 'failed') {
+            setStatus(PaymentStatus.ERROR)
+            setError(data.resultDesc)
+            setIsModalOpen(true)
+            clearInterval(pollInterval)
+          }
+        } catch (err) {
+          console.error('Error polling payment status:', err)
+        }
+      }, 5000)
+    }
+
+    return () => {
+      if (pollInterval) {
+        clearInterval(pollInterval)
+      }
+    }
+  }, [checkoutRequestId])
 
   const handleInputChange = (e) => {
     const { name, value } = e.target
@@ -29,17 +98,42 @@ const Checkout = () => {
     }))
   }
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault()
-    console.log('Form submitted:', formData)
-  }
-  // const PurchaseButton = () => {
-  // const navigate = useNavigate();
+    try {
+      setStatus(PaymentStatus.PROCESSING)
+      setError('')
 
-  // const handleClick = () => {
-  //   // Navigate to the Mpesa component
-  //   navigate('/mpesa');
-  // };
+      const response = await fetch(
+        `${import.meta.env.VITE_BACKEND_URL}/api/payment/initiate`,
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            phone_number: formData.phoneNumber,
+            amount: calculateTotal(),
+            order_id: Math.floor(Math.random() * 1000000),
+          }),
+        }
+      )
+
+      const data = await response.json()
+
+      if (response.ok) {
+        setCheckoutRequestId(data.CheckoutRequestID)
+      } else {
+        setStatus(PaymentStatus.ERROR)
+        setError(data.error || 'Payment initiation failed')
+        setIsModalOpen(true)
+      }
+    } catch (err) {
+      setStatus(PaymentStatus.ERROR)
+      setError('Failed to process payment. Please try again.')
+      setIsModalOpen(true)
+    }
+  }
 
   const cartItems = [
     { id: 1, name: 'iMac 27"', price: 1499, quantity: 2 },
@@ -207,11 +301,8 @@ const Checkout = () => {
                     </div>
                   </div>
                 </div>
-              
 
                 <div>
-               
-                   
                   <h2 className="text-xl font-medium mb-4">
                     Payment Information
                   </h2>
@@ -233,17 +324,18 @@ const Checkout = () => {
                         required
                       />
                     </div>
-                  </div> 
+                  </div>
                 </div>
-
                 <div>
-                  
                   <button
                     type="submit"
                     className="flex w-full items-center justify-center rounded-lg bg-black px-5 py-2.5 text-sm font-medium text-white hover:bg-gray-700 focus:outline-none focus:ring-4 focus:ring-gray-300"
+                    disabled={status === PaymentStatus.PROCESSING}
                   >
                     <CreditCard className="mr-2 h-5 w-5" />
-                    Complete Purchase
+                    {status === PaymentStatus.PROCESSING
+                      ? 'Processing...'
+                      : 'Complete Purchase'}
                   </button>
                 </div>
               </form>
@@ -297,6 +389,16 @@ const Checkout = () => {
         </div>
       </div>
       <Footer />
+      <Modal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        status={status}
+        message={
+          status === PaymentStatus.SUCCESS
+            ? 'Your payment was successful!'
+            : error
+        }
+      />
     </>
   )
 }
