@@ -1,32 +1,10 @@
-import React, { useState } from 'react'
-import {
-  Pencil,
-  Trash2,
-  Plus,
-  X,
-  Check,
-  ChevronUp,
-  ChevronDown,
-} from 'lucide-react'
+import React, { useState, useEffect } from 'react'
+import { Pencil, Trash2, Plus, X, ChevronUp, ChevronDown } from 'lucide-react'
 
 const Admins = () => {
-  const [admins, setAdmins] = useState([
-    {
-      id: 1,
-      name: 'John Doe',
-      email: 'john@example.com',
-      role: 'Admin',
-      lastLogin: '2023-05-15',
-    },
-    {
-      id: 2,
-      name: 'Jane Smith',
-      email: 'jane@example.com',
-      role: 'Editor',
-      lastLogin: '2023-05-14',
-    },
-  ])
-
+  const [admins, setAdmins] = useState([])
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState(null)
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [editingAdmin, setEditingAdmin] = useState(null)
   const [newAdmin, setNewAdmin] = useState({
@@ -38,6 +16,27 @@ const Admins = () => {
     key: null,
     direction: 'ascending',
   })
+
+  useEffect(() => {
+    const fetchAdmins = async () => {
+      setLoading(true)
+      try {
+        const response = await fetch(
+          `${import.meta.env.VITE_BACKEND_URL}/admins`
+        )
+        if (!response.ok) {
+          throw new Error('Failed to fetch admins')
+        }
+        const data = await response.json()
+        setAdmins(data)
+      } catch (err) {
+        setError(err.message)
+      } finally {
+        setLoading(false)
+      }
+    }
+    fetchAdmins()
+  }, [])
 
   const handleSort = (key) => {
     let direction = 'ascending'
@@ -51,22 +50,30 @@ const Admins = () => {
     if (sortConfig.key) {
       const aValue = a[sortConfig.key]
       const bValue = b[sortConfig.key]
-      if (aValue < bValue) {
-        return sortConfig.direction === 'ascending' ? -1 : 1
-      }
-      if (aValue > bValue) {
-        return sortConfig.direction === 'ascending' ? 1 : -1
-      }
+      if (aValue < bValue) return sortConfig.direction === 'ascending' ? -1 : 1
+      if (aValue > bValue) return sortConfig.direction === 'ascending' ? 1 : -1
     }
     return 0
   })
 
-  const handleAddAdmin = (e) => {
+  const handleAddAdmin = async (e) => {
     e.preventDefault()
-    if (newAdmin.name && newAdmin.email) {
-      setAdmins([...admins, { ...newAdmin, id: Date.now(), lastLogin: 'N/A' }])
+    try {
+      const response = await fetch(
+        `${import.meta.env.VITE_BACKEND_URL}/admins`,
+        {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(newAdmin),
+        }
+      )
+      if (!response.ok) throw new Error('Failed to add admin')
+      const addedAdmin = await response.json()
+      setAdmins([...admins, addedAdmin])
       setNewAdmin({ name: '', email: '', role: 'Admin' })
       setIsModalOpen(false)
+    } catch (err) {
+      setError(err.message)
     }
   }
 
@@ -76,18 +83,43 @@ const Admins = () => {
     setIsModalOpen(true)
   }
 
-  const handleUpdateAdmin = (e) => {
+  const handleUpdateAdmin = async (e) => {
     e.preventDefault()
-    setAdmins(
-      admins.map((admin) => (admin.id === editingAdmin.id ? newAdmin : admin))
-    )
-    setNewAdmin({ name: '', email: '', role: 'Admin' })
-    setEditingAdmin(null)
-    setIsModalOpen(false)
+    try {
+      const response = await fetch(
+        `${import.meta.env.VITE_BACKEND_URL}/admins/${editingAdmin.id}`,
+        {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(newAdmin),
+        }
+      )
+      if (!response.ok) throw new Error('Failed to update admin')
+      const updatedAdmin = await response.json()
+      setAdmins(
+        admins.map((admin) =>
+          admin.id === editingAdmin.id ? updatedAdmin : admin
+        )
+      )
+      setNewAdmin({ name: '', email: '', role: 'Admin' })
+      setEditingAdmin(null)
+      setIsModalOpen(false)
+    } catch (err) {
+      setError(err.message)
+    }
   }
 
-  const handleDeleteAdmin = (id) => {
-    setAdmins(admins.filter((admin) => admin.id !== id))
+  const handleDeleteAdmin = async (id) => {
+    try {
+      const response = await fetch(
+        `${import.meta.env.VITE_BACKEND_URL}/admins/${id}`,
+        { method: 'DELETE' }
+      )
+      if (!response.ok) throw new Error('Failed to delete admin')
+      setAdmins(admins.filter((admin) => admin.id !== id))
+    } catch (err) {
+      setError(err.message)
+    }
   }
 
   return (
@@ -173,106 +205,113 @@ const Admins = () => {
             </tr>
           </thead>
           <tbody>
-            {sortedAdmins.map((admin) => (
-              <tr key={admin.id}>
-                <td className="px-6 py-4 whitespace-no-wrap border-b border-gray-300">
-                  {admin.name}
-                </td>
-                <td className="px-6 py-4 whitespace-no-wrap border-b border-gray-300">
-                  {admin.email}
-                </td>
-                <td className="px-6 py-4 whitespace-no-wrap border-b border-gray-300">
-                  {admin.role}
-                </td>
-                <td className="px-6 py-4 whitespace-no-wrap border-b border-gray-300">
-                  {admin.lastLogin}
-                </td>
-                <td className="px-6 py-4 whitespace-no-wrap border-b border-gray-300">
-                  <button
-                    onClick={() => handleEditAdmin(admin)}
-                    className="text-blue-600 hover:text-blue-900 mr-4"
-                    aria-label={`Edit ${admin.name}`}
-                  >
-                    <Pencil className="w-5 h-5" />
-                  </button>
-                  <button
-                    onClick={() => handleDeleteAdmin(admin.id)}
-                    className="text-red-600 hover:text-red-900"
-                    aria-label={`Delete ${admin.name}`}
-                  >
-                    <Trash2 className="w-5 h-5" />
-                  </button>
-                </td>
-              </tr>
-            ))}
+            {loading
+              ? Array.from({ length: 5 }).map((_, index) => (
+                  <tr key={index}>
+                    <td className="px-6 py-4 border-b border-gray-300">
+                      <div className="animate-pulse h-4 bg-gray-200 rounded"></div>
+                    </td>
+                    <td className="px-6 py-4 border-b border-gray-300">
+                      <div className="animate-pulse h-4 bg-gray-200 rounded"></div>
+                    </td>
+                    <td className="px-6 py-4 border-b border-gray-300">
+                      <div className="animate-pulse h-4 bg-gray-200 rounded"></div>
+                    </td>
+                    <td className="px-6 py-4 border-b border-gray-300">
+                      <div className="animate-pulse h-4 bg-gray-200 rounded"></div>
+                    </td>
+                    <td className="px-6 py-4 border-b border-gray-300">
+                      <div className="animate-pulse h-4 bg-gray-200 rounded"></div>
+                    </td>
+                  </tr>
+                ))
+              : sortedAdmins.map((admin) => (
+                  <tr key={admin.id}>
+                    <td className="px-6 py-4 border-b border-gray-300">
+                      {admin.name}
+                    </td>
+                    <td className="px-6 py-4 border-b border-gray-300">
+                      {admin.email}
+                    </td>
+                    <td className="px-6 py-4 border-b border-gray-300">
+                      {admin.role}
+                    </td>
+                    <td className="px-6 py-4 border-b border-gray-300">
+                      {admin.lastLogin}
+                    </td>
+                    <td className="px-6 py-4 border-b border-gray-300 flex space-x-2">
+                      <button onClick={() => handleEditAdmin(admin)}>
+                        <Pencil />
+                      </button>
+                      <button onClick={() => handleDeleteAdmin(admin.id)}>
+                        <Trash2 />
+                      </button>
+                    </td>
+                  </tr>
+                ))}
           </tbody>
         </table>
       </div>
 
       {isModalOpen && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4">
-          <div className="bg-white rounded-lg p-6 w-full max-w-md">
-            <div className="flex justify-between items-center mb-4">
-              <h2 className="text-2xl font-bold">
-                {editingAdmin ? 'Edit Admin' : 'Add New Admin'}
-              </h2>
-              <button
-                onClick={() => setIsModalOpen(false)}
-                className="text-gray-500 hover:text-gray-700 focus:outline-none"
-                aria-label="Close modal"
-              >
-                <X className="w-6 h-6" />
-              </button>
-            </div>
+          <div className="bg-white rounded-lg p-6 w-full max-w-md relative">
+            <button
+              className="absolute top-2 right-2"
+              onClick={() => setIsModalOpen(false)}
+            >
+              <X className="w-6 h-6 text-black" />
+            </button>
+            <h2 className="text-2xl font-bold mb-4">
+              {editingAdmin ? 'Edit Admin' : 'Add Admin'}
+            </h2>
             <form onSubmit={editingAdmin ? handleUpdateAdmin : handleAddAdmin}>
-              <div className="mb-4">
-                <label
-                  htmlFor="adminName"
-                  className="block text-sm font-medium text-gray-700 mb-1"
-                >
-                  Name
-                </label>
+              <label className="block mb-2">
+                Name
                 <input
                   type="text"
-                  id="adminName"
                   value={newAdmin.name}
                   onChange={(e) =>
                     setNewAdmin({ ...newAdmin, name: e.target.value })
                   }
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-black"
-                  required
+                  className="mt-1 p-2 border border-gray-300 rounded w-full"
                 />
-              </div>
-              <div className="mb-4">
-                <label
-                  htmlFor="adminEmail"
-                  className="block text-sm font-medium text-gray-700 mb-1"
-                >
-                  Email
-                </label>
+              </label>
+              <label className="block mb-2">
+                Email
                 <input
                   type="email"
-                  id="adminEmail"
                   value={newAdmin.email}
                   onChange={(e) =>
                     setNewAdmin({ ...newAdmin, email: e.target.value })
                   }
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-black"
-                  required
+                  className="mt-1 p-2 border border-gray-300 rounded w-full"
                 />
-              </div>
-              <div className="flex justify-end">
-                <button
-                  type="submit"
-                  className="px-4 py-2 bg-black text-white rounded-md hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-gray-500"
+              </label>
+              <label className="block mb-4">
+                Role
+                <select
+                  value={newAdmin.role}
+                  onChange={(e) =>
+                    setNewAdmin({ ...newAdmin, role: e.target.value })
+                  }
+                  className="mt-1 p-2 border border-gray-300 rounded w-full"
                 >
-                  {editingAdmin ? 'Update Admin' : 'Add Admin'}
-                </button>
-              </div>
+                  <option value="Admin">Admin</option>
+                  <option value="Super Admin">Super Admin</option>
+                </select>
+              </label>
+              <button
+                type="submit"
+                className="px-4 py-2 bg-black text-white rounded-md hover:bg-gray-800 w-full"
+              >
+                {editingAdmin ? 'Update Admin' : 'Add Admin'}
+              </button>
             </form>
           </div>
         </div>
       )}
+      {error && <p className="text-red-500 mt-4">Error: {error}</p>}
     </div>
   )
 }

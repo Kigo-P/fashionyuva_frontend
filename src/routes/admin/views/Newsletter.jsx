@@ -38,7 +38,7 @@ const Newsletter = () => {
     setSortConfig({ key, direction })
   }
 
-  const sortNewsletters = [...newsletters].sort((a, b) => {
+  const sortedNewsletters = [...newsletters].sort((a, b) => {
     if (sortConfig.key) {
       const aValue = a[sortConfig.key]
       const bValue = b[sortConfig.key]
@@ -51,9 +51,6 @@ const Newsletter = () => {
     }
     return 0
   })
-
-  if (loading) return <p>Loading...</p>
-  if (error) return <p>Error: {error}</p>
 
   return (
     <div className="container mx-auto px-4 py-8 bg-white text-black">
@@ -68,10 +65,10 @@ const Newsletter = () => {
               <th className="px-6 py-3 border-b border-gray-300 bg-gray-100 text-left text-xs leading-4 font-medium text-gray-500 uppercase tracking-wider">
                 <button
                   className="flex items-center"
-                  onClick={() => handleSort('name')}
+                  onClick={() => handleSort('id')}
                 >
                   ID
-                  {sortConfig.key === 'name' &&
+                  {sortConfig.key === 'id' &&
                     (sortConfig.direction === 'ascending' ? (
                       <ChevronUp className="w-4 h-4 ml-1" />
                     ) : (
@@ -96,19 +93,33 @@ const Newsletter = () => {
             </tr>
           </thead>
           <tbody>
-            {sortNewsletters.map((admin) => (
-              <tr key={admin.id}>
-                <td className="px-6 py-4 whitespace-no-wrap border-b border-gray-300">
-                  {admin.id}
-                </td>
-                <td className="px-6 py-4 whitespace-no-wrap border-b border-gray-300">
-                  {admin.email}
-                </td>
-              </tr>
-            ))}
+            {loading
+              ? // Display skeleton rows when loading
+                Array.from({ length: 5 }).map((_, index) => (
+                  <tr key={index}>
+                    <td className="px-6 py-4 whitespace-no-wrap border-b border-gray-300">
+                      <div className="animate-pulse h-4 bg-gray-200 rounded"></div>
+                    </td>
+                    <td className="px-6 py-4 whitespace-no-wrap border-b border-gray-300">
+                      <div className="animate-pulse h-4 bg-gray-200 rounded"></div>
+                    </td>
+                  </tr>
+                ))
+              : // Display actual data rows when not loading
+                sortedNewsletters.map((newsletter) => (
+                  <tr key={newsletter.id}>
+                    <td className="px-6 py-4 whitespace-no-wrap border-b border-gray-300">
+                      {newsletter.id}
+                    </td>
+                    <td className="px-6 py-4 whitespace-no-wrap border-b border-gray-300">
+                      {newsletter.email}
+                    </td>
+                  </tr>
+                ))}
           </tbody>
         </table>
       </div>
+      {error && <p className="text-red-500 mt-4">Error: {error}</p>}
     </div>
   )
 }

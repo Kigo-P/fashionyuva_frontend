@@ -3,10 +3,12 @@ import { Pencil, Trash2, ChevronUp, ChevronDown, X } from 'lucide-react'
 
 const Users = () => {
   const [users, setUsers] = useState([])
+  const [loading, setLoading] = useState(true)
 
   useEffect(() => {
     const fetchUsers = async () => {
       try {
+        setLoading(true)
         const response = await fetch(
           `${import.meta.env.VITE_BACKEND_URL}/users`
         )
@@ -17,6 +19,8 @@ const Users = () => {
         setUsers(data)
       } catch (err) {
         setError(err.message)
+      } finally {
+        setLoading(false)
       }
     }
     fetchUsers()
@@ -59,87 +63,62 @@ const Users = () => {
         <table className="min-w-full bg-white border border-gray-300">
           <thead>
             <tr>
-              <th className="px-6 py-3 border-b border-gray-300 bg-gray-100 text-left text-xs leading-4 font-medium text-gray-500 uppercase tracking-wider">
-                <button
-                  className="flex items-center"
-                  onClick={() => handleSort('name')}
-                >
-                  Name
-                  {sortConfig.key === 'name' &&
-                    (sortConfig.direction === 'ascending' ? (
-                      <ChevronUp className="w-4 h-4 ml-1" />
-                    ) : (
-                      <ChevronDown className="w-4 h-4 ml-1" />
-                    ))}
-                </button>
-              </th>
-              <th className="px-6 py-3 border-b border-gray-300 bg-gray-100 text-left text-xs leading-4 font-medium text-gray-500 uppercase tracking-wider">
-                <button
-                  className="flex items-center"
-                  onClick={() => handleSort('email')}
-                >
-                  Email
-                  {sortConfig.key === 'email' &&
-                    (sortConfig.direction === 'ascending' ? (
-                      <ChevronUp className="w-4 h-4 ml-1" />
-                    ) : (
-                      <ChevronDown className="w-4 h-4 ml-1" />
-                    ))}
-                </button>
-              </th>
-              <th className="px-6 py-3 border-b border-gray-300 bg-gray-100 text-left text-xs leading-4 font-medium text-gray-500 uppercase tracking-wider">
-                <button
-                  className="flex items-center"
-                  onClick={() => handleSort('role')}
-                >
-                  Role
-                  {sortConfig.key === 'role' &&
-                    (sortConfig.direction === 'ascending' ? (
-                      <ChevronUp className="w-4 h-4 ml-1" />
-                    ) : (
-                      <ChevronDown className="w-4 h-4 ml-1" />
-                    ))}
-                </button>
-              </th>
-              <th className="px-6 py-3 border-b border-gray-300 bg-gray-100 text-left text-xs leading-4 font-medium text-gray-500 uppercase tracking-wider">
-                Phone
-              </th>
-              <th className="px-6 py-3 border-b border-gray-300 bg-gray-100 text-left text-xs leading-4 font-medium text-gray-500 uppercase tracking-wider">
-                <button
-                  className="flex items-center"
-                  onClick={() => handleSort('lastLogin')}
-                >
-                  Joined At
-                  {sortConfig.key === 'lastLogin' &&
-                    (sortConfig.direction === 'ascending' ? (
-                      <ChevronUp className="w-4 h-4 ml-1" />
-                    ) : (
-                      <ChevronDown className="w-4 h-4 ml-1" />
-                    ))}
-                </button>
-              </th>
+              {['Name', 'Email', 'Role', 'Phone', 'Joined At'].map(
+                (header, index) => (
+                  <th
+                    key={index}
+                    className="px-6 py-3 border-b border-gray-300 bg-gray-100 text-left text-xs leading-4 font-medium text-gray-500 uppercase tracking-wider"
+                  >
+                    <button
+                      className="flex items-center"
+                      onClick={() => handleSort(header.toLowerCase())}
+                    >
+                      {header}
+                      {sortConfig.key === header.toLowerCase() &&
+                        (sortConfig.direction === 'ascending' ? (
+                          <ChevronUp className="w-4 h-4 ml-1" />
+                        ) : (
+                          <ChevronDown className="w-4 h-4 ml-1" />
+                        ))}
+                    </button>
+                  </th>
+                )
+              )}
             </tr>
           </thead>
           <tbody>
-            {sortedUsers.map((user) => (
-              <tr key={user.id}>
-                <td className="px-6 py-4 whitespace-no-wrap border-b border-gray-300">
-                  {user.first_name + ' ' + user.last_name}
-                </td>
-                <td className="px-6 py-4 whitespace-no-wrap border-b border-gray-300">
-                  {user.email}
-                </td>
-                <td className="px-6 py-4 whitespace-no-wrap border-b border-gray-300">
-                  {user.user_role}
-                </td>
-                <td className="px-6 py-4 whitespace-no-wrap border-b border-gray-300">
-                  {user.contact}
-                </td>
-                <td className="px-6 py-4 whitespace-no-wrap border-b border-gray-300">
-                  {user.created_at}
-                </td>
-              </tr>
-            ))}
+            {loading
+              ? Array.from({ length: 5 }).map((_, index) => (
+                  <tr key={index}>
+                    {Array.from({ length: 5 }).map((_, cellIndex) => (
+                      <td
+                        key={cellIndex}
+                        className="px-6 py-4 whitespace-no-wrap border-b border-gray-300"
+                      >
+                        <div className="animate-pulse h-4 bg-gray-200 rounded"></div>
+                      </td>
+                    ))}
+                  </tr>
+                ))
+              : sortedUsers.map((user) => (
+                  <tr key={user.id}>
+                    <td className="px-6 py-4 whitespace-no-wrap border-b border-gray-300">
+                      {user.first_name + ' ' + user.last_name}
+                    </td>
+                    <td className="px-6 py-4 whitespace-no-wrap border-b border-gray-300">
+                      {user.email}
+                    </td>
+                    <td className="px-6 py-4 whitespace-no-wrap border-b border-gray-300">
+                      {user.user_role}
+                    </td>
+                    <td className="px-6 py-4 whitespace-no-wrap border-b border-gray-300">
+                      {user.contact}
+                    </td>
+                    <td className="px-6 py-4 whitespace-no-wrap border-b border-gray-300">
+                      {user.created_at}
+                    </td>
+                  </tr>
+                ))}
           </tbody>
         </table>
       </div>

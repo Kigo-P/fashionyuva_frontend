@@ -226,7 +226,7 @@ export default function ProductListing() {
               </label>
               <button
                 type="submit"
-                className="w-full px-4 py-2 rounded-md font-medium text-white bg-black-600 hover:bg-black-700"
+                className="w-full px-4 py-2 rounded-md font-medium text-white bg-black hover:bg-gray-800"
               >
                 Save Changes
               </button>
