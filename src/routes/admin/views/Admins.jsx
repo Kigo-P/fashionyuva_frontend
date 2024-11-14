@@ -25,7 +25,8 @@ const Admins = () => {
           throw new Error('Failed to fetch users')
         }
         const data = await response.json()
-        setUsers(data.filter((user) => user.role !== 'admin'))
+        setUsers(data.filter((user) => user.user_role !== 'admin'))
+        setAdmins(data.filter((user) => user.user_role === 'admin'))
       } catch (err) {
         setError(err.message)
       } finally {
