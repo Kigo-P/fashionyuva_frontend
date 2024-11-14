@@ -13,25 +13,24 @@ const Admins = () => {
     direction: 'ascending',
   })
 
-  useEffect(() => {
-    const fetchUsersAndAdmins = async () => {
-      setLoading(true)
-      try {
-        const response = await fetch(
-          `${import.meta.env.VITE_BACKEND_URL}/users`
-        )
-        if (!response.ok) {
-          throw new Error('Failed to fetch users')
-        }
-        const data = await response.json()
-        setUsers(data.filter((user) => user.user_role !== 'admin'))
-        setAdmins(data.filter((user) => user.user_role === 'admin'))
-      } catch (err) {
-        setError(err.message)
-      } finally {
-        setLoading(false)
+  const fetchUsersAndAdmins = async () => {
+    setLoading(true)
+    try {
+      const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/users`)
+      if (!response.ok) {
+        throw new Error('Failed to fetch users')
       }
+      const data = await response.json()
+      setUsers(data.filter((user) => user.user_role !== 'admin'))
+      setAdmins(data.filter((user) => user.user_role === 'admin'))
+    } catch (err) {
+      setError(err.message)
+    } finally {
+      setLoading(false)
     }
+  }
+
+  useEffect(() => {
     fetchUsersAndAdmins()
   }, [])
 
@@ -63,6 +62,7 @@ const Admins = () => {
       setAdmins((prevAdmins) => [...prevAdmins, promotedUser])
       setUsers((prevUsers) => prevUsers.filter((user) => user.id !== userId))
       setIsModalOpen(false)
+      fetchUsersAndAdmins()
     } catch (err) {
       toast(err.message, { type: 'error' })
     }
@@ -78,26 +78,33 @@ const Admins = () => {
     return 0
   })
 
-  const handleDeleteAdmin = async (userId) => {
+  const handleDemoteAdmin = async (userId) => {
     try {
-      const userToPromote = users.find((user) => user.id === userId)
-      if (!userToPromote) return
+      const userToDemote = users.find((user) => user.id === userId)
+      if (!userToDemote) return
 
-      const updatedAdmin = { ...userToPromote, user_role: 'customer' }
+      const updatedUser = { ...userToDemote, user_role: 'customer' }
       const response = await fetch(
         `${import.meta.env.VITE_BACKEND_URL}/users/${userId}`,
         {
           method: 'PATCH',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(updatedAdmin),
+          body: JSON.stringify({ user_role: 'customer' }),
         }
       )
       if (!response.ok) throw new Error('Failed to demote admin')
 
-      const promotedUser = await response.json()
-      setAdmins((prevAdmins) => [...prevAdmins, promotedUser])
-      setUsers((prevUsers) => prevUsers.filter((user) => user.id !== userId))
-      setIsModalOpen(false)
+      const demotedUser = await response.json()
+
+      setAdmins((prevAdmins) =>
+        prevAdmins.filter((admin) => admin.id !== userId)
+      )
+      setUsers((prevUsers) =>
+        prevUsers.map((user) =>
+          user.id === userId ? { ...user, user_role: 'customer' } : user
+        )
+      )
+      fetchUsersAndAdmins()
     } catch (err) {
       toast(err.message, { type: 'error' })
     }
@@ -206,7 +213,7 @@ const Admins = () => {
                       {admin.created_at}
                     </td>
                     <td className="px-6 py-4 border-b border-gray-300 flex space-x-2">
-                      <button onClick={() => handleDeleteAdmin(admin.id)}>
+                      <button onClick={() => handleDemoteAdmin(admin.id)}>
                         <Trash2 className="text-red-600" />
                       </button>
                     </td>
