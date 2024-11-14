@@ -73,12 +73,6 @@ const Header = ({ minified, setMinified }) => {
                 }}
               >
                 <ul>
-                  <li className="p-2 cursor-pointer hover:bg-[#0005] flex items-center justify-start gap-2">
-                    <div className="">
-                      <CircleUser style={{ color: '#000', fontSize: 18 }} />
-                    </div>{' '}
-                    <span>Profile</span>
-                  </li>
                   <li
                     className="p-2 cursor-pointer hover:bg-[#0005] flex items-center justify-start gap-2"
                     onClick={() => {

@@ -1,7 +1,9 @@
 import { useState, useRef, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import { ShoppingBag, Menu, X, CircleUser, LogOut } from 'lucide-react'
-import { useAppSelector } from '../store/hooks'
+import { useAppDispatch, useAppSelector } from '../store/hooks'
+import { toast } from 'react-toastify'
+import { setIdentity } from '../store/slices/identitySlice'
 
 const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
@@ -11,6 +13,7 @@ const Header = () => {
   const profDropRef = useRef(null)
 
   const identity = useAppSelector((state) => state.identity)
+  const dispatch = useAppDispatch()
 
   const handleClickOutside = (event) => {
     if (profDropRef.current && !profDropRef.current.contains(event.target)) {
@@ -31,6 +34,34 @@ const Header = () => {
     { name: 'About', href: '/about' },
     { name: 'Contact', href: '/contact' },
   ]
+
+  const handleLogout = async () => {
+    const res = await fetch(`${import.meta.env.VITE_BACKEND_URL}/auth/logout`, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${identity.access_token}`,
+      },
+    })
+    if (res.ok) {
+      toast('Logout successful', { type: 'success' })
+      dispatch(
+        setIdentity({
+          is_logged: false,
+          access_token: '',
+          refresh_token: '',
+          user: {
+            username: '',
+            email: '',
+            phone_number: '',
+            user_role: '',
+          },
+        })
+      )
+    } else {
+      toast('Logout unsucessful', { type: 'error' })
+    }
+  }
 
   return (
     <header className="bg-[#242424] shadow-md !p-[unset] !border-none fixed top-0 z-50">
@@ -81,15 +112,6 @@ const Header = () => {
                   }}
                 >
                   <ul>
-                    <Link
-                      href="/profile"
-                      className="p-2 cursor-pointer hover:bg-[#0005] flex items-center justify-start gap-2"
-                    >
-                      <div className="">
-                        <CircleUser style={{ color: '#000', fontSize: 18 }} />
-                      </div>{' '}
-                      <span>Profile</span>
-                    </Link>
                     <li
                       className="p-2 cursor-pointer hover:bg-[#0005] flex items-center justify-start gap-2"
                       onClick={() => {

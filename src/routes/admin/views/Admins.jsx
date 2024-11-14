@@ -2,40 +2,36 @@ import React, { useState, useEffect } from 'react'
 import { Pencil, Trash2, Plus, X, ChevronUp, ChevronDown } from 'lucide-react'
 
 const Admins = () => {
-  const [admins, setAdmins] = useState([])
+  const [admins, setAdmins] = useState([]) // State to store the list of admins
+  const [users, setUsers] = useState([]) // List of users to promote
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
   const [isModalOpen, setIsModalOpen] = useState(false)
-  const [editingAdmin, setEditingAdmin] = useState(null)
-  const [newAdmin, setNewAdmin] = useState({
-    name: '',
-    email: '',
-    role: 'Admin',
-  })
   const [sortConfig, setSortConfig] = useState({
     key: null,
     direction: 'ascending',
   })
 
   useEffect(() => {
-    const fetchAdmins = async () => {
+    const fetchUsersAndAdmins = async () => {
       setLoading(true)
       try {
+        // Fetch all users
         const response = await fetch(
-          `${import.meta.env.VITE_BACKEND_URL}/admins`
+          `${import.meta.env.VITE_BACKEND_URL}/users`
         )
         if (!response.ok) {
-          throw new Error('Failed to fetch admins')
+          throw new Error('Failed to fetch users')
         }
         const data = await response.json()
-        setAdmins(data)
+        setUsers(data.filter((user) => user.role !== 'Admin')) // Only show non-admin users
       } catch (err) {
         setError(err.message)
       } finally {
         setLoading(false)
       }
     }
-    fetchAdmins()
+    fetchUsersAndAdmins()
   }, [])
 
   const handleSort = (key) => {
@@ -44,6 +40,31 @@ const Admins = () => {
       direction = 'descending'
     }
     setSortConfig({ key, direction })
+  }
+
+  const handlePromoteUser = async (userId) => {
+    try {
+      const userToPromote = users.find((user) => user.id === userId)
+      if (!userToPromote) return
+
+      const updatedAdmin = { ...userToPromote, role: 'admin' }
+      const response = await fetch(
+        `${import.meta.env.VITE_BACKEND_URL}/users/${userId}`,
+        {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(updatedAdmin),
+        }
+      )
+      if (!response.ok) throw new Error('Failed to promote user')
+
+      const promotedUser = await response.json()
+      setAdmins((prevAdmins) => [...prevAdmins, promotedUser])
+      setUsers((prevUsers) => prevUsers.filter((user) => user.id !== userId))
+      setIsModalOpen(false)
+    } catch (err) {
+      setError(err.message)
+    }
   }
 
   const sortedAdmins = [...admins].sort((a, b) => {
@@ -56,86 +77,16 @@ const Admins = () => {
     return 0
   })
 
-  const handleAddAdmin = async (e) => {
-    e.preventDefault()
-    try {
-      const response = await fetch(
-        `${import.meta.env.VITE_BACKEND_URL}/admins`,
-        {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(newAdmin),
-        }
-      )
-      if (!response.ok) throw new Error('Failed to add admin')
-      const addedAdmin = await response.json()
-      setAdmins([...admins, addedAdmin])
-      setNewAdmin({ name: '', email: '', role: 'Admin' })
-      setIsModalOpen(false)
-    } catch (err) {
-      setError(err.message)
-    }
-  }
-
-  const handleEditAdmin = (admin) => {
-    setEditingAdmin(admin)
-    setNewAdmin(admin)
-    setIsModalOpen(true)
-  }
-
-  const handleUpdateAdmin = async (e) => {
-    e.preventDefault()
-    try {
-      const response = await fetch(
-        `${import.meta.env.VITE_BACKEND_URL}/admins/${editingAdmin.id}`,
-        {
-          method: 'PUT',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(newAdmin),
-        }
-      )
-      if (!response.ok) throw new Error('Failed to update admin')
-      const updatedAdmin = await response.json()
-      setAdmins(
-        admins.map((admin) =>
-          admin.id === editingAdmin.id ? updatedAdmin : admin
-        )
-      )
-      setNewAdmin({ name: '', email: '', role: 'Admin' })
-      setEditingAdmin(null)
-      setIsModalOpen(false)
-    } catch (err) {
-      setError(err.message)
-    }
-  }
-
-  const handleDeleteAdmin = async (id) => {
-    try {
-      const response = await fetch(
-        `${import.meta.env.VITE_BACKEND_URL}/admins/${id}`,
-        { method: 'DELETE' }
-      )
-      if (!response.ok) throw new Error('Failed to delete admin')
-      setAdmins(admins.filter((admin) => admin.id !== id))
-    } catch (err) {
-      setError(err.message)
-    }
-  }
-
   return (
     <div className="container mx-auto px-4 py-8 bg-white text-black">
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-3xl font-bold">Admins</h1>
         <button
-          onClick={() => {
-            setNewAdmin({ name: '', email: '', role: 'Admin' })
-            setEditingAdmin(null)
-            setIsModalOpen(true)
-          }}
+          onClick={() => setIsModalOpen(true)}
           className="px-4 py-2 bg-black text-white rounded-md hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-gray-500"
         >
           <Plus className="w-5 h-5 inline-block mr-2" />
-          Add Admin
+          Promote User to Admin
         </button>
       </div>
 
@@ -186,20 +137,6 @@ const Admins = () => {
                 </button>
               </th>
               <th className="px-6 py-3 border-b border-gray-300 bg-gray-100 text-left text-xs leading-4 font-medium text-gray-500 uppercase tracking-wider">
-                <button
-                  className="flex items-center"
-                  onClick={() => handleSort('lastLogin')}
-                >
-                  Last Login
-                  {sortConfig.key === 'lastLogin' &&
-                    (sortConfig.direction === 'ascending' ? (
-                      <ChevronUp className="w-4 h-4 ml-1" />
-                    ) : (
-                      <ChevronDown className="w-4 h-4 ml-1" />
-                    ))}
-                </button>
-              </th>
-              <th className="px-6 py-3 border-b border-gray-300 bg-gray-100 text-left text-xs leading-4 font-medium text-gray-500 uppercase tracking-wider">
                 Actions
               </th>
             </tr>
@@ -208,9 +145,6 @@ const Admins = () => {
             {loading
               ? Array.from({ length: 5 }).map((_, index) => (
                   <tr key={index}>
-                    <td className="px-6 py-4 border-b border-gray-300">
-                      <div className="animate-pulse h-4 bg-gray-200 rounded"></div>
-                    </td>
                     <td className="px-6 py-4 border-b border-gray-300">
                       <div className="animate-pulse h-4 bg-gray-200 rounded"></div>
                     </td>
@@ -255,59 +189,36 @@ const Admins = () => {
 
       {isModalOpen && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4">
-          <div className="bg-white rounded-lg p-6 w-full max-w-md relative">
+          <div className="bg-white rounded-lg p-6 w-[80vw] relative h-[80vh]">
             <button
               className="absolute top-2 right-2"
               onClick={() => setIsModalOpen(false)}
             >
               <X className="w-6 h-6 text-black" />
             </button>
-            <h2 className="text-2xl font-bold mb-4">
-              {editingAdmin ? 'Edit Admin' : 'Add Admin'}
-            </h2>
-            <form onSubmit={editingAdmin ? handleUpdateAdmin : handleAddAdmin}>
-              <label className="block mb-2">
-                Name
-                <input
-                  type="text"
-                  value={newAdmin.name}
-                  onChange={(e) =>
-                    setNewAdmin({ ...newAdmin, name: e.target.value })
-                  }
-                  className="mt-1 p-2 border border-gray-300 rounded w-full"
-                />
-              </label>
-              <label className="block mb-2">
-                Email
-                <input
-                  type="email"
-                  value={newAdmin.email}
-                  onChange={(e) =>
-                    setNewAdmin({ ...newAdmin, email: e.target.value })
-                  }
-                  className="mt-1 p-2 border border-gray-300 rounded w-full"
-                />
-              </label>
-              <label className="block mb-4">
-                Role
-                <select
-                  value={newAdmin.role}
-                  onChange={(e) =>
-                    setNewAdmin({ ...newAdmin, role: e.target.value })
-                  }
-                  className="mt-1 p-2 border border-gray-300 rounded w-full"
-                >
-                  <option value="Admin">Admin</option>
-                  <option value="Super Admin">Super Admin</option>
-                </select>
-              </label>
-              <button
-                type="submit"
-                className="px-4 py-2 bg-black text-white rounded-md hover:bg-gray-800 w-full"
-              >
-                {editingAdmin ? 'Update Admin' : 'Add Admin'}
-              </button>
-            </form>
+            <h2 className="text-2xl font-bold mb-4">Promote User to Admin</h2>
+            <ul className="space-y-4 h-[70vh] overflow-y-scroll overflow-x-hidden">
+              {loading ? (
+                <div className="animate-pulse">Loading...</div>
+              ) : (
+                users.map((user) => (
+                  <li
+                    key={user.id}
+                    className="flex justify-between items-center py-2 px-4 bg-gray-100 rounded-md hover:bg-gray-200 cursor-pointer"
+                  >
+                    <span>
+                      {user.first_name} {user.last_name} ({user.email})
+                    </span>
+                    <button
+                      className="bg-black text-white px-4 py-2 rounded-md"
+                      onClick={() => handlePromoteUser(user.id)}
+                    >
+                      Promote
+                    </button>
+                  </li>
+                ))
+              )}
+            </ul>
           </div>
         </div>
       )}

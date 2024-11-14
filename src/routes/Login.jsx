@@ -4,47 +4,83 @@ import { useNavigate } from 'react-router-dom'
 import Header from '../components/Header'
 import Footer from '../components/Footer'
 import { toast } from 'react-toastify'
+import { useAppDispatch } from '../store/hooks'
+import { setIdentity } from '../store/slices/identitySlice'
 
 const Login = () => {
+  const [formData, setFormData] = useState({
+    first_name: '',
+    last_name: '',
+    email: '',
+    password: '',
+    contact: '',
+    user_role: 'customer',
+  })
   const [isLogin, setIsLogin] = useState(true)
   const [showPassword, setShowPassword] = useState(false)
   const navigate = useNavigate()
   const toggleForm = () => setIsLogin(!isLogin)
   const togglePasswordVisibility = () => setShowPassword(!showPassword)
+  const dispatch = useAppDispatch()
 
   const onSubmit = async (e) => {
     e.preventDefault()
-    const { email, password, firstName, lastName, mobile } = e.target.elements
     if (isLogin) {
-      // handle login logic here
-      const res = await fetch(`${import.meta.VITE_BACKEND_URL}/login`, {
-        method: 'POST',
-        body: JSON.stringify({ email, password }),
-      })
-      const data = await res.json()
-      if (res.ok) {
-        toast('Login successful!', { type: 'success' })
-      } else {
-        toast(data.message || 'something wrong happened!', { type: 'error' })
+      try {
+        const res = await fetch(
+          `${import.meta.env.VITE_BACKEND_URL}/auth/login`,
+          {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              email: formData.email,
+              password: formData.password,
+            }),
+          }
+        )
+        const data = await res.json()
+        if (res.ok) {
+          toast('Login successful!', { type: 'success' })
+          dispatch(
+            setIdentity({
+              is_logged: true,
+              access_token: data.access_token,
+              refresh_token: data.refresh_token,
+              user: {
+                username:
+                  data.user_data.first_name + ' ' + data.user_data.last_name,
+                email: data.user_data.email,
+                phone_number: data.user_data.contact,
+                user_role: data.role,
+              },
+            })
+          )
+          navigate('/listing')
+        } else {
+          throw new Error(data.message)
+        }
+      } catch (e) {
+        toast(e.message || 'something wrong happened!', {
+          type: 'error',
+        })
       }
     } else {
-      // handle registration logic
-      const res = await fetch(`${import.meta.VITE_BACKEND_URL}/users`, {
-        method: 'POST',
-        body: JSON.stringify({
-          first_name: firstName,
-          last_name: lastName,
-          email,
-          password,
-          contact: mobile,
-          user_role: 'user',
-        }),
-      })
-      const data = await res.json()
-      if (res.ok) {
-        toast('registration successful!', { type: 'success' })
-      } else {
-        toast(data.message || 'something wrong happened!', {
+      try {
+        const res = await fetch(`${import.meta.env.VITE_BACKEND_URL}/users`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(formData),
+        })
+        console.log(res)
+        const data = await res.json()
+        if (res.ok) {
+          toast('registration successful!', { type: 'success' })
+          navigate('/')
+        } else {
+          throw new Error(data.message)
+        }
+      } catch (e) {
+        toast(e.message || 'something wrong happened!', {
           type: 'error',
         })
       }
@@ -76,10 +112,17 @@ const Login = () => {
                   <div className="mt-1">
                     <input
                       id="firstName"
-                      name="firstName"
+                      name="first_name"
                       type="text"
                       required
                       className="block w-full appearance-none rounded-md border border-gray-300 px-3 py-2 placeholder-gray-400 shadow-sm focus:border-black focus:outline-none focus:ring-black sm:text-sm"
+                      value={formData.first_name}
+                      onChange={(e) =>
+                        setFormData({
+                          ...formData,
+                          [e.target.name]: e.target.value,
+                        })
+                      }
                     />
                   </div>
                 </div>
@@ -96,10 +139,17 @@ const Login = () => {
                   <div className="mt-1">
                     <input
                       id="lastName"
-                      name="lastName"
+                      name="last_name"
                       type="text"
                       required
                       className="block w-full appearance-none rounded-md border border-gray-300 px-3 py-2 placeholder-gray-400 shadow-sm focus:border-black focus:outline-none focus:ring-black sm:text-sm"
+                      value={formData.last_name}
+                      onChange={(e) =>
+                        setFormData({
+                          ...formData,
+                          [e.target.name]: e.target.value,
+                        })
+                      }
                     />
                   </div>
                 </div>
@@ -116,10 +166,17 @@ const Login = () => {
                   <div className="mt-1">
                     <input
                       id="mobile"
-                      name="mobile"
+                      name="contact"
                       type="tel"
                       required
                       className="block w-full appearance-none rounded-md border border-gray-300 px-3 py-2 placeholder-gray-400 shadow-sm focus:border-black focus:outline-none focus:ring-black sm:text-sm"
+                      value={formData.contact}
+                      onChange={(e) =>
+                        setFormData({
+                          ...formData,
+                          [e.target.name]: e.target.value,
+                        })
+                      }
                     />
                   </div>
                 </div>
@@ -140,6 +197,13 @@ const Login = () => {
                     autoComplete="email"
                     required
                     className="block w-full appearance-none rounded-md border border-gray-300 px-3 py-2 placeholder-gray-400 shadow-sm focus:border-black focus:outline-none focus:ring-black sm:text-sm"
+                    value={formData.email}
+                    onChange={(e) =>
+                      setFormData({
+                        ...formData,
+                        [e.target.name]: e.target.value,
+                      })
+                    }
                   />
                 </div>
               </div>
@@ -159,6 +223,13 @@ const Login = () => {
                     autoComplete="current-password"
                     required
                     className="block w-full appearance-none rounded-md border border-gray-300 px-3 py-2 placeholder-gray-400 shadow-sm focus:border-black focus:outline-none focus:ring-black sm:text-sm"
+                    value={formData.password}
+                    onChange={(e) =>
+                      setFormData({
+                        ...formData,
+                        [e.target.name]: e.target.value,
+                      })
+                    }
                   />
                   <button
                     type="button"

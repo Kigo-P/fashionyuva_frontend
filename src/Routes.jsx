@@ -20,6 +20,7 @@ import Checkout from './routes/Checkout.jsx'
 import Dashboard from './routes/admin/Dashboard.jsx'
 import Invoice from './routes/Invoice.jsx'
 import Mpesa from './routes/Mpesa.jsx'
+import ProtectedRoutes from './utils/PrivateRoute.jsx'
 
 const router = createBrowserRouter(
   createRoutesFromElements(
@@ -31,11 +32,6 @@ const router = createBrowserRouter(
         errorElement={<ErrorBoundary />}
       />
 
-      <Route
-        path="/dashboard"
-        element={<Dashboard />}
-        errorElement={<ErrorBoundary />}
-      />
       <Route
         path="/listing"
         element={<Listing />}
@@ -82,6 +78,13 @@ const router = createBrowserRouter(
         element={<Mpesa />}
         errorElement={<ErrorBoundary />}
       />
+      <Route element={<ProtectedRoutes />}>
+        <Route
+          path="/dashboard"
+          element={<Dashboard />}
+          errorElement={<ErrorBoundary />}
+        />
+      </Route>
       <Route path="*" element={<NotFound />} errorElement={<ErrorBoundary />} />
     </>
   )
