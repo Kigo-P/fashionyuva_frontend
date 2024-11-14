@@ -75,6 +75,13 @@ const Listing = () => {
     handleFilterChange('priceRange', [0, parseInt(value, 10)])
   }
 
+  const format = (amount) => {
+    return new Intl.NumberFormat('en-KE', {
+      style: 'currency',
+      currency: 'KES',
+    }).format(amount)
+  }
+
   return (
     <>
       <Header />
@@ -136,8 +143,8 @@ const Listing = () => {
                 className="w-full"
               />
               <div className="flex justify-between mt-2">
-                <span>$0</span>
-                <span>${filters.priceRange[1]}</span>
+                <span>{format(0)}</span>
+                <span>{format(filters.priceRange[1])}</span>
               </div>
             </div>
 

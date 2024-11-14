@@ -8,6 +8,12 @@ const ProductCard = ({ product, i, tab = 'home' }) => {
   const cart = useAppSelector((state) => state.cart).cart
   const navigate = useNavigate()
   const dispatch = useAppDispatch()
+  const format = (amount) => {
+    return new Intl.NumberFormat('en-KE', {
+      style: 'currency',
+      currency: 'KES',
+    }).format(amount)
+  }
   return (
     <div
       className={`max-w-sm ${
@@ -33,7 +39,7 @@ const ProductCard = ({ product, i, tab = 'home' }) => {
         <p className="text-gray-700 text-base mb-4">{product.description}</p>
         <div className="flex justify-between gap-4 items-center mb-4">
           <span className="text-2xl font-bold text-primary whitespace-nowrap">
-            Ksh {product.price.toLocaleString()}
+            {format(product.price.toLocaleString())}
           </span>
           <div className="flex items-center">
             {product.reviews.length !== 0
