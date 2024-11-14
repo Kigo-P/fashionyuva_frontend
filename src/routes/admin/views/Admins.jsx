@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import { Pencil, Trash2, Plus, X, ChevronUp, ChevronDown } from 'lucide-react'
+import { toast } from 'react-toastify'
 
 const Admins = () => {
   const [admins, setAdmins] = useState([]) // State to store the list of admins
@@ -24,7 +25,7 @@ const Admins = () => {
           throw new Error('Failed to fetch users')
         }
         const data = await response.json()
-        setUsers(data.filter((user) => user.role !== 'Admin')) // Only show non-admin users
+        setUsers(data.filter((user) => user.role !== 'admin'))
       } catch (err) {
         setError(err.message)
       } finally {
@@ -47,7 +48,7 @@ const Admins = () => {
       const userToPromote = users.find((user) => user.id === userId)
       if (!userToPromote) return
 
-      const updatedAdmin = { ...userToPromote, role: 'admin' }
+      const updatedAdmin = { ...userToPromote, user_role: 'admin' }
       const response = await fetch(
         `${import.meta.env.VITE_BACKEND_URL}/users/${userId}`,
         {
@@ -63,7 +64,7 @@ const Admins = () => {
       setUsers((prevUsers) => prevUsers.filter((user) => user.id !== userId))
       setIsModalOpen(false)
     } catch (err) {
-      setError(err.message)
+      toast(err.message, { type: 'error' })
     }
   }
 
@@ -137,6 +138,9 @@ const Admins = () => {
                 </button>
               </th>
               <th className="px-6 py-3 border-b border-gray-300 bg-gray-100 text-left text-xs leading-4 font-medium text-gray-500 uppercase tracking-wider">
+                Joined At
+              </th>
+              <th className="px-6 py-3 border-b border-gray-300 bg-gray-100 text-left text-xs leading-4 font-medium text-gray-500 uppercase tracking-wider">
                 Actions
               </th>
             </tr>
@@ -157,21 +161,24 @@ const Admins = () => {
                     <td className="px-6 py-4 border-b border-gray-300">
                       <div className="animate-pulse h-4 bg-gray-200 rounded"></div>
                     </td>
+                    <td className="px-6 py-4 border-b border-gray-300">
+                      <div className="animate-pulse h-4 bg-gray-200 rounded"></div>
+                    </td>
                   </tr>
                 ))
               : sortedAdmins.map((admin) => (
                   <tr key={admin.id}>
                     <td className="px-6 py-4 border-b border-gray-300">
-                      {admin.name}
+                      {admin.first_name + ' ' + admin.last_name}
                     </td>
                     <td className="px-6 py-4 border-b border-gray-300">
                       {admin.email}
                     </td>
                     <td className="px-6 py-4 border-b border-gray-300">
-                      {admin.role}
+                      {admin.user_role}
                     </td>
                     <td className="px-6 py-4 border-b border-gray-300">
-                      {admin.lastLogin}
+                      {admin.created_at}
                     </td>
                     <td className="px-6 py-4 border-b border-gray-300 flex space-x-2">
                       <button onClick={() => handleEditAdmin(admin)}>
