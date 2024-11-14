@@ -5,6 +5,7 @@ import {
   Home,
   Layers,
   Mail,
+  MessageCircle,
   Plus,
   ShoppingBag,
   UserCog,
@@ -50,6 +51,11 @@ const Sidebar = ({ minified = false }) => {
       name: 'Newsletter',
       icon: <Mail style={{ color: '#fff', fontSize: 18 }} />,
       key: 'newsletter',
+    },
+    {
+      name: 'Contacts',
+      icon: <MessageCircle style={{ color: '#fff', fontSize: 18 }} />,
+      key: 'contacts',
     },
   ]
 
