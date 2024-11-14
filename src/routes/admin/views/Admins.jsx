@@ -3,8 +3,8 @@ import { Pencil, Trash2, Plus, X, ChevronUp, ChevronDown } from 'lucide-react'
 import { toast } from 'react-toastify'
 
 const Admins = () => {
-  const [admins, setAdmins] = useState([]) // State to store the list of admins
-  const [users, setUsers] = useState([]) // List of users to promote
+  const [admins, setAdmins] = useState([])
+  const [users, setUsers] = useState([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
   const [isModalOpen, setIsModalOpen] = useState(false)
@@ -17,7 +17,6 @@ const Admins = () => {
     const fetchUsersAndAdmins = async () => {
       setLoading(true)
       try {
-        // Fetch all users
         const response = await fetch(
           `${import.meta.env.VITE_BACKEND_URL}/users`
         )
@@ -78,6 +77,31 @@ const Admins = () => {
     }
     return 0
   })
+
+  const handleDeleteAdmin = async (userId) => {
+    try {
+      const userToPromote = users.find((user) => user.id === userId)
+      if (!userToPromote) return
+
+      const updatedAdmin = { ...userToPromote, user_role: 'customer' }
+      const response = await fetch(
+        `${import.meta.env.VITE_BACKEND_URL}/users/${userId}`,
+        {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(updatedAdmin),
+        }
+      )
+      if (!response.ok) throw new Error('Failed to demote admin')
+
+      const promotedUser = await response.json()
+      setAdmins((prevAdmins) => [...prevAdmins, promotedUser])
+      setUsers((prevUsers) => prevUsers.filter((user) => user.id !== userId))
+      setIsModalOpen(false)
+    } catch (err) {
+      toast(err.message, { type: 'error' })
+    }
+  }
 
   return (
     <div className="container mx-auto px-4 py-8 bg-white text-black">
@@ -182,11 +206,8 @@ const Admins = () => {
                       {admin.created_at}
                     </td>
                     <td className="px-6 py-4 border-b border-gray-300 flex space-x-2">
-                      <button onClick={() => handleEditAdmin(admin)}>
-                        <Pencil />
-                      </button>
                       <button onClick={() => handleDeleteAdmin(admin.id)}>
-                        <Trash2 />
+                        <Trash2 className="text-red-600" />
                       </button>
                     </td>
                   </tr>
