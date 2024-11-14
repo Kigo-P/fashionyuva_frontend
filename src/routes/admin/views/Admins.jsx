@@ -80,8 +80,8 @@ const Admins = () => {
 
   const handleDemoteAdmin = async (userId) => {
     try {
-      const userToDemote = users.find((user) => user.id === userId)
-      if (!userToDemote) return
+      const userToDemote = admins.find((admin) => admin.id === userId)
+      if (!userToDemote) throw new Error('Admin not found!')
 
       const updatedUser = { ...userToDemote, user_role: 'customer' }
       const response = await fetch(
