@@ -82,7 +82,10 @@ function Product() {
       <div className="max-w-7xl mx-auto px-4 py-8 grid grid-cols-1 md:grid-cols-2 gap-8 mt-24">
         <div className="relative aspect-square bg-gray-100 rounded-lg overflow-hidden">
           <img
-            src={images[currentImageIndex]}
+            src={
+              images[currentImageIndex].url ||
+              `https://picsum.photos/400/300?id=dfgsdrgdrgdfg`
+            }
             alt={product.title}
             className="w-full h-full object-cover"
           />

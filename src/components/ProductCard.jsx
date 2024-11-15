@@ -23,6 +23,8 @@ const ProductCard = ({ product, i, tab = 'home' }) => {
     )
   }
 
+  console.log(product)
+
   return (
     <div
       className={`max-w-sm ${
@@ -32,8 +34,10 @@ const ProductCard = ({ product, i, tab = 'home' }) => {
     >
       <img
         className="w-full h-48 object-cover"
-        src={`https://picsum.photos/400/300?id=${i + 1}`}
-        // src={product.images.url}
+        //src={`https://picsum.photos/400/300?id=${i + 1}`}
+        src={
+          product.images[0]?.url || `https://picsum.photos/400/300?id=${i + 1}`
+        }
         alt="Product Image"
       />
       <div className="px-6 py-4">
