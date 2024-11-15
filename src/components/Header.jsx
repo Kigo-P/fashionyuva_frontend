@@ -94,7 +94,9 @@ const Header = () => {
                   setProfDrop(!profDrop)
                 }}
               >
-                <span className="text-white text-xs">Dennis Kibet</span>
+                <span className="text-white text-xs">
+                  {identity.user?.username}
+                </span>
 
                 <CircleUser
                   style={{ color: '#fff', fontSize: 18 }}

@@ -6,12 +6,14 @@ import { toast } from 'react-toastify'
 
 export default function ContactPage() {
   const [formData, setFormData] = useState({
-    firstName: '',
-    lastName: '',
+    first_name: '',
+    last_name: '',
     email: '',
-    phone: '',
+    contact: '',
     message: '',
+    about_us: '',
   })
+  const [isloading, setIsLoading] = useState(false)
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value })
@@ -19,32 +21,34 @@ export default function ContactPage() {
 
   const handleSubmit = async (e) => {
     e.preventDefault()
-    const res = await fetch(`${import.meta.env.VITE_BACKEND_URL}/contact`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        first_name: formData.firstName,
-        last_name: formData.lastName,
-        email: formData.email,
-        contact: formData.phone,
-        message: formData.message,
-      }),
-    })
-
-    const data = await res.json()
-    if (res.ok) {
-      toast('contact saved successfully!', { type: 'success' })
-      setFormData({
-        firstName: '',
-        lastName: '',
-        email: '',
-        phone: '',
-        message: '',
+    try {
+      setIsLoading(true)
+      const res = await fetch(`${import.meta.env.VITE_BACKEND_URL}/contacts`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(formData),
       })
-    } else {
-      toast(data.message, { type: 'error' })
+
+      const data = await res.json()
+      setIsLoading(false)
+      if (res.ok) {
+        toast('contact saved successfully!', { type: 'success' })
+        setFormData({
+          first_name: '',
+          last_name: '',
+          email: '',
+          contact: '',
+          message: '',
+          about_us: '',
+        })
+      } else {
+        throw new Error(data.message)
+      }
+    } catch (e) {
+      setIsLoading(false)
+      toast(e.message, { type: 'error' })
     }
   }
 
@@ -97,8 +101,8 @@ export default function ContactPage() {
                 <input
                   type="text"
                   id="firstName"
-                  name="firstName"
-                  value={formData.firstName}
+                  name="first_name"
+                  value={formData.first_name}
                   onChange={handleChange}
                   className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-black"
                   required
@@ -106,16 +110,16 @@ export default function ContactPage() {
               </div>
               <div>
                 <label
-                  htmlFor="lastName"
+                  htmlFor="last_name"
                   className="block text-sm font-medium mb-1"
                 >
                   Last Name
                 </label>
                 <input
                   type="text"
-                  id="lastName"
-                  name="lastName"
-                  value={formData.lastName}
+                  id="last_name"
+                  name="last_name"
+                  value={formData.last_name}
                   onChange={handleChange}
                   className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-black"
                   required
@@ -140,16 +144,16 @@ export default function ContactPage() {
               </div>
               <div>
                 <label
-                  htmlFor="phone"
+                  htmlFor="contact"
                   className="block text-sm font-medium mb-1"
                 >
-                  Phone (optional)
+                  contact (optional)
                 </label>
                 <input
                   type="tel"
-                  id="phone"
-                  name="phone"
-                  value={formData.phone}
+                  id="contact"
+                  name="contact"
+                  value={formData.contact}
                   onChange={handleChange}
                   className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-black"
                 />
@@ -171,12 +175,28 @@ export default function ContactPage() {
                   required
                 />
               </div>
+              <div>
+                <h2 className="font-semibold mb-2">
+                  How did you hear about us?
+                </h2>
+                <select
+                  name="about_us"
+                  value={formData.about_us}
+                  onChange={handleChange}
+                  className="w-full border border-gray-300 p-2 rounded-md"
+                >
+                  <option value="default_empty">select an option</option>
+                  <option value="social">Social Media</option>
+                  <option value="refferal">Refferal</option>
+                  <option value="events">events</option>
+                </select>
+              </div>
             </div>
             <button
               type="submit"
               className="mt-6 w-full bg-black text-white py-2 px-4 rounded-md hover:bg-gray-800 transition-colors duration-300"
             >
-              Send Message
+              {isloading ? 'sending...' : 'Send Message'}
             </button>
           </form>
         </div>
