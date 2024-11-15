@@ -1,23 +1,70 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { Pencil, Trash2, Plus, X } from 'lucide-react'
+import { toast } from 'react-toastify'
+
+const SkeletonLoader = () => (
+  <div className="border border-gray-200 rounded-lg p-4 shadow-sm animate-pulse">
+    <div className="h-6 bg-gray-200 mb-2 rounded w-3/4"></div>
+    <div className="h-4 bg-gray-200 mb-4 rounded w-5/6"></div>
+    <div className="flex justify-end space-x-2">
+      <div className="w-8 h-8 bg-gray-200 rounded-md"></div>
+      <div className="w-8 h-8 bg-gray-200 rounded-md"></div>
+    </div>
+  </div>
+)
 
 export default function CategoriesPage() {
-  const [categories, setCategories] = useState([
-    { id: 1, name: 'Electronics', description: 'Gadgets and devices' },
-    { id: 2, name: 'Clothing', description: 'Apparel and accessories' },
-    { id: 3, name: 'Home & Garden', description: 'Items for home and outdoor' },
-    { id: 4, name: 'Books', description: 'Physical and digital books' },
-  ])
-
+  const [categories, setCategories] = useState([])
+  const [isLoading, setIsLoading] = useState(true)
   const [isModalOpen, setIsModalOpen] = useState(false)
-  const [newCategory, setNewCategory] = useState({ name: '', description: '' })
+  const [newCategory, setNewCategory] = useState({
+    id: '',
+    name: '',
+    description: '',
+  })
   const [editingCategory, setEditingCategory] = useState(null)
 
-  const handleAddCategory = (e) => {
+  const fetchCategories = async () => {
+    try {
+      const res = await fetch(`${import.meta.env.VITE_BACKEND_URL}/categories`)
+      const data = await res.json()
+      if (res.ok) {
+        setCategories(data)
+      } else {
+        throw new Error(data.message)
+      }
+    } catch (e) {
+      toast(e.message, { type: 'error' })
+    } finally {
+      setIsLoading(false)
+    }
+  }
+
+  useEffect(() => {
+    fetchCategories()
+  }, [])
+
+  const handleAddCategory = async (e) => {
     e.preventDefault()
     if (newCategory.name && newCategory.description) {
-      setCategories([...categories, { ...newCategory, id: Date.now() }])
-      setNewCategory({ name: '', description: '' })
+      try {
+        const response = await fetch(
+          `${import.meta.env.VITE_BACKEND_URL}/categories`,
+          {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(newCategory),
+          }
+        )
+        if (!response.ok) throw new Error('Failed to post category')
+        fetchCategories()
+        setNewCategory({ id: '', name: '', description: '' })
+        setEditingCategory(null)
+        setIsModalOpen(false)
+      } catch (error) {
+        toast(error.message, { type: 'error' })
+      }
+      setNewCategory({ id: '', name: '', description: '' })
       setIsModalOpen(false)
     }
   }
@@ -28,20 +75,46 @@ export default function CategoriesPage() {
     setIsModalOpen(true)
   }
 
-  const handleUpdateCategory = (e) => {
+  const handleUpdateCategory = async (e) => {
     e.preventDefault()
-    setCategories(
-      categories.map((cat) =>
-        cat.id === editingCategory.id ? newCategory : cat
+    try {
+      const response = await fetch(
+        `${import.meta.env.VITE_BACKEND_URL}/categories/${newCategory.id}`,
+        {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(newCategory),
+        }
       )
-    )
-    setNewCategory({ name: '', description: '' })
-    setEditingCategory(null)
-    setIsModalOpen(false)
+      if (!response.ok) throw new Error('Failed to patch category')
+      fetchCategories()
+      setCategories(
+        categories.map((cat) =>
+          cat.id === editingCategory.id ? newCategory : cat
+        )
+      )
+      setNewCategory({ id: '', name: '', description: '' })
+      setEditingCategory(null)
+      setIsModalOpen(false)
+    } catch (error) {
+      toast(error.message, { type: 'error' })
+    }
   }
 
-  const handleDeleteCategory = (id) => {
+  const handleDeleteCategory = async (id) => {
     setCategories(categories.filter((cat) => cat.id !== id))
+    try {
+      const response = await fetch(
+        `${import.meta.env.VITE_BACKEND_URL}/categories/${id}`,
+        {
+          method: 'DELETE',
+          headers: { 'Content-Type': 'application/json' },
+        }
+      )
+      if (!response.ok) throw new Error('Failed to delete category')
+    } catch (error) {
+      toast(error.message, { type: 'error' })
+    }
   }
 
   return (
@@ -50,7 +123,7 @@ export default function CategoriesPage() {
         <h1 className="text-3xl font-bold">Categories</h1>
         <button
           onClick={() => {
-            setNewCategory({ name: '', description: '' })
+            setNewCategory({ id: '', name: '', description: '' })
             setEditingCategory(null)
             setIsModalOpen(true)
           }}
@@ -62,31 +135,33 @@ export default function CategoriesPage() {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {categories.map((category) => (
-          <div
-            key={category.id}
-            className="border border-gray-200 rounded-lg p-4 shadow-sm"
-          >
-            <h2 className="text-xl font-semibold mb-2">{category.name}</h2>
-            <p className="text-gray-600 mb-4">{category.description}</p>
-            <div className="flex justify-end space-x-2">
-              <button
-                onClick={() => handleEditCategory(category)}
-                className="p-2 bg-gray-100 text-black rounded-md hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-gray-500"
-                aria-label={`Edit ${category.name}`}
+        {isLoading
+          ? [...Array(6)].map((_, index) => <SkeletonLoader key={index} />)
+          : categories.map((category) => (
+              <div
+                key={category.id}
+                className="border border-gray-200 rounded-lg p-4 shadow-sm"
               >
-                <Pencil className="w-5 h-5" />
-              </button>
-              <button
-                onClick={() => handleDeleteCategory(category.id)}
-                className="p-2 bg-gray-100 text-black rounded-md hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-gray-500"
-                aria-label={`Delete ${category.name}`}
-              >
-                <Trash2 className="w-5 h-5" />
-              </button>
-            </div>
-          </div>
-        ))}
+                <h2 className="text-xl font-semibold mb-2">{category.name}</h2>
+                <p className="text-gray-600 mb-4">{category.description}</p>
+                <div className="flex justify-end space-x-2">
+                  <button
+                    onClick={() => handleEditCategory(category)}
+                    className="p-2 bg-gray-100 text-black rounded-md hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-gray-500"
+                    aria-label={`Edit ${category.name}`}
+                  >
+                    <Pencil className="w-5 h-5" />
+                  </button>
+                  <button
+                    onClick={() => handleDeleteCategory(category.id)}
+                    className="p-2 bg-gray-100 text-black rounded-md hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-gray-500"
+                    aria-label={`Delete ${category.name}`}
+                  >
+                    <Trash2 className="w-5 h-5" />
+                  </button>
+                </div>
+              </div>
+            ))}
       </div>
 
       {isModalOpen && (

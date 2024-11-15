@@ -3,9 +3,21 @@ import { ChevronLeft, ChevronRight, Filter, X } from 'lucide-react'
 import Header from '../components/Header'
 import Footer from '../components/Footer'
 import ProductCard from '../components/ProductCard'
+import { findMinAndMax } from '../utils/minmax'
 
-const SkeletonLoader = () => (
-  <div className="animate-pulse bg-gray-200 rounded-md h-64"></div>
+const SkeletonLoader = ({ i }) => (
+  <div
+    key={i}
+    className="max-w-sm rounded-lg overflow-hidden shadow-lg bg-gray-200 border border-gray-300 animate-pulse"
+  >
+    <div className="w-full h-48 bg-gray-300" />
+    <div className="p-6">
+      <div className="h-6 bg-gray-300 rounded mb-4"></div>
+      <div className="h-4 bg-gray-300 rounded mb-2"></div>
+      <div className="h-4 bg-gray-300 rounded mb-2"></div>
+      <div className="h-8 bg-gray-300 rounded mt-4"></div>
+    </div>
+  </div>
 )
 
 const Listing = () => {
@@ -13,12 +25,19 @@ const Listing = () => {
   const [currentPage, setCurrentPage] = useState(1)
   const [filters, setFilters] = useState({
     category: '',
-    priceRange: [0, 2000],
+    priceRange: [0, 20000],
     search: '',
   })
   const [showFilters, setShowFilters] = useState(false)
   const [isLoading, setIsLoading] = useState(true)
   const productsPerPage = 12
+
+  useEffect(() => {
+    setFilters({
+      ...filters,
+      priceRange: findMinAndMax(products.map((prod) => parseInt(prod.price))),
+    })
+  }, [products])
 
   const fetchProducts = async () => {
     setIsLoading(true)
@@ -41,14 +60,18 @@ const Listing = () => {
     fetchProducts()
   }, [])
 
-  const filteredProducts = products.filter(
-    (product) =>
-      (filters.category === '' || product.category === filters.category) &&
+  const filteredProducts = products.filter((product) => {
+    const matchesCategory =
+      filters.category === '' ||
+      filters.category.toLowerCase() === product.categories.name.toLowerCase()
+    const matchesSearch =
+      filters.search === '' ||
+      product.title.toLowerCase().includes(filters.search.toLowerCase())
+    const matchesPrice =
       product.price >= filters.priceRange[0] &&
-      product.price <= filters.priceRange[1] &&
-      (filters.search === '' ||
-        product.title.toLowerCase().includes(filters.search.toLowerCase()))
-  )
+      product.price <= filters.priceRange[1]
+    return matchesCategory && matchesSearch && matchesPrice
+  })
 
   const totalPages = Math.ceil(filteredProducts.length / productsPerPage)
   const currentProducts = filteredProducts.slice(
@@ -81,6 +104,8 @@ const Listing = () => {
       currency: 'KES',
     }).format(amount)
   }
+
+  console.log(products)
 
   return (
     <>
@@ -125,9 +150,9 @@ const Listing = () => {
                 className="w-full border border-gray-300 p-2 rounded-md"
               >
                 <option value="">All Categories</option>
-                <option value="Dresses">Dresses</option>
-                <option value="Suits">Suits</option>
-                <option value="Accessories">Accessories</option>
+                <option value="Men">Men</option>
+                <option value="Women">Women</option>
+                <option value="Children">Children</option>
               </select>
             </div>
 
@@ -135,8 +160,12 @@ const Listing = () => {
               <h2 className="font-semibold mb-2">Price Range</h2>
               <input
                 type="range"
-                min="0"
-                max="2000"
+                min={
+                  findMinAndMax(products.map((prod) => parseInt(prod.price)))[0]
+                }
+                max={
+                  findMinAndMax(products.map((prod) => parseInt(prod.price)))[1]
+                }
                 step="10"
                 value={filters.priceRange[1]}
                 onChange={(e) => handlePriceRangeChange(e.target.value)}
@@ -160,7 +189,7 @@ const Listing = () => {
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
               {isLoading
                 ? Array.from({ length: productsPerPage }).map((_, index) => (
-                    <SkeletonLoader key={index} />
+                    <SkeletonLoader key={index} i={index} />
                   ))
                 : currentProducts.map((product, i) => (
                     <ProductCard

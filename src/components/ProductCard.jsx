@@ -14,6 +14,15 @@ const ProductCard = ({ product, i, tab = 'home' }) => {
       currency: 'KES',
     }).format(amount)
   }
+
+  const calculateRating = (reviews) => {
+    return Math.floor(
+      reviews
+        .map((review) => Math.floor(parseFloat(review.rating)))
+        .reduce((a, b) => a + b, 0) / reviews.length
+    )
+  }
+
   return (
     <div
       className={`max-w-sm ${
@@ -36,24 +45,24 @@ const ProductCard = ({ product, i, tab = 'home' }) => {
             {product.categories.name}
           </span>
         </div>
-        <p className="text-gray-700 text-base mb-4">{product.description}</p>
-        <div className="flex justify-between gap-4 items-center mb-4">
+        <p className="text-gray-700 text-base mb-4 overflow-ellipsis line-clamp-2">
+          {product.description}
+        </p>
+        <div className="flex justify-between flex-wrap gap-4 items-center mb-4">
           <span className="text-2xl font-bold text-primary whitespace-nowrap">
-            {format(product.price.toLocaleString())}
+            {format(product.price)}
           </span>
           <div className="flex items-center">
-            {product.reviews.length !== 0
-              ? [...Array(5)].map((_, i) => (
-                  <Star
-                    key={i}
-                    className={`w-5 h-5 ${
-                      i < 4
-                        ? 'text-yellow-400 fill-yellow-400'
-                        : 'text-gray-300'
-                    }`}
-                  />
-                ))
-              : null}
+            {[...Array(5)].map((_, i) => (
+              <Star
+                key={i}
+                className={`w-5 h-5 ${
+                  i + 1 <= calculateRating(product.reviews)
+                    ? 'text-yellow-400 fill-yellow-400'
+                    : 'text-gray-300'
+                }`}
+              />
+            ))}
             <span className="text-sm text-gray-600 ml-2 whitespace-nowrap">
               ({product.reviews.length} reviews)
             </span>

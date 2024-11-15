@@ -59,7 +59,24 @@ const Header = () => {
         })
       )
     } else {
-      toast('Logout unsucessful', { type: 'error' })
+      if (res.statusText === 'UNAUTHORIZED') {
+        dispatch(
+          setIdentity({
+            is_logged: false,
+            access_token: '',
+            refresh_token: '',
+            user: {
+              username: '',
+              email: '',
+              phone_number: '',
+              user_role: '',
+            },
+          })
+        )
+        toast('Logout successful', { type: 'success' })
+      } else {
+        toast('Logout unsucessful', { type: 'error' })
+      }
     }
   }
 
