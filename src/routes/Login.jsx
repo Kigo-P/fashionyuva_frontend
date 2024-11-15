@@ -22,11 +22,13 @@ const Login = () => {
   const toggleForm = () => setIsLogin(!isLogin)
   const togglePasswordVisibility = () => setShowPassword(!showPassword)
   const dispatch = useAppDispatch()
+  const [isloading, setIsLoading] = useState(false)
 
   const onSubmit = async (e) => {
     e.preventDefault()
     if (isLogin) {
       try {
+        setIsLoading(true)
         const res = await fetch(
           `${import.meta.env.VITE_BACKEND_URL}/auth/login`,
           {
@@ -39,6 +41,7 @@ const Login = () => {
           }
         )
         const data = await res.json()
+        setIsLoading(false)
         if (res.ok) {
           toast('Login successful!', { type: 'success' })
           dispatch(
@@ -55,17 +58,23 @@ const Login = () => {
               },
             })
           )
-          navigate('/listing')
+          if (data.role === 'customer') {
+            navigate('/listing')
+          } else {
+            navigate('/dashboard')
+          }
         } else {
           throw new Error(data.message)
         }
       } catch (e) {
+        setIsLoading(false)
         toast(e.message || 'something wrong happened!', {
           type: 'error',
         })
       }
     } else {
       try {
+        setIsLoading(true)
         const res = await fetch(`${import.meta.env.VITE_BACKEND_URL}/users`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -73,6 +82,7 @@ const Login = () => {
         })
         console.log(res)
         const data = await res.json()
+        setIsLoading(false)
         if (res.ok) {
           toast('registration successful!', { type: 'success' })
           navigate('/')
@@ -80,6 +90,7 @@ const Login = () => {
           throw new Error(data.message)
         }
       } catch (e) {
+        setIsLoading(false)
         toast(e.message || 'something wrong happened!', {
           type: 'error',
         })
@@ -250,7 +261,7 @@ const Login = () => {
                   type="submit"
                   className="flex w-full justify-center rounded-md border border-transparent bg-black py-2 px-4 text-sm font-medium text-white shadow-sm hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-black focus:ring-offset-2"
                 >
-                  {isLogin ? 'Sign in' : 'Register'}
+                  {isloading ? 'Sending...' : isLogin ? 'Sign in' : 'Register'}
                 </button>
               </div>
             </form>

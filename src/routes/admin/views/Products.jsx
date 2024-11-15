@@ -85,12 +85,12 @@ export default function ProductListing() {
         )
       } else {
         const data = await res.json()
-        console.log(data.message)
+        console.log(data)
       }
     } catch (error) {
+      console.log(error)
       console.error('Error updating product:', error)
     }
-
     closeModal()
   }
 
