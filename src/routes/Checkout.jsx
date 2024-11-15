@@ -3,7 +3,7 @@ import { CreditCard, ShoppingBag, ChevronLeft, X } from 'lucide-react'
 import Header from '../components/Header'
 import Footer from '../components/Footer'
 import { Link } from 'react-router-dom'
-import { renderText } from 'chart.js/helpers'
+import { useAppDispatch, useAppSelector } from '../store/hooks'
 
 const PaymentStatus = {
   IDLE: 'idle',
@@ -55,6 +55,7 @@ const Checkout = () => {
   const [error, setError] = useState('')
   const [checkoutRequestId, setCheckoutRequestId] = useState(null)
   const [isModalOpen, setIsModalOpen] = useState(false)
+  const cartItems = useAppSelector((state) => state.cart).cart
 
   useEffect(() => {
     let pollInterval
@@ -136,14 +137,9 @@ const Checkout = () => {
     }
   }
 
-  const cartItems = [
-    { id: 1, name: 'iMac 27"', price: 1499, quantity: 2 },
-    { id: 2, name: 'Apple Watch Series 8', price: 598, quantity: 1 },
-  ]
-
   const calculateSubtotal = () => {
     return cartItems.reduce(
-      (total, item) => total + item.price * item.quantity,
+      (total, item) => total + item.item.price * item.quantity,
       0
     )
   }
@@ -356,13 +352,13 @@ const Checkout = () => {
                   {cartItems.map((item) => (
                     <div key={item.id} className="flex justify-between">
                       <div>
-                        <p className="font-medium">{item.name}</p>
+                        <p className="font-medium">{item.item.title}</p>
                         <p className="text-sm text-gray-500">
                           Quantity: {item.quantity}
                         </p>
                       </div>
                       <p className="font-medium">
-                        {format((item.price * item.quantity).toFixed(2))}
+                        {format((item.item.price * item.quantity).toFixed(2))}
                       </p>
                     </div>
                   ))}

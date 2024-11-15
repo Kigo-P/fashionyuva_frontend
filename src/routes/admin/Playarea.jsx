@@ -8,6 +8,7 @@ import Users from './views/Users'
 import Admins from './views/Admins'
 import Newsletter from './views/Newsletter'
 import Contacts from './views/Contacts'
+import Orders from './views/Orders'
 
 const Playarea = () => {
   const playtab = useAppSelector((state) => state.admintab).tab
@@ -30,6 +31,8 @@ const Playarea = () => {
           <Newsletter />
         ) : playtab === 'contacts' ? (
           <Contacts />
+        ) : playtab === 'orders' ? (
+          <Orders />
         ) : (
           <Dash />
         )}

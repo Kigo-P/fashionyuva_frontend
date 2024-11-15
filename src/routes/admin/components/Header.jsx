@@ -6,6 +6,7 @@ import { setIdentity } from '../../../store/slices/identitySlice'
 
 const Header = ({ minified, setMinified }) => {
   const [profiledrop, setProfileDrop] = useState(false)
+  const [loading, setLoading] = useState(false)
   const profileDropRef = useRef(null)
   const identity = useAppSelector((state) => state.identity)
   const dispatch = useAppDispatch()
@@ -27,30 +28,21 @@ const Header = ({ minified, setMinified }) => {
   }, [])
 
   const handleLogout = async () => {
-    const res = await fetch(`${import.meta.env.VITE_BACKEND_URL}/auth/logout`, {
-      method: 'GET',
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${identity.access_token}`,
-      },
-    })
-    if (res.ok) {
-      toast('Logout successful', { type: 'success' })
-      dispatch(
-        setIdentity({
-          is_logged: false,
-          access_token: '',
-          refresh_token: '',
-          user: {
-            username: '',
-            email: '',
-            phone_number: '',
-            user_role: '',
+    try {
+      setLoading(true)
+
+      const res = await fetch(
+        `${import.meta.env.VITE_BACKEND_URL}/auth/logout`,
+        {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${identity.access_token}`,
           },
-        })
+        }
       )
-    } else {
-      if (res.statusText === 'UNAUTHORIZED') {
+      setLoading(false)
+      if (res.ok || res.status === 401) {
         dispatch(
           setIdentity({
             is_logged: false,
@@ -66,10 +58,17 @@ const Header = ({ minified, setMinified }) => {
         )
         toast('Logout successful', { type: 'success' })
       } else {
-        toast('Logout unsucessful', { type: 'error' })
+        toast('Logout unsuccessful', { type: 'error' })
       }
+    } catch (error) {
+      setLoading(false)
+      console.error('Logout error:', error)
+      toast('Network error. Please try again.', { type: 'error' })
+    } finally {
+      setLoading(false)
     }
   }
+
   return (
     <div className="h-full">
       <div className="h-full flex items-center justify-between">
@@ -134,9 +133,16 @@ const Header = ({ minified, setMinified }) => {
                         handleLogout()
                       }}
                     >
-                      <div className="">
-                        <LogOut style={{ color: '#000', fontSize: 18 }} />
-                      </div>{' '}
+                      {loading ? (
+                        <span
+                          className="mr-2 inline-block w-5 h-5 border-2 border-t-transparent border-black rounded-full animate-spin"
+                          role="status"
+                        ></span>
+                      ) : (
+                        <div className="">
+                          <LogOut style={{ color: '#000', fontSize: 18 }} />
+                        </div>
+                      )}
                       <span>Logout</span>
                     </li>
                   </ul>

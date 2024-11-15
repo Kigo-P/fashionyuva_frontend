@@ -4,7 +4,6 @@ import { Formik, Field, Form, ErrorMessage } from 'formik'
 import * as Yup from 'yup'
 import ImageUpload from '../../../utils/ImageUpload'
 
-
 const NewProduct = () => {
   const [images, setImages] = useState([])
 
@@ -323,4 +322,3 @@ const NewProduct = () => {
 }
 
 export default NewProduct
-

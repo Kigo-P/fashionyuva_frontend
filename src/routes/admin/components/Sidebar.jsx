@@ -10,6 +10,7 @@ import {
   ShoppingBag,
   UserCog,
   Users,
+  Package,
 } from 'lucide-react'
 
 const Sidebar = ({ minified = false }) => {
@@ -19,69 +20,86 @@ const Sidebar = ({ minified = false }) => {
   const menuItems = [
     {
       name: 'Dashboard',
-      icon: <Home style={{ color: '#fff', fontSize: 18 }} />,
+      icon: <Home size={18} />,
       key: 'dashboard',
     },
     {
       name: 'New Product',
-      icon: <Plus style={{ color: '#fff', fontSize: 18 }} />,
+      icon: <Plus size={18} />,
       key: 'new-product',
     },
     {
       name: 'Products',
-      icon: <ShoppingBag style={{ color: '#fff', fontSize: 18 }} />,
+      icon: <ShoppingBag size={18} />,
       key: 'products',
     },
     {
+      name: 'Orders',
+      icon: <Package size={18} />,
+      key: 'orders',
+    },
+    {
       name: 'Categories',
-      icon: <Layers style={{ color: '#fff', fontSize: 18 }} />,
+      icon: <Layers size={18} />,
       key: 'categories',
     },
     {
       name: 'Users',
-      icon: <Users style={{ color: '#fff', fontSize: 18 }} />,
+      icon: <Users size={18} />,
       key: 'users',
     },
     {
       name: 'Admins',
-      icon: <UserCog style={{ color: '#fff', fontSize: 18 }} />,
+      icon: <UserCog size={18} />,
       key: 'admins',
     },
     {
       name: 'Newsletter',
-      icon: <Mail style={{ color: '#fff', fontSize: 18 }} />,
+      icon: <Mail size={18} />,
       key: 'newsletter',
     },
     {
       name: 'Contacts',
-      icon: <MessageCircle style={{ color: '#fff', fontSize: 18 }} />,
+      icon: <MessageCircle size={18} />,
       key: 'contacts',
     },
   ]
 
   return (
-    <div className="">
-      <ul className="m-4">
+    <nav className="bg-gray-900 text-gray-100 h-full">
+      <ul className="p-4 space-y-2">
         {menuItems.map((item) => (
-          <li
-            key={item.key}
-            className={`flex items-center ${
-              minified ? 'justify-center' : ''
-            } gap-2 p-4 ${
-              playtab === item.key ? 'bg-[#000000d7]' : 'bg-[#0005]'
-            } rounded cursor-pointer mb-2 overflow-hidden`}
-            onClick={() => dispatch(setAdminTab({ tab: item.key }))}
-          >
-            {item.icon}
-            {!minified && (
-              <span className="text-xs text-nowrap text-white">
-                {item.name}
-              </span>
-            )}
+          <li key={item.key}>
+            <button
+              className={`w-full flex items-center ${
+                minified ? 'justify-center' : 'justify-start'
+              } gap-3 p-3 rounded-lg transition-colors ${
+                playtab === item.key
+                  ? 'bg-white text-gray-900'
+                  : 'text-gray-300 hover:bg-gray-800 hover:text-white'
+              }`}
+              onClick={() => dispatch(setAdminTab({ tab: item.key }))}
+              aria-current={playtab === item.key ? 'page' : undefined}
+            >
+              {React.cloneElement(item.icon, {
+                className: `${
+                  playtab === item.key
+                    ? 'text-gray-900'
+                    : 'text-gray-400 group-hover:text-white'
+                }`,
+              })}
+              {!minified && (
+                <span
+                  className={`text-sm font-medium ${minified ? 'sr-only' : ''}`}
+                >
+                  {item.name}
+                </span>
+              )}
+            </button>
           </li>
         ))}
       </ul>
-    </div>
+    </nav>
   )
 }
 
