@@ -94,6 +94,21 @@ export default function ProductListing() {
     closeModal()
   }
 
+  const calculateRating = (reviews) => {
+    return Math.floor(
+      reviews
+        .map((review) => Math.floor(parseFloat(review.rating)))
+        .reduce((a, b) => a + b, 0) / reviews.length
+    )
+  }
+
+  const format = (amount) => {
+    return new Intl.NumberFormat('en-KE', {
+      style: 'currency',
+      currency: 'KES',
+    }).format(amount)
+  }
+
   return (
     <div className="container mx-auto px-4 py-8 bg-white text-black">
       <h1 className="text-3xl font-bold mb-6">Products</h1>
@@ -113,14 +128,17 @@ export default function ProductListing() {
                 </div>
               </div>
             ))
-          : products.map((product) => (
+          : products.map((product, i) => (
               <div
                 key={product.id}
                 className="max-w-sm rounded-lg overflow-hidden shadow-lg bg-white border border-gray-200"
               >
                 <img
                   className="w-full h-48 object-cover"
-                  src={product.image || 'https://via.placeholder.com/150'}
+                  src={
+                    product.images[0]?.url ||
+                    `https://picsum.photos/400/300?id=${i + 1}`
+                  }
                   alt={product.name}
                 />
                 <div className="px-6 py-4">
@@ -135,16 +153,16 @@ export default function ProductListing() {
                   <p className="text-gray-700 text-base mb-4">
                     {product.description}
                   </p>
-                  <div className="flex justify-between items-center mb-4">
+                  <div className="flex justify-between flex-wrap gap-2 items-center mb-4">
                     <span className="text-2xl font-bold text-black">
-                      ${product.price.toFixed(2)}
+                      {format(product.price)}
                     </span>
                     <div className="flex items-center">
                       {[...Array(5)].map((_, i) => (
                         <Star
                           key={i}
                           className={`w-5 h-5 ${
-                            i < product.rating
+                            i + 1 <= calculateRating(product.reviews)
                               ? 'text-black fill-black'
                               : 'text-gray-300'
                           }`}
