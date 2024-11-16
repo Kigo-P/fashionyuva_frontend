@@ -11,6 +11,7 @@ import {
   Tooltip,
   Legend,
 } from 'chart.js'
+import { useAppSelector } from '../../../store/hooks/'
 
 ChartJS.register(
   CategoryScale,
@@ -29,6 +30,7 @@ const Dash = () => {
   const [stats, setStats] = useState({})
   const [topProducts, setTopProducts] = useState([])
   const [loading, setLoading] = useState(true)
+  const identity = useAppSelector((state) => state.identity)
 
   useEffect(() => {
     const fetchData = async () => {
@@ -54,7 +56,11 @@ const Dash = () => {
           dailySalesRes,
           topProductsRes,
         ] = await Promise.all(
-          endpoints.map((endpoint) => fetch(endpoint).then((res) => res.json()))
+          endpoints.map((endpoint) =>
+            fetch(endpoint, {
+              headers: { Authorization: `Bearer ${identity?.access_token}` },
+            }).then((res) => res.json())
+          )
         )
 
         setStats((prev) => ({

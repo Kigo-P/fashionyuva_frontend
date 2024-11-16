@@ -9,6 +9,7 @@ import {
   Truck,
   Search,
 } from 'lucide-react'
+import { useAppSelector } from '../../../store/hooks/'
 
 const SkeletonLoader = () => {
   return (
@@ -45,6 +46,7 @@ const Orders = () => {
   const [error, setError] = useState(null)
   const [searchTerm, setSearchTerm] = useState('')
   const [dateFilter, setDateFilter] = useState('')
+  const identity = useAppSelector((state) => state.identity)
 
   useEffect(() => {
     fetchOrders()
@@ -56,7 +58,12 @@ const Orders = () => {
 
   const fetchOrders = async () => {
     try {
-      const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/orders`)
+      const response = await fetch(
+        `${import.meta.env.VITE_BACKEND_URL}/orders`,
+        {
+          headers: { Authorization: `Bearer ${identity?.access_token}` },
+        }
+      )
       const data = await response.json()
       if (!response.ok) {
         throw new Error(data.message)

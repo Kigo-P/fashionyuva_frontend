@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react'
-import { Pencil, Trash2, Plus, X, ChevronUp, ChevronDown } from 'lucide-react'
+import { Trash2, Plus, X, ChevronUp, ChevronDown } from 'lucide-react'
 import { toast } from 'react-toastify'
+import { useAppSelector } from '../../../store/hooks/'
 
 const Admins = () => {
   const [admins, setAdmins] = useState([])
@@ -12,11 +13,20 @@ const Admins = () => {
     key: null,
     direction: 'ascending',
   })
+  const identity = useAppSelector((state) => state.identity)
 
   const fetchUsersAndAdmins = async () => {
     setLoading(true)
     try {
-      const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/users`)
+      const response = await fetch(
+        `${import.meta.env.VITE_BACKEND_URL}/users`,
+        {
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${identity?.access_token}`,
+          },
+        }
+      )
       if (!response.ok) {
         throw new Error('Failed to fetch users')
       }
@@ -52,7 +62,10 @@ const Admins = () => {
         `${import.meta.env.VITE_BACKEND_URL}/users/${userId}`,
         {
           method: 'PATCH',
-          headers: { 'Content-Type': 'application/json' },
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${identity?.access_token}`,
+          },
           body: JSON.stringify(updatedAdmin),
         }
       )
@@ -88,7 +101,13 @@ const Admins = () => {
         `${import.meta.env.VITE_BACKEND_URL}/users/${userId}`,
         {
           method: 'PATCH',
-          headers: { 'Content-Type': 'application/json' },
+          headers: {
+            'Content-Type': 'application/json',
+            headers: {
+              'Content-Type': 'application/json',
+              Authorization: `Bearer ${identity?.access_token}`,
+            },
+          },
           body: JSON.stringify({ user_role: 'customer' }),
         }
       )

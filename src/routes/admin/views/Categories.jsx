@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import { Pencil, Trash2, Plus, X } from 'lucide-react'
 import { toast } from 'react-toastify'
+import { useAppSelector } from '../../../store/hooks/'
 
 const SkeletonLoader = () => (
   <div className="border border-gray-200 rounded-lg p-4 shadow-sm animate-pulse">
@@ -23,10 +24,19 @@ export default function CategoriesPage() {
     description: '',
   })
   const [editingCategory, setEditingCategory] = useState(null)
+  const identity = useAppSelector((state) => state.identity)
 
   const fetchCategories = async () => {
     try {
-      const res = await fetch(`${import.meta.env.VITE_BACKEND_URL}/categories`)
+      const res = await fetch(
+        `${import.meta.env.VITE_BACKEND_URL}/categories`,
+        {
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${identity?.access_token}`,
+          },
+        }
+      )
       const data = await res.json()
       if (res.ok) {
         setCategories(data)
@@ -52,7 +62,10 @@ export default function CategoriesPage() {
           `${import.meta.env.VITE_BACKEND_URL}/categories`,
           {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
+            headers: {
+              'Content-Type': 'application/json',
+              Authorization: `Bearer ${identity?.access_token}`,
+            },
             body: JSON.stringify(newCategory),
           }
         )
@@ -82,7 +95,10 @@ export default function CategoriesPage() {
         `${import.meta.env.VITE_BACKEND_URL}/categories/${newCategory.id}`,
         {
           method: 'PATCH',
-          headers: { 'Content-Type': 'application/json' },
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${identity?.access_token}`,
+          },
           body: JSON.stringify(newCategory),
         }
       )
@@ -108,7 +124,10 @@ export default function CategoriesPage() {
         `${import.meta.env.VITE_BACKEND_URL}/categories/${id}`,
         {
           method: 'DELETE',
-          headers: { 'Content-Type': 'application/json' },
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${identity?.access_token}`,
+          },
         }
       )
       if (!response.ok) throw new Error('Failed to delete category')

@@ -1,16 +1,23 @@
 import React, { useState, useEffect } from 'react'
 import { Pencil, Trash2, Star, X } from 'lucide-react'
+import { useAppSelector } from '../../../store/hooks/'
 
 export default function ProductListing() {
   const [products, setProducts] = useState([])
   const [loading, setLoading] = useState(true)
   const [isEditing, setIsEditing] = useState(false)
   const [editProduct, setEditProduct] = useState(null)
+  const identity = useAppSelector((state) => state.identity)
 
   const fetchProducts = async () => {
     setLoading(true)
     try {
-      const res = await fetch(`${import.meta.env.VITE_BACKEND_URL}/products`)
+      const res = await fetch(`${import.meta.env.VITE_BACKEND_URL}/products`, {
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${identity?.access_token}`,
+        },
+      })
       const data = await res.json()
       if (res.ok) {
         setProducts(data)
@@ -40,6 +47,10 @@ export default function ProductListing() {
           `${import.meta.env.VITE_BACKEND_URL}/products/${productId}`,
           {
             method: 'DELETE',
+            headers: {
+              'Content-Type': 'application/json',
+              Authorization: `Bearer ${identity?.access_token}`,
+            },
           }
         )
 
@@ -71,6 +82,7 @@ export default function ProductListing() {
           method: 'PATCH',
           headers: {
             'Content-Type': 'application/json',
+            Authorization: `Bearer ${identity?.access_token}`,
           },
           body: JSON.stringify(editProduct),
         }

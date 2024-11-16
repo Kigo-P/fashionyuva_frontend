@@ -1,18 +1,26 @@
 import React, { useState, useEffect } from 'react'
-import { Mail, Phone, Calendar, ChevronRight, X } from 'lucide-react'
+import { Mail, Phone, ChevronRight, X } from 'lucide-react'
+import { useAppSelector } from '../../../store/hooks/'
 
 export default function Component() {
   const [contacts, setContacts] = useState([])
   const [selectedContact, setSelectedContact] = useState(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
+  const identity = useAppSelector((state) => state.identity)
 
   useEffect(() => {
     const fetchContacts = async () => {
       setLoading(true)
       try {
         const response = await fetch(
-          `${import.meta.env.VITE_BACKEND_URL}/contacts`
+          `${import.meta.env.VITE_BACKEND_URL}/contacts`,
+          {
+            headers: {
+              'Content-Type': 'application/json',
+              Authorization: `Bearer ${identity?.access_token}`,
+            },
+          }
         )
         if (!response.ok) {
           throw new Error('Failed to fetch contacts')
@@ -34,6 +42,10 @@ export default function Component() {
         `${import.meta.env.VITE_BACKEND_URL}/contacts/${id}`,
         {
           method: 'DELETE',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${identity?.access_token}`,
+          },
         }
       )
       if (!response.ok) {
@@ -54,7 +66,10 @@ export default function Component() {
         `${import.meta.env.VITE_BACKEND_URL}/contacts`,
         {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${identity?.access_token}`,
+          },
           body: JSON.stringify(newContact),
         }
       )
@@ -74,7 +89,10 @@ export default function Component() {
         `${import.meta.env.VITE_BACKEND_URL}/contacts/${updatedContact.id}`,
         {
           method: 'PUT',
-          headers: { 'Content-Type': 'application/json' },
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${identity?.access_token}`,
+          },
           body: JSON.stringify(updatedContact),
         }
       )

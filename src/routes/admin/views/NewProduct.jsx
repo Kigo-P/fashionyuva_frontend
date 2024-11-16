@@ -3,9 +3,11 @@ import { Upload, X } from 'lucide-react'
 import { Formik, Field, Form, ErrorMessage } from 'formik'
 import * as Yup from 'yup'
 import ImageUpload from '../../../utils/ImageUpload'
+import { useAppSelector } from '../../../store/hooks/'
 
 const NewProduct = () => {
   const [images, setImages] = useState([])
+  const identity = useAppSelector((state) => state.identity)
 
   const handleImageUpload = (e) => {
     const files = e.target.files
@@ -27,6 +29,7 @@ const NewProduct = () => {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
+        Authorization: `Bearer ${identity?.access_token}`,
       },
       body: JSON.stringify(dataToSubmit),
     })
