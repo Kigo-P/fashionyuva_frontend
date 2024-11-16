@@ -24,9 +24,20 @@ ChartJS.register(
 )
 
 const Dash = () => {
-  const [salesData, setSalesData] = useState(null)
-  const [dailysales, setDailySales] = useState(null)
-  const [stats, setStats] = useState({})
+  const [salesData, setSalesData] = useState({
+    labels: [],
+    datasets: [],
+  })
+  const [dailysales, setDailySales] = useState({
+    labels: [],
+    datasets: [],
+  })
+  const [stats, setStats] = useState({
+    totalSales: 0,
+    totalOrders: 0,
+    totalCustomers: 0,
+    avgOrderValue: 0,
+  })
   const [topProducts, setTopProducts] = useState([])
   const [loading, setLoading] = useState(true)
 
@@ -54,23 +65,28 @@ const Dash = () => {
           dailySalesRes,
           topProductsRes,
         ] = await Promise.all(
-          endpoints.map((endpoint) => fetch(endpoint).then((res) => res.json()))
+          endpoints.map((endpoint) =>
+            fetch(endpoint)
+              .then((res) => res.json())
+              .catch((err) => ({ error: err.message }))
+          )
         )
 
-        setStats((prev) => ({
-          ...prev,
-          totalSales: totalSalesRes.data.total_sales,
-          totalOrders: totalOrdersRes.data.total_orders,
-          totalCustomers: totalCustomersRes.data.total_customers,
-          avgOrderValue: avgOrderValueRes.data.avg_order_value,
-        }))
+        // Update stats
+        setStats({
+          totalSales: totalSalesRes?.data?.total_sales || 0,
+          totalOrders: totalOrdersRes?.data?.total_orders || 0,
+          totalCustomers: totalCustomersRes?.data?.total_customers || 0,
+          avgOrderValue: avgOrderValueRes?.data?.avg_order_value || 0,
+        })
 
+        // Update monthly sales data
         setSalesData({
-          labels: monthlySalesRes.data.map((i) => i.month),
+          labels: monthlySalesRes?.data?.map((i) => i.month) || [],
           datasets: [
             {
               label: 'Sales',
-              data: monthlySalesRes.data.map((i) => i.sales),
+              data: monthlySalesRes?.data?.map((i) => i.sales) || [],
               backgroundColor: 'rgba(0, 0, 0, 0.8)',
               borderColor: 'rgba(0, 0, 0, 1)',
               borderWidth: 1,
@@ -78,12 +94,13 @@ const Dash = () => {
           ],
         })
 
+        // Update daily sales data
         setDailySales({
-          labels: dailySalesRes.data.map((i) => i.date),
+          labels: dailySalesRes?.data?.map((i) => i.date) || [],
           datasets: [
             {
               label: 'Daily Sales',
-              data: dailySalesRes.data.map((i) => i.sales),
+              data: dailySalesRes?.data?.map((i) => i.sales) || [],
               borderColor: 'rgba(0, 0, 0, 1)',
               backgroundColor: 'rgba(0, 0, 0, 0.1)',
               tension: 0.4,
@@ -91,7 +108,8 @@ const Dash = () => {
           ],
         })
 
-        setTopProducts(topProductsRes.data)
+        // Update top products
+        setTopProducts(topProductsRes?.data || [])
       } catch (error) {
         console.error('Error fetching data:', error.message)
       } finally {
@@ -106,7 +124,7 @@ const Dash = () => {
     return new Intl.NumberFormat('en-KE', {
       style: 'currency',
       currency: 'KES',
-    }).format(amount)
+    }).format(amount || 0)
   }
 
   if (loading) {
@@ -138,11 +156,19 @@ const Dash = () => {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
           <div className="bg-white p-6 rounded-lg shadow-lg">
             <h2 className="text-xl font-semibold mb-4">Monthly Sales</h2>
-            <Bar data={salesData} options={chartOptions} />
+            {salesData?.datasets?.length > 0 ? (
+              <Bar data={salesData} options={chartOptions} />
+            ) : (
+              <p>No data available for Monthly Sales</p>
+            )}
           </div>
           <div className="bg-white p-6 rounded-lg shadow-lg">
             <h2 className="text-xl font-semibold mb-4">Daily Sales</h2>
-            <Line data={dailysales} options={chartOptions} />
+            {dailysales?.datasets?.length > 0 ? (
+              <Line data={dailysales} options={chartOptions} />
+            ) : (
+              <p>No data available for Daily Sales</p>
+            )}
           </div>
         </div>
 
@@ -157,13 +183,21 @@ const Dash = () => {
                 </tr>
               </thead>
               <tbody>
-                {topProducts.map((product, i) => (
-                  <TableRow
-                    key={i}
-                    product={product.title}
-                    total_sold={product.total_sold}
-                  />
-                ))}
+                {topProducts?.length ? (
+                  topProducts.map((product, i) => (
+                    <TableRow
+                      key={i}
+                      product={product?.title || 'Unknown Product'}
+                      total_sold={product?.total_sold || 0}
+                    />
+                  ))
+                ) : (
+                  <tr>
+                    <td colSpan="2" className="text-center py-4">
+                      No top-selling products available
+                    </td>
+                  </tr>
+                )}
               </tbody>
             </table>
           </div>
@@ -186,19 +220,17 @@ const SkeletonLoader = () => (
             ></div>
           ))}
       </div>
-
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
         <div className="bg-gray-300 h-64 rounded-lg animate-pulse"></div>
         <div className="bg-gray-300 h-64 rounded-lg animate-pulse"></div>
       </div>
-
       <div className="mt-8 bg-gray-300 rounded-lg p-6 animate-pulse">
         <div className="h-6 w-1/4 bg-gray-400 rounded mb-4 animate-pulse"></div>
         <div className="overflow-x-auto">
           <table className="w-full">
             <thead>
               <tr>
-                {Array(4)
+                {Array(2)
                   .fill(0)
                   .map((_, index) => (
                     <th
@@ -213,7 +245,7 @@ const SkeletonLoader = () => (
                 .fill(0)
                 .map((_, rowIndex) => (
                   <tr key={rowIndex} className="border-b">
-                    {Array(4)
+                    {Array(2)
                       .fill(0)
                       .map((_, colIndex) => (
                         <td
@@ -237,16 +269,16 @@ const StatCard = ({ title, value, change }) => (
     <p className="text-3xl font-bold mb-2">{value}</p>
     <p
       className={`text-sm ${
-        change.startsWith('+') ? 'text-green-600' : 'text-red-600'
+        change?.includes('-') ? 'text-red-500' : 'text-green-500'
       }`}
     >
-      {change} vs last month
+      {change}
     </p>
   </div>
 )
 
 const TableRow = ({ product, total_sold }) => (
-  <tr className="border-b">
+  <tr>
     <td className="py-2">{product}</td>
     <td className="py-2">{total_sold}</td>
   </tr>
@@ -254,25 +286,9 @@ const TableRow = ({ product, total_sold }) => (
 
 const chartOptions = {
   responsive: true,
+  maintainAspectRatio: false,
   plugins: {
-    legend: {
-      display: false,
-    },
-  },
-  scales: {
-    x: {
-      type: 'category',
-      grid: {
-        display: false,
-      },
-    },
-    y: {
-      type: 'linear',
-      beginAtZero: true,
-      grid: {
-        color: 'rgba(0, 0, 0, 0.1)',
-      },
-    },
+    legend: { display: false },
   },
 }
 
