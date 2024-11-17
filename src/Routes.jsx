@@ -18,7 +18,7 @@ import UpdateProductForm from './routes/UpdateProductForm.jsx'
 import Cart from './routes/Cart.jsx'
 import Checkout from './routes/Checkout.jsx'
 import Dashboard from './routes/admin/Dashboard.jsx'
-import Invoice from './routes/Invoice.jsx'
+import Receipt from './routes/Receipt.jsx'
 import Mpesa from './routes/Mpesa.jsx'
 import ProtectedRoutes from './utils/PrivateRoute.jsx'
 
@@ -69,8 +69,8 @@ const router = createBrowserRouter(
         errorElement={<ErrorBoundary />}
       />
       <Route
-        path="/invoice"
-        element={<Invoice />}
+        path="/receipt"
+        element={<Receipt />}
         errorElement={<ErrorBoundary />}
       />
       <Route

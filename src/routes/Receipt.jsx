@@ -5,8 +5,9 @@ import Footer from '../components/Footer'
 import { Link } from 'react-router-dom'
 import { useAppSelector } from '../store/hooks'
 
-const Invoice = () => {
+const Receipt = () => {
   const cart = useAppSelector((state) => state.cart).cart
+  const identity = useAppSelector((state) => state.identity)
 
   const subtotal = cart.reduce((acc, item) => {
     return acc + item.quantity * item.item.price
@@ -15,15 +16,15 @@ const Invoice = () => {
   const taxRate = 0.18
   const tax = subtotal * taxRate
   const total = subtotal + shipping + tax
-  const invoiceData = {
-    orderNumber: 'INV-2024-001',
+  const receiptData = {
+    orderNumber: 'REC-2024-001',
     orderDate: new Date().toLocaleDateString(),
     customerDetails: {
-      name: 'John Doe',
-      email: 'john@example.com',
-      address: '123 Fashion Street',
-      city: 'Nairobi',
-      pincode: '00100',
+      name: identity.user.username,
+      email: identity.user.email,
+      address: identity.address?.address,
+      city: identity.address?.city,
+      pincode: identity.address?.pincode,
     },
     items: cart,
     subtotal: subtotal,
@@ -56,7 +57,7 @@ const Invoice = () => {
         <div className="max-w-3xl mx-auto bg-white p-8 shadow-lg rounded-lg relative z-10">
           <div className="flex justify-between items-start mb-8">
             <div className="flex items-center">
-              <Store className="text-gray-800 text-2xl mr-2" />
+              <Store className="text-gray-800 text-4xl h-16 w-16 mr-2" />
               <div>
                 <h1 className="text-2xl font-bold text-gray-800">
                   FashionYuva
@@ -68,12 +69,12 @@ const Invoice = () => {
               </div>
             </div>
             <div className="text-right">
-              <h2 className="text-xl font-bold text-gray-800">INVOICE</h2>
+              <h2 className="text-xl font-bold text-gray-800">RECEIPT</h2>
               <p className="text-sm text-black font-bold">
-                Order #{invoiceData.orderNumber}
+                Order #{receiptData.orderNumber}
               </p>
               <p className="text-sm text-black font-bold">
-                Date: {invoiceData.orderDate}
+                Date: {receiptData.orderDate}
               </p>
             </div>
           </div>
@@ -81,13 +82,29 @@ const Invoice = () => {
           <div className="mb-8 bg-gray-50 p-4 rounded-lg">
             <h3 className="text-black font-semibold mb-2">Bill To:</h3>
             <div className="text-sm">
-              <p className="font-medium">{invoiceData.customerDetails.name}</p>
-              <p>{invoiceData.customerDetails.email}</p>
-              <p>{invoiceData.customerDetails.address}</p>
-              <p>
-                {invoiceData.customerDetails.city} -{' '}
-                {invoiceData.customerDetails.pincode}
-              </p>
+              {receiptData.customerDetails.name && (
+                <p className="font-medium">
+                  {receiptData.customerDetails.name}
+                </p>
+              )}
+              {receiptData.customerDetails.email && (
+                <p>{receiptData.customerDetails.email}</p>
+              )}
+              {receiptData.customerDetails.address && (
+                <p>{receiptData.customerDetails.address}</p>
+              )}
+              {(receiptData.customerDetails.city ||
+                receiptData.customerDetails.pincode) && (
+                <p>
+                  {receiptData.customerDetails.city &&
+                    receiptData.customerDetails.city}
+                  {receiptData.customerDetails.city &&
+                    receiptData.customerDetails.pincode &&
+                    ' - '}
+                  {receiptData.customerDetails.pincode &&
+                    receiptData.customerDetails.pincode}
+                </p>
+              )}
             </div>
           </div>
 
@@ -102,17 +119,15 @@ const Invoice = () => {
                 </tr>
               </thead>
               <tbody>
-                {invoiceData.items.map((item, index) => (
+                {receiptData.items.map((item, index) => (
                   <tr key={index} className="border-b border-gray-100">
                     <td className="py-2 px-4">{item.item.title}</td>
                     <td className="text-center py-2 px-4">{item.quantity}</td>
                     <td className="text-right py-2 px-4">
-                      {format(item.item.price.toLocaleString())}
+                      {format(item.item.price)}
                     </td>
                     <td className="text-right py-2 px-4">
-                      {format(
-                        (item.quantity * item.item.price).toLocaleString()
-                      )}
+                      {format(item.quantity * item.item.price)}
                     </td>
                   </tr>
                 ))}
@@ -124,19 +139,19 @@ const Invoice = () => {
             <div className="w-64 space-y-3">
               <div className="flex justify-between">
                 <span className="text-black">Subtotal:</span>
-                <span>{format(invoiceData.subtotal.toLocaleString())}</span>
+                <span>{format(receiptData.subtotal)}</span>
               </div>
               <div className="flex justify-between">
                 <span className="text-black">Shipping:</span>
-                <span>{format(invoiceData.shipping.toLocaleString())}</span>
+                <span>{format(receiptData.shipping)}</span>
               </div>
               <div className="flex justify-between">
                 <span className="text-black">VAT (18%):</span>
-                <span>{format(invoiceData.tax.toLocaleString())}</span>
+                <span>{format(receiptData.tax)}</span>
               </div>
               <div className="flex justify-between font-bold text-lg border-t border-gray-200 pt-2">
                 <span>Total:</span>
-                <span>{format(invoiceData.total.toLocaleString())}</span>
+                <span>{format(receiptData.total)}</span>
               </div>
             </div>
           </div>
@@ -146,7 +161,7 @@ const Invoice = () => {
               Thank you for shopping with FashionYuva!
             </p>
             <p>For any queries, please contact us at:</p>
-            <p>Email: support@fashionyuva.com | Phone: +254 123456789</p>
+            <p>Email: hello@fashionyuva.com | Phone: +254715503942</p>
           </div>
 
           <div className="mt-8">
@@ -154,7 +169,7 @@ const Invoice = () => {
               onClick={() => window.print()}
               className="w-full bg-black text-white py-3 rounded-lg hover:bg-gray-800 transition-colors print:hidden text-lg font-medium"
             >
-              Print Invoice
+              Print Receipt
             </button>
           </div>
         </div>
@@ -164,4 +179,4 @@ const Invoice = () => {
   )
 }
 
-export default Invoice
+export default Receipt

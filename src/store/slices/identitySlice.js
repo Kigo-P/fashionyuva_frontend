@@ -4,6 +4,7 @@ const initialState = {
   is_logged: false,
   access_token: '',
   refresh_token: '',
+  adress: '',
   user: {
     username: '',
   },

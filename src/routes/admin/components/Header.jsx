@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom'
 import { Bell, ChevronsRight, CircleUser, LogOut } from 'lucide-react'
 import { useAppDispatch, useAppSelector } from '../../../store/hooks/'
 import { setIdentity } from '../../../store/slices/identitySlice'
+import { toast } from 'react-toastify'
 
 const Header = ({ minified, setMinified }) => {
   const [profiledrop, setProfileDrop] = useState(false)

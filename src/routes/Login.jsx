@@ -41,6 +41,7 @@ const Login = () => {
           }
         )
         const data = await res.json()
+        console.log(data)
         setIsLoading(false)
         if (res.ok) {
           toast('Login successful!', { type: 'success' })
@@ -55,6 +56,8 @@ const Login = () => {
                 email: data.user_data.email,
                 phone_number: data.user_data.contact,
                 user_role: data.role,
+                user_id: data.user_data.id,
+                addresses: data.user_data.address,
               },
             })
           )
