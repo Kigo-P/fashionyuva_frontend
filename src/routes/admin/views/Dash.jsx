@@ -142,11 +142,13 @@ const Dash = () => {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
           <div className="bg-white p-6 rounded-lg shadow-lg">
             <h2 className="text-xl font-semibold mb-4">Monthly Sales</h2>
-            <Bar data={salesData} options={chartOptions} />
+            {salesData ? <Bar data={salesData} options={chartOptions} /> : null}
           </div>
           <div className="bg-white p-6 rounded-lg shadow-lg">
             <h2 className="text-xl font-semibold mb-4">Daily Sales</h2>
-            <Line data={dailysales} options={chartOptions} />
+            {dailysales ? (
+              <Line data={dailysales} options={chartOptions} />
+            ) : null}
           </div>
         </div>
 
