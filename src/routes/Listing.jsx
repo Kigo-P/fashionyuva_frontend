@@ -31,6 +31,7 @@ const Listing = () => {
   const [showFilters, setShowFilters] = useState(false)
   const [isLoading, setIsLoading] = useState(true)
   const productsPerPage = 12
+  const MAX_RETRIES = 3
 
   useEffect(() => {
     setFilters({
@@ -39,18 +40,30 @@ const Listing = () => {
     })
   }, [products])
 
-  const fetchProducts = async () => {
+  const fetchProducts = async (retries = 0) => {
     setIsLoading(true)
     try {
       const res = await fetch(`${import.meta.env.VITE_BACKEND_URL}/products`)
       const data = await res.json()
-      if (res.ok) {
+      if (res.ok && data.length > 0) {
         setProducts(data)
       } else {
-        console.log(data.message)
+        console.log(data.message || 'No products found')
+        if (retries < MAX_RETRIES) {
+          console.log(`Retrying... (${retries + 1})`)
+          await fetchProducts(retries + 1)
+        } else {
+          console.error('Max retries reached. Unable to fetch products.')
+        }
       }
     } catch (error) {
       console.error('Error fetching products:', error)
+      if (retries < MAX_RETRIES) {
+        console.log(`Retrying... (${retries + 1})`)
+        await fetchProducts(retries + 1)
+      } else {
+        console.error('Max retries reached. Unable to fetch products.')
+      }
     } finally {
       setIsLoading(false)
     }

@@ -11,7 +11,7 @@ import {
   Tooltip,
   Legend,
 } from 'chart.js'
-import { useAppSelector } from '../../../store/hooks/'
+import { api } from '../../../utils/api'
 
 ChartJS.register(
   CategoryScale,
@@ -30,7 +30,6 @@ const Dash = () => {
   const [stats, setStats] = useState({})
   const [topProducts, setTopProducts] = useState([])
   const [loading, setLoading] = useState(true)
-  const identity = useAppSelector((state) => state.identity)
 
   useEffect(() => {
     const fetchData = async () => {
@@ -38,13 +37,13 @@ const Dash = () => {
         setLoading(true)
 
         const endpoints = [
-          `${import.meta.env.VITE_BACKEND_URL}/total-sales`,
-          `${import.meta.env.VITE_BACKEND_URL}/total-orders`,
-          `${import.meta.env.VITE_BACKEND_URL}/total-customers`,
-          `${import.meta.env.VITE_BACKEND_URL}/average-order-value`,
-          `${import.meta.env.VITE_BACKEND_URL}/monthly-sales`,
-          `${import.meta.env.VITE_BACKEND_URL}/daily-sales`,
-          `${import.meta.env.VITE_BACKEND_URL}/top-selling-products`,
+          `/total-sales`,
+          `/total-orders`,
+          `/total-customers`,
+          `/average-order-value`,
+          `/monthly-sales`,
+          `/daily-sales`,
+          `/top-selling-products`,
         ]
 
         const [
@@ -56,11 +55,10 @@ const Dash = () => {
           dailySalesRes,
           topProductsRes,
         ] = await Promise.all(
-          endpoints.map((endpoint) =>
-            fetch(endpoint, {
-              headers: { Authorization: `Bearer ${identity?.access_token}` },
-            }).then((res) => res.json())
-          )
+          endpoints.map(async (endpoint) => {
+            const res = await api(endpoint)
+            return await res.json()
+          })
         )
 
         setStats((prev) => ({

@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import { Pencil, Trash2, Plus, X } from 'lucide-react'
 import { toast } from 'react-toastify'
-import { useAppSelector } from '../../../store/hooks/'
+import { api } from '../../../utils/api'
 
 const SkeletonLoader = () => (
   <div className="border border-gray-200 rounded-lg p-4 shadow-sm animate-pulse">
@@ -24,19 +24,10 @@ export default function CategoriesPage() {
     description: '',
   })
   const [editingCategory, setEditingCategory] = useState(null)
-  const identity = useAppSelector((state) => state.identity)
 
   const fetchCategories = async () => {
     try {
-      const res = await fetch(
-        `${import.meta.env.VITE_BACKEND_URL}/categories`,
-        {
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: `Bearer ${identity?.access_token}`,
-          },
-        }
-      )
+      const res = await api('/categories')
       const data = await res.json()
       if (res.ok) {
         setCategories(data)
@@ -58,17 +49,7 @@ export default function CategoriesPage() {
     e.preventDefault()
     if (newCategory.name && newCategory.description) {
       try {
-        const response = await fetch(
-          `${import.meta.env.VITE_BACKEND_URL}/categories`,
-          {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-              Authorization: `Bearer ${identity?.access_token}`,
-            },
-            body: JSON.stringify(newCategory),
-          }
-        )
+        const response = await api('/categories', 'POST', newCategory)
         if (!response.ok) throw new Error('Failed to post category')
         fetchCategories()
         setNewCategory({ id: '', name: '', description: '' })
@@ -91,16 +72,10 @@ export default function CategoriesPage() {
   const handleUpdateCategory = async (e) => {
     e.preventDefault()
     try {
-      const response = await fetch(
-        `${import.meta.env.VITE_BACKEND_URL}/categories/${newCategory.id}`,
-        {
-          method: 'PATCH',
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: `Bearer ${identity?.access_token}`,
-          },
-          body: JSON.stringify(newCategory),
-        }
+      const response = await api(
+        `/categories/${newCategory.id}`,
+        'PATCH',
+        newCategory
       )
       if (!response.ok) throw new Error('Failed to patch category')
       fetchCategories()
@@ -120,16 +95,7 @@ export default function CategoriesPage() {
   const handleDeleteCategory = async (id) => {
     setCategories(categories.filter((cat) => cat.id !== id))
     try {
-      const response = await fetch(
-        `${import.meta.env.VITE_BACKEND_URL}/categories/${id}`,
-        {
-          method: 'DELETE',
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: `Bearer ${identity?.access_token}`,
-          },
-        }
-      )
+      const response = await api(`/categories/${id}`, 'DELETE')
       if (!response.ok) throw new Error('Failed to delete category')
     } catch (error) {
       toast(error.message, { type: 'error' })

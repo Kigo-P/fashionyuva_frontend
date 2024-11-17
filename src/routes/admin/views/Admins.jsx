@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import { Trash2, Plus, X, ChevronUp, ChevronDown } from 'lucide-react'
 import { toast } from 'react-toastify'
-import { useAppSelector } from '../../../store/hooks/'
+import { api } from '../../../utils/api'
 
 const Admins = () => {
   const [admins, setAdmins] = useState([])
@@ -13,20 +13,11 @@ const Admins = () => {
     key: null,
     direction: 'ascending',
   })
-  const identity = useAppSelector((state) => state.identity)
 
   const fetchUsersAndAdmins = async () => {
     setLoading(true)
     try {
-      const response = await fetch(
-        `${import.meta.env.VITE_BACKEND_URL}/users`,
-        {
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: `Bearer ${identity?.access_token}`,
-          },
-        }
-      )
+      const response = await api('/users')
       if (!response.ok) {
         throw new Error('Failed to fetch users')
       }
@@ -58,17 +49,7 @@ const Admins = () => {
       if (!userToPromote) return
 
       const updatedAdmin = { ...userToPromote, user_role: 'admin' }
-      const response = await fetch(
-        `${import.meta.env.VITE_BACKEND_URL}/users/${userId}`,
-        {
-          method: 'PATCH',
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: `Bearer ${identity?.access_token}`,
-          },
-          body: JSON.stringify(updatedAdmin),
-        }
-      )
+      const response = await api(`/users/${userId}`, 'PATCH', updatedAdmin)
       if (!response.ok) throw new Error('Failed to promote user')
 
       const promotedUser = await response.json()
@@ -95,26 +76,11 @@ const Admins = () => {
     try {
       const userToDemote = admins.find((admin) => admin.id === userId)
       if (!userToDemote) throw new Error('Admin not found!')
-
-      const updatedUser = { ...userToDemote, user_role: 'customer' }
-      const response = await fetch(
-        `${import.meta.env.VITE_BACKEND_URL}/users/${userId}`,
-        {
-          method: 'PATCH',
-          headers: {
-            'Content-Type': 'application/json',
-            headers: {
-              'Content-Type': 'application/json',
-              Authorization: `Bearer ${identity?.access_token}`,
-            },
-          },
-          body: JSON.stringify({ user_role: 'customer' }),
-        }
-      )
+      const response = await api(`/users/${userId}`, 'PATCH', {
+        user_role: 'customer',
+      })
       if (!response.ok) throw new Error('Failed to demote admin')
-
       const demotedUser = await response.json()
-
       setAdmins((prevAdmins) =>
         prevAdmins.filter((admin) => admin.id !== userId)
       )

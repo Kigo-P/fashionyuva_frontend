@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import { ChevronUp, ChevronDown } from 'lucide-react'
-import { useAppSelector } from '../../../store/hooks/'
+import { api } from '../../../utils/api'
 
 const Newsletter = () => {
   const [newsletters, setNewsletters] = useState([])
@@ -10,20 +10,11 @@ const Newsletter = () => {
     key: null,
     direction: 'ascending',
   })
-  const identity = useAppSelector((state) => state.identity)
 
   useEffect(() => {
     const fetchNewsletters = async () => {
       try {
-        const response = await fetch(
-          `${import.meta.env.VITE_BACKEND_URL}/newsletters`,
-          {
-            headers: {
-              'Content-Type': 'application/json',
-              Authorization: `Bearer ${identity?.access_token}`,
-            },
-          }
-        )
+        const response = await api('/newsletters')
         if (!response.ok) {
           throw new Error('Failed to fetch newsletters')
         }

@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react'
-import { Pencil, Trash2, ChevronUp, ChevronDown, X } from 'lucide-react'
+import { ChevronUp, ChevronDown, X } from 'lucide-react'
+import { api } from '../../../utils/api'
 
 const Users = () => {
   const [users, setUsers] = useState([])
@@ -9,9 +10,7 @@ const Users = () => {
     const fetchUsers = async () => {
       try {
         setLoading(true)
-        const response = await fetch(
-          `${import.meta.env.VITE_BACKEND_URL}/users`
-        )
+        const response = await api('/users')
         if (!response.ok) {
           throw new Error('Failed to fetch users')
         }

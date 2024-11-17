@@ -3,11 +3,11 @@ import { Upload, X } from 'lucide-react'
 import { Formik, Field, Form, ErrorMessage } from 'formik'
 import * as Yup from 'yup'
 import ImageUpload from '../../../utils/ImageUpload'
-import { useAppSelector } from '../../../store/hooks/'
+import { api } from '../../../utils/api'
+import { toast } from 'react-toastify'
 
 const NewProduct = () => {
   const [images, setImages] = useState([])
-  const identity = useAppSelector((state) => state.identity)
 
   const handleImageUpload = (e) => {
     const files = e.target.files
@@ -20,29 +20,20 @@ const NewProduct = () => {
     setImages((prev) => prev.filter((_, i) => i !== index))
   }
 
-  const handleSubmit = (values) => {
-    const dataToSubmit = { ...values, images }
-
-    console.log(dataToSubmit)
-
-    fetch(`${import.meta.env.VITE_BACKEND_URL}/products`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${identity?.access_token}`,
-      },
-      body: JSON.stringify(dataToSubmit),
-    })
-      .then((response) => response.json())
-      .then((data) => {
-        console.log('Product submitted:', data)
+  const handleSubmit = async (values) => {
+    try {
+      const dataToSubmit = { ...values, images }
+      const response = await api('/products', 'POST', dataToSubmit)
+      const data = await response.json()
+      if (response.ok) {
         setImages([])
-        alert('Product added successfully')
-      })
-      .catch((error) => {
-        console.error('Error submitting product:', error)
-        alert('Failed to add product')
-      })
+        toast('Product added successfully', { type: 'success' })
+      } else {
+        throw new Error(data.message)
+      }
+    } catch (error) {
+      toast(error.message, { type: 'error' })
+    }
   }
 
   const validationSchema = Yup.object({

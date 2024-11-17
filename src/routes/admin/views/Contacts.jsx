@@ -1,27 +1,18 @@
 import React, { useState, useEffect } from 'react'
 import { Mail, Phone, ChevronRight, X } from 'lucide-react'
-import { useAppSelector } from '../../../store/hooks/'
+import { api } from '../../../utils/api'
 
 export default function Component() {
   const [contacts, setContacts] = useState([])
   const [selectedContact, setSelectedContact] = useState(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
-  const identity = useAppSelector((state) => state.identity)
 
   useEffect(() => {
     const fetchContacts = async () => {
       setLoading(true)
       try {
-        const response = await fetch(
-          `${import.meta.env.VITE_BACKEND_URL}/contacts`,
-          {
-            headers: {
-              'Content-Type': 'application/json',
-              Authorization: `Bearer ${identity?.access_token}`,
-            },
-          }
-        )
+        const response = await api('/contacts')
         if (!response.ok) {
           throw new Error('Failed to fetch contacts')
         }
@@ -38,16 +29,7 @@ export default function Component() {
 
   const handleDeleteContact = async (id) => {
     try {
-      const response = await fetch(
-        `${import.meta.env.VITE_BACKEND_URL}/contacts/${id}`,
-        {
-          method: 'DELETE',
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: `Bearer ${identity?.access_token}`,
-          },
-        }
-      )
+      const response = await api(`/contacts/${id}`, 'DELETE')
       if (!response.ok) {
         throw new Error('Failed to delete contact')
       }
@@ -55,56 +37,6 @@ export default function Component() {
       if (selectedContact && selectedContact.id === id) {
         setSelectedContact(null)
       }
-    } catch (err) {
-      setError(err.message)
-    }
-  }
-
-  const handleAddContact = async (newContact) => {
-    try {
-      const response = await fetch(
-        `${import.meta.env.VITE_BACKEND_URL}/contacts`,
-        {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: `Bearer ${identity?.access_token}`,
-          },
-          body: JSON.stringify(newContact),
-        }
-      )
-      if (!response.ok) {
-        throw new Error('Failed to add contact')
-      }
-      const addedContact = await response.json()
-      setContacts([...contacts, addedContact])
-    } catch (err) {
-      setError(err.message)
-    }
-  }
-
-  const handleUpdateContact = async (updatedContact) => {
-    try {
-      const response = await fetch(
-        `${import.meta.env.VITE_BACKEND_URL}/contacts/${updatedContact.id}`,
-        {
-          method: 'PUT',
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: `Bearer ${identity?.access_token}`,
-          },
-          body: JSON.stringify(updatedContact),
-        }
-      )
-      if (!response.ok) {
-        throw new Error('Failed to update contact')
-      }
-      const updated = await response.json()
-      setContacts(
-        contacts.map((contact) =>
-          contact.id === updated.id ? updated : contact
-        )
-      )
     } catch (err) {
       setError(err.message)
     }

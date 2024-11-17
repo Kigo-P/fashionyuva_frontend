@@ -1,23 +1,17 @@
 import React, { useState, useEffect } from 'react'
 import { Pencil, Trash2, Star, X } from 'lucide-react'
-import { useAppSelector } from '../../../store/hooks/'
+import { api } from '../../../utils/api'
 
 export default function ProductListing() {
   const [products, setProducts] = useState([])
   const [loading, setLoading] = useState(true)
   const [isEditing, setIsEditing] = useState(false)
   const [editProduct, setEditProduct] = useState(null)
-  const identity = useAppSelector((state) => state.identity)
 
   const fetchProducts = async () => {
     setLoading(true)
     try {
-      const res = await fetch(`${import.meta.env.VITE_BACKEND_URL}/products`, {
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${identity?.access_token}`,
-        },
-      })
+      const res = await api('/products')
       const data = await res.json()
       if (res.ok) {
         setProducts(data)
@@ -43,17 +37,7 @@ export default function ProductListing() {
   const handleDelete = async (productId) => {
     if (window.confirm('Are you sure you want to delete this product?')) {
       try {
-        const res = await fetch(
-          `${import.meta.env.VITE_BACKEND_URL}/products/${productId}`,
-          {
-            method: 'DELETE',
-            headers: {
-              'Content-Type': 'application/json',
-              Authorization: `Bearer ${identity?.access_token}`,
-            },
-          }
-        )
-
+        const res = await api(`/products/${productId}`, 'DELETE')
         if (res.ok) {
           setProducts((prevProducts) =>
             prevProducts.filter((p) => p.id !== productId)
@@ -76,18 +60,7 @@ export default function ProductListing() {
   const handleSubmitEdit = async (e) => {
     e.preventDefault()
     try {
-      const res = await fetch(
-        `${import.meta.env.VITE_BACKEND_URL}/products/${editProduct.id}`,
-        {
-          method: 'PATCH',
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: `Bearer ${identity?.access_token}`,
-          },
-          body: JSON.stringify(editProduct),
-        }
-      )
-
+      const res = await api(`/products/${editProduct.id}`, 'PATCH', editProduct)
       if (res.ok) {
         const updatedProduct = await res.json()
         setProducts((prevProducts) =>
