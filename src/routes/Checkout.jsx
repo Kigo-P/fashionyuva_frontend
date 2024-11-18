@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react'
-import { CreditCard, ShoppingBag, ChevronLeft, X } from 'lucide-react'
+import React, { useState, useEffect, useCallback } from 'react'
+import { CreditCard, ChevronLeft, X } from 'lucide-react'
 import Header from '../components/Header'
 import Footer from '../components/Footer'
 import { Link, useNavigate } from 'react-router-dom'
@@ -16,7 +16,17 @@ const PaymentStatus = {
 
 const Modal = ({ isOpen, onClose, status, message, orderid }) => {
   const navigate = useNavigate()
+
   if (!isOpen) return null
+
+  const handleModalClose = () => {
+    if (status === PaymentStatus.SUCCESS) {
+      onClose()
+      setTimeout(() => navigate(`/receipt/${orderid}`), 2000)
+    } else {
+      onClose()
+    }
+  }
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
@@ -33,14 +43,7 @@ const Modal = ({ isOpen, onClose, status, message, orderid }) => {
         </div>
         <p className="mb-4">{message}</p>
         <button
-          onClick={() => {
-            if (status === PaymentStatus.SUCCESS) {
-              onClose()
-              setTimeout(() => navigate(`/receipt/${orderid}`), 2000)
-            } else {
-              onClose()
-            }
-          }}
+          onClick={handleModalClose}
           className="w-full bg-black text-white py-2 px-4 rounded hover:bg-gray-800 transition duration-200"
         >
           Close
@@ -52,7 +55,11 @@ const Modal = ({ isOpen, onClose, status, message, orderid }) => {
 
 const Checkout = () => {
   const identity = useAppSelector((state) => state.identity)
-  const [addressid, setAdressId] = useState('')
+  const cartItems = useAppSelector((state) => state.cart).cart
+
+  const dispatch = useAppDispatch()
+
+  const [addressId, setAddressId] = useState('')
   const [formData, setFormData] = useState({
     email: '',
     firstName: '',
@@ -66,135 +73,32 @@ const Checkout = () => {
   })
   const [status, setStatus] = useState(PaymentStatus.IDLE)
   const [error, setError] = useState('')
-  const [orderid, setOrderId] = useState('')
+  const [orderId, setOrderId] = useState('')
   const [checkoutRequestId, setCheckoutRequestId] = useState(null)
   const [isModalOpen, setIsModalOpen] = useState(false)
-  const cartItems = useAppSelector((state) => state.cart).cart
-
-  const dispatch = useAppDispatch()
 
   const shipping = 300
 
-  useEffect(() => {
-    let pollInterval
+  const calculateSubtotal = useCallback(
+    () =>
+      cartItems.reduce(
+        (total, item) => total + item.item.price * item.quantity,
+        0
+      ),
+    [cartItems]
+  )
 
-    if (checkoutRequestId) {
-      pollInterval = setInterval(async () => {
-        try {
-          const response = await api(`/api/payment/status/${checkoutRequestId}`)
-          const data = await response.json()
-          if (data.status === 'completed') {
-            setStatus(PaymentStatus.SUCCESS)
-            setIsModalOpen(true)
-            clearInterval(pollInterval)
-            dispatch(
-              setIdentity({
-                ...identity,
-                address: {
-                  address: formData.address,
-                  city: formData.city,
-                  pincode: formData.postalCode,
-                },
-              })
-            )
-            // save order to database {orders, payment, order_product}
-            const res = await api('/orders', 'POST', {
-              total_price: calculateTotal(),
-              status: 'pending',
-              user_id: identity.user.user_id,
-            })
-            const data = await res.json()
-            setOrderId(data.id)
-            await api('/order-products', 'POST', {
-              cart: cartItems.map((prod) => {
-                return {
-                  id: prod.id,
-                  quantity: prod.quantity,
-                  order_id: data.id,
-                }
-              }),
-            })
-          } else if (data.status === 'failed') {
-            setStatus(PaymentStatus.ERROR)
-            setError(data.resultDesc)
-            setIsModalOpen(true)
-            clearInterval(pollInterval)
-          }
-        } catch (err) {
-          console.error('Error polling payment status:', err)
-        }
-      }, 5000)
-    }
+  const calculateTax = useCallback(
+    () => calculateSubtotal() * 0.1,
+    [calculateSubtotal]
+  )
 
-    return () => {
-      if (pollInterval) {
-        clearInterval(pollInterval)
-      }
-    }
-  }, [checkoutRequestId])
+  const calculateTotal = useCallback(
+    () => calculateSubtotal() + calculateTax() + shipping,
+    [calculateSubtotal, calculateTax]
+  )
 
-  const handleInputChange = (e) => {
-    const { name, value } = e.target
-    setFormData((prevState) => ({
-      ...prevState,
-      [name]: value,
-    }))
-  }
-
-  const handleSubmit = async (e) => {
-    e.preventDefault()
-    try {
-      //save address to address table
-      if (formData.address !== identity.address.address) {
-        await api(`/addresses`, 'POST', {
-          user_id: identity.user.user_id,
-          address: formData.address,
-          county: formData.county,
-          town: formData.city,
-          zip_code: formData.postalCode,
-          country: formData.country,
-        })
-      }
-      setStatus(PaymentStatus.PROCESSING)
-      setError('')
-      const response = await api(`/api/payment/initiate`, 'POST', {
-        phone_number: formData.phoneNumber,
-        amount: calculateTotal(),
-        order_id: Math.floor(Math.random() * 1000000),
-      })
-
-      const data = await response.json()
-
-      if (response.ok) {
-        setCheckoutRequestId(data.CheckoutRequestID)
-      } else {
-        setStatus(PaymentStatus.ERROR)
-        setError(data.error || 'Payment initiation failed')
-        setIsModalOpen(true)
-      }
-    } catch (err) {
-      setStatus(PaymentStatus.ERROR)
-      setError('Failed to process payment. Please try again.')
-      setIsModalOpen(true)
-    }
-  }
-
-  const calculateSubtotal = () => {
-    return cartItems.reduce(
-      (total, item) => total + item.item.price * item.quantity,
-      0
-    )
-  }
-
-  const calculateTax = () => {
-    return calculateSubtotal() * 0.1
-  }
-
-  const calculateTotal = () => {
-    return calculateSubtotal() + calculateTax() + shipping
-  }
-
-  const format = (amount) => {
+  const formatCurrency = (amount) => {
     return new Intl.NumberFormat('en-KE', {
       style: 'currency',
       currency: 'KES',
@@ -204,34 +108,127 @@ const Checkout = () => {
   useEffect(() => {
     if (!identity) return
 
-    const updatedFormData = {
-      ...formData,
-      email: identity.user.email,
+    const userAddresses = identity.user?.addresses || []
+    const selectedAddress = userAddresses[addressId] || {}
+
+    setFormData((prevState) => ({
+      ...prevState,
+      email: identity.user.email || '',
       firstName: identity.user.username.split(' ')[0] || '',
       lastName: identity.user.username.split(' ')[1] || '',
+      address: selectedAddress.address || '',
+      city: selectedAddress.town || '',
+      postalCode: selectedAddress.zip_code || '',
+      country: selectedAddress.country || '',
+      county: selectedAddress.county || '',
+    }))
+  }, [identity, addressId])
+
+  useEffect(() => {
+    if (!checkoutRequestId) return
+
+    const pollPaymentStatus = async () => {
+      try {
+        const response = await api(`/api/payment/status/${checkoutRequestId}`)
+        const data = await response.json()
+
+        if (data.status === 'completed') {
+          clearInterval(pollInterval)
+          handlePaymentSuccess(data)
+        } else if (data.status === 'failed') {
+          clearInterval(pollInterval)
+          handlePaymentError(data.resultDesc)
+        }
+      } catch (err) {
+        console.error('Error polling payment status:', err)
+      }
     }
 
-    if (addressid) {
-      const address = identity.user.addresses[addressid] || {}
-      setFormData({
-        ...updatedFormData,
-        address: address.address || '',
-        city: address.town || '',
-        postalCode: address.zip_code || '',
-        country: address.country || '',
-        county: address.county || '',
+    const pollInterval = setInterval(pollPaymentStatus, 5000)
+    return () => clearInterval(pollInterval)
+  }, [checkoutRequestId])
+
+  const handlePaymentSuccess = async () => {
+    setStatus(PaymentStatus.SUCCESS)
+    setIsModalOpen(true)
+    const total = calculateTotal()
+
+    try {
+      const orderResponse = await api('/orders', 'POST', {
+        total_price: total,
+        status: 'pending',
+        user_id: identity.user.user_id,
       })
-    } else {
-      setFormData({
-        ...updatedFormData,
-        address: '',
-        city: '',
-        postalCode: '',
-        country: '',
-        county: '',
+      const orderData = await orderResponse.json()
+
+      setOrderId(orderData.id)
+
+      await api('/order-products', 'POST', {
+        cart: cartItems.map((prod) => ({
+          id: prod.id,
+          quantity: prod.quantity,
+          order_id: orderData.id,
+        })),
       })
+
+      dispatch(
+        setIdentity({
+          ...identity,
+          address: {
+            address: formData.address,
+            city: formData.city,
+            pincode: formData.postalCode,
+          },
+        })
+      )
+    } catch (err) {
+      console.error('Error saving order:', err)
     }
-  }, [identity, addressid])
+  }
+
+  const handlePaymentError = (errorMessage) => {
+    setStatus(PaymentStatus.ERROR)
+    setError(errorMessage)
+    setIsModalOpen(true)
+  }
+
+  const handleInputChange = (e) => {
+    const { name, value } = e.target
+    setFormData((prevState) => ({ ...prevState, [name]: value }))
+  }
+
+  const handleSubmit = async (e) => {
+    e.preventDefault()
+
+    try {
+      if (formData.address !== identity?.address?.address) {
+        await api(`/addresses`, 'POST', {
+          user_id: identity.user.user_id,
+          address: formData.address,
+          county: formData.county,
+          town: formData.city,
+          zip_code: formData.postalCode,
+          country: formData.country,
+        })
+      }
+
+      setStatus(PaymentStatus.PROCESSING)
+      const response = await api(`/api/payment/initiate`, 'POST', {
+        phone_number: formData.phoneNumber,
+        amount: calculateTotal(),
+        order_id: Math.floor(Math.random() * 1000000),
+      })
+
+      const data = await response.json()
+      if (response.ok) {
+        setCheckoutRequestId(data.CheckoutRequestID)
+      } else {
+        handlePaymentError(data.error || 'Payment initiation failed')
+      }
+    } catch (err) {
+      handlePaymentError('Failed to process payment. Please try again.')
+    }
+  }
 
   return (
     <>
@@ -276,8 +273,8 @@ const Checkout = () => {
                         name="addresses"
                         id="addresses"
                         className="block w-full px-4 py-2 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
-                        value={addressid}
-                        onChange={(e) => setAdressId(e.target.value)}
+                        value={addressId}
+                        onChange={(e) => setAddressId(e.target.value)}
                       >
                         <option value="">Select an Adress</option>
                         {identity.user?.addresses.map((address, index) => (
@@ -475,7 +472,9 @@ const Checkout = () => {
                         </p>
                       </div>
                       <p className="font-medium">
-                        {format((item.item.price * item.quantity).toFixed(2))}
+                        {formatCurrency(
+                          (item.item.price * item.quantity).toFixed(2)
+                        )}
                       </p>
                     </div>
                   ))}
@@ -483,19 +482,19 @@ const Checkout = () => {
                 <div className="border-t border-gray-200 mt-4 pt-4 space-y-2">
                   <div className="flex justify-between">
                     <p>Subtotal</p>
-                    <p>{format(calculateSubtotal().toFixed(2))}</p>
+                    <p>{formatCurrency(calculateSubtotal().toFixed(2))}</p>
                   </div>
                   <div className="flex justify-between">
                     <p>Shipping</p>
-                    <p>{format(shipping)}</p>
+                    <p>{formatCurrency(shipping)}</p>
                   </div>
                   <div className="flex justify-between">
                     <p>Tax</p>
-                    <p>{format(calculateTax().toFixed(2))}</p>
+                    <p>{formatCurrency(calculateTax().toFixed(2))}</p>
                   </div>
                   <div className="flex justify-between font-semibold">
                     <p>Total</p>
-                    <p>{format(calculateTotal().toFixed(2))}</p>
+                    <p>{formatCurrency(calculateTotal().toFixed(2))}</p>
                   </div>
                 </div>
               </div>
@@ -523,7 +522,7 @@ const Checkout = () => {
             ? 'Your payment was successful!'
             : error
         }
-        orderid={orderid}
+        orderid={orderId}
       />
     </>
   )
