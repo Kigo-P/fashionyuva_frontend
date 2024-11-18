@@ -103,7 +103,11 @@ const Listing = () => {
   }
 
   const clearFilters = () => {
-    setFilters({ category: '', priceRange: [0, 2000], search: '' })
+    setFilters({
+      category: '',
+      priceRange: findMinAndMax(products.map((prod) => parseInt(prod.price))),
+      search: '',
+    })
     setCurrentPage(1)
   }
 

@@ -1,41 +1,46 @@
 import React, { useEffect, useState } from 'react'
-import { Heart, ChevronLeft, ChevronRight, ShoppingCart } from 'lucide-react'
-import StarRating from './StarRating'
-import Review from './Review'
+import { ChevronLeft, ChevronRight, ShoppingCart } from 'lucide-react'
 import Header from '../components/Header'
 import Footer from '../components/Footer'
 import { useParams } from 'react-router-dom'
 import { toast } from 'react-toastify'
 import { useAppDispatch, useAppSelector } from '../store/hooks'
 import { setCart } from '../store/slices/cartSlice'
+import { api } from '../utils/api'
+import { X } from 'lucide-react'
+import StarRating from './StarRating'
 
 function Product() {
   const cart = useAppSelector((state) => state.cart).cart
+  const identity = useAppDispatch((state) => state.identity)
   const dispatch = useAppDispatch()
   const [product, setProduct] = useState(null)
   const [showReviews, setShowReviews] = useState(false)
   const [showReviewModal, setShowReviewModal] = useState(false)
+  const [quantity, setQuantity] = useState(1)
   const [reviews, setReviews] = useState([])
   const [currentImageIndex, setCurrentImageIndex] = useState(0)
   let { id } = useParams()
+  const [rating, setRating] = useState(0)
+  const [review, setReview] = useState('')
 
-  useEffect(() => {
-    const getProduct = async () => {
-      try {
-        const res = await fetch(
-          `${import.meta.env.VITE_BACKEND_URL}/products/${id}`
-        )
-        const data = await res.json()
-        if (res.ok) {
-          setProduct(data)
-          setReviews(data.reviews)
-        } else {
-          toast('Error Getting Product', { type: 'error' })
-        }
-      } catch (error) {
-        toast('Network Error', { type: 'error' })
+  const getProduct = async () => {
+    try {
+      const res = await fetch(
+        `${import.meta.env.VITE_BACKEND_URL}/products/${id}`
+      )
+      const data = await res.json()
+      if (res.ok) {
+        setProduct(data)
+        setReviews(data.reviews)
+      } else {
+        toast('Error Getting Product', { type: 'error' })
       }
+    } catch (error) {
+      toast('Network Error', { type: 'error' })
     }
+  }
+  useEffect(() => {
     getProduct()
   }, [id])
 
@@ -43,26 +48,28 @@ function Product() {
     reviews.reduce((acc, review) => acc + parseInt(review.rating), 0) /
     (reviews.length || 1)
 
-  const handleSubmitReview = async (rating, text) => {
+  const handleSubmitReview = async (e) => {
+    e.preventDefault()
     const newReview = {
       id: reviews.length + 1,
       rating,
-      comment: text,
+      comment: review,
       date: new Date().toISOString().split('T')[0],
-      user_id: 1,
+      user_id: identity?.user?.user_id || 1,
       product_id: id,
     }
-    const res = await fetch(`${import.meta.env.VITE_BACKEND_URL}/reviews`, {
-      method: 'POST',
-      body: JSON.stringify(newReview),
-    })
-    console.log(reviews)
-    setReviews([newReview, ...reviews])
+    const res = await api(`/reviews`, 'POST', newReview)
+    if (res.ok) {
+      setShowReviewModal(false)
+      getProduct()
+    } else {
+      toast('failed to post review!', { type: 'error' })
+    }
   }
 
   if (!product) return <p>Loading...</p>
 
-  const images = product.images.length ? product.images : ['/placeholder.jpg']
+  const images = product.images.length ? product.images : ['/girl.jpg']
 
   const handleNextImage = () => {
     setCurrentImageIndex((prevIndex) =>
@@ -74,6 +81,13 @@ function Product() {
     setCurrentImageIndex((prevIndex) =>
       prevIndex === 0 ? images.length - 1 : prevIndex - 1
     )
+  }
+
+  const format = (amount) => {
+    return new Intl.NumberFormat('en-KE', {
+      style: 'currency',
+      currency: 'KES',
+    }).format(amount)
   }
 
   return (
@@ -89,18 +103,22 @@ function Product() {
             alt={product.title}
             className="w-full h-full object-cover"
           />
-          <button
-            onClick={handlePrevImage}
-            className="absolute left-4 top-1/2 -translate-y-1/2 bg-white p-2 rounded-full shadow-md hover:bg-gray-100"
-          >
-            <ChevronLeft size={20} />
-          </button>
-          <button
-            onClick={handleNextImage}
-            className="absolute right-4 top-1/2 -translate-y-1/2 bg-white p-2 rounded-full shadow-md hover:bg-gray-100"
-          >
-            <ChevronRight size={20} />
-          </button>
+          {images.length >= 2 ? (
+            <button
+              onClick={handlePrevImage}
+              className="absolute left-4 top-1/2 -translate-y-1/2 bg-white p-2 rounded-full shadow-md hover:bg-gray-100"
+            >
+              <ChevronLeft size={20} />
+            </button>
+          ) : null}
+          {images.length >= 2 ? (
+            <button
+              onClick={handleNextImage}
+              className="absolute right-4 top-1/2 -translate-y-1/2 bg-white p-2 rounded-full shadow-md hover:bg-gray-100"
+            >
+              <ChevronRight size={20} />
+            </button>
+          ) : null}
         </div>
 
         <div className="space-y-6">
@@ -109,7 +127,7 @@ function Product() {
               {product.title}
             </h1>
             <p className="text-2xl font-semibold text-gray-900 mt-2">
-              ${product.price}
+              {format(product.price)}
             </p>
             <div className="flex items-center gap-2 mt-2">
               <StarRating rating={averageRating} />
@@ -137,6 +155,8 @@ function Product() {
               placeholder="Enter quantity"
               min="1"
               step="1"
+              value={quantity}
+              onChange={(e) => setQuantity(e.target.value)}
             />
           </div>
 
@@ -153,7 +173,11 @@ function Product() {
                   dispatch(
                     setCart([
                       ...cart,
-                      { id: product.id, quantity: 1, item: product },
+                      {
+                        id: product.id,
+                        quantity: quantity < 0 ? 1 : quantity,
+                        item: product,
+                      },
                     ])
                   )
                 }
@@ -170,9 +194,6 @@ function Product() {
                   ? 'Remove from Cart'
                   : 'Add to Cart'}
               </span>
-            </button>
-            <button className="p-3 border rounded-lg hover:bg-gray-50 transition-colors duration-200">
-              <Heart className="w-6 h-6" />
             </button>
           </div>
 
@@ -227,10 +248,53 @@ function Product() {
       </div>
 
       {showReviewModal && (
-        <Review
-          onClose={() => setShowReviewModal(false)}
-          onSubmitReview={handleSubmitReview}
-        />
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+          <div className="bg-white rounded-lg p-6 max-w-md w-full relative">
+            <button
+              onClick={() => setShowReviewModal(false)}
+              className="absolute right-4 top-4 text-gray-500 hover:text-gray-700"
+            >
+              <X size={20} />
+            </button>
+
+            <h3 className="text-xl font-semibold mb-4">Leave a Review</h3>
+
+            <form onSubmit={handleSubmitReview} className="space-y-4">
+              <div className="flex flex-col gap-2">
+                <label className="font-medium">Rating</label>
+                <StarRating
+                  rating={rating}
+                  onRatingChange={setRating}
+                  isInteractive={true}
+                  size={24}
+                />
+              </div>
+
+              <div className="flex flex-col gap-2">
+                <label htmlFor="review" className="font-medium">
+                  Your Review
+                </label>
+                <textarea
+                  id="review"
+                  rows={4}
+                  className="w-full border rounded-lg p-2  focus:ring-2 focus:ring-black focus:border-gray-700"
+                  placeholder="Write your review here..."
+                  value={review}
+                  onChange={(e) => setReview(e.target.value)}
+                  required
+                />
+              </div>
+
+              <button
+                type="submit"
+                className="w-full bg-black text-white py-2 rounded-lg hover:bg-gray-500 transition-colors duration-200"
+                disabled={rating === 0}
+              >
+                Submit Review
+              </button>
+            </form>
+          </div>
+        </div>
       )}
       <Footer />
     </div>

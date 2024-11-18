@@ -95,7 +95,10 @@ const Cart = () => {
                           <div className="flex items-center">
                             <button
                               onClick={() =>
-                                updateQuantity(item.id, item.quantity - 1)
+                                updateQuantity(
+                                  item.id,
+                                  parseInt(item.quantity) - 1
+                                )
                               }
                               className="inline-flex h-8 w-8 items-center justify-center rounded-md border border-gray-300 bg-white text-gray-500 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-black-500 focus:ring-offset-2"
                             >
@@ -114,7 +117,10 @@ const Cart = () => {
                             />
                             <button
                               onClick={() =>
-                                updateQuantity(item.id, item.quantity + 1)
+                                updateQuantity(
+                                  item.id,
+                                  parseInt(item.quantity) + 1
+                                )
                               }
                               className="inline-flex h-8 w-8 items-center justify-center rounded-md border border-gray-300 bg-white text-gray-500 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-black-500 focus:ring-offset-2"
                             >
