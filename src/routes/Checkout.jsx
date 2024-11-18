@@ -22,7 +22,9 @@ const Modal = ({ isOpen, onClose, status, message, orderid }) => {
   const handleModalClose = () => {
     if (status === PaymentStatus.SUCCESS) {
       onClose()
-      setTimeout(() => navigate(`/receipt/${orderid}`), 2000)
+      if (orderid) {
+        setTimeout(() => navigate(`/receipt/${orderid}`), 2000)
+      }
     } else {
       onClose()
     }
@@ -77,7 +79,7 @@ const Checkout = () => {
   const [checkoutRequestId, setCheckoutRequestId] = useState(null)
   const [isModalOpen, setIsModalOpen] = useState(false)
 
-  const shipping = 300
+  const shipping = 0
 
   const calculateSubtotal = useCallback(
     () =>

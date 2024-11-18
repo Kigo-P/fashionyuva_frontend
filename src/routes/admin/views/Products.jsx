@@ -1,12 +1,23 @@
 import React, { useState, useEffect } from 'react'
-import { Pencil, Trash2, Star, X } from 'lucide-react'
+import { Pencil, Trash2, Star, X, Upload } from 'lucide-react'
 import { api } from '../../../utils/api'
+import ImageUpload from '../../../utils/ImageUpload'
 
 export default function ProductListing() {
   const [products, setProducts] = useState([])
   const [loading, setLoading] = useState(true)
+  const [edLoading, setEdLoading] = useState(false)
   const [isEditing, setIsEditing] = useState(false)
   const [editProduct, setEditProduct] = useState(null)
+  const [images, setImages] = useState([])
+
+  const handleImageUpload = (e) => {
+    const files = e.target.files
+    if (files) {
+      const newFiles = Array.from(files)
+      setImages((prevImages) => [...prevImages, ...newFiles])
+    }
+  }
 
   const fetchProducts = async () => {
     setLoading(true)
@@ -31,6 +42,7 @@ export default function ProductListing() {
 
   const handleEdit = async (product) => {
     setEditProduct(product)
+    setImages(product.images.map((i) => i.url))
     setIsEditing(true)
   }
 
@@ -60,14 +72,16 @@ export default function ProductListing() {
   const handleSubmitEdit = async (e) => {
     e.preventDefault()
     try {
-      const res = await api(`/products/${editProduct.id}`, 'PATCH', editProduct)
+      setEdLoading(true)
+      console.log(editProduct)
+      const res = await api(`/products/${editProduct.id}`, 'PATCH', {
+        title: editProduct.title,
+        description: editProduct.description,
+        price: editProduct.price,
+        images: images,
+      })
       if (res.ok) {
-        const updatedProduct = await res.json()
-        setProducts((prevProducts) =>
-          prevProducts.map((product) =>
-            product.id === updatedProduct.id ? updatedProduct : product
-          )
-        )
+        fetchProducts()
       } else {
         const data = await res.json()
         console.log(data)
@@ -75,6 +89,8 @@ export default function ProductListing() {
     } catch (error) {
       console.log(error)
       console.error('Error updating product:', error)
+    } finally {
+      setEdLoading(false)
     }
     closeModal()
   }
@@ -93,6 +109,35 @@ export default function ProductListing() {
       currency: 'KES',
     }).format(amount)
   }
+
+  // image upload on image Place
+  const handleDragOver = (event) => {
+    event.preventDefault()
+  }
+
+  const handleDrop = (event) => {
+    event.preventDefault()
+    setImages([...images, ...Array.from(event.dataTransfer.files || [])])
+  }
+
+  useEffect(() => {
+    const uploadfile = async () => {
+      const imgs = []
+      if (images.length > 0) {
+        for (let i = 0; i < images.length; i++) {
+          if (typeof images[i] === 'string') {
+            imgs.push(images[i])
+          } else {
+            imgs.push(await ImageUpload(images[i]))
+          }
+        }
+      }
+      setImages(imgs)
+    }
+
+    uploadfile()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [images.length])
 
   return (
     <div className="container mx-auto px-4 py-8 bg-white text-black">
@@ -227,11 +272,89 @@ export default function ProductListing() {
                   }
                 />
               </label>
+
+              <div className="space-y-3 md:col-span-2 mb-2">
+                <label
+                  htmlFor="category"
+                  className="block font-medium text-gray-900"
+                >
+                  Category
+                </label>
+                <select
+                  id="category"
+                  value={editProduct?.price || 0}
+                  onChange={(e) =>
+                    setEditProduct({
+                      ...editProduct,
+                      category_id: parseInt(e.target.value),
+                    })
+                  }
+                  className="w-full border border-gray-300 rounded-lg py-3 px-4 outline-none"
+                >
+                  <option value="" disabled>
+                    Select category
+                  </option>
+                  <option value="1">Men</option>
+                  <option value="2">Women</option>
+                  <option value="3">Children</option>
+                </select>
+              </div>
+
+              <div className="mb-2">
+                <label className="block text-sm font-medium text-gray-700 mb-2 w-full">
+                  Product Images
+                </label>
+                <div className="flex flex-wrap gap-4 w-full">
+                  {images.map((image, index) => (
+                    <div key={index} className="relative">
+                      {typeof image === 'string' ? (
+                        <>
+                          <img
+                            src={image}
+                            alt={`Product ${index + 1}`}
+                            className="w-24 h-24 object-cover rounded-lg"
+                          />
+                          <button
+                            type="button"
+                            onClick={() => removeImage(index)}
+                            className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1 hover:bg-red-600 transition-colors"
+                          >
+                            <X size={16} />
+                          </button>
+                        </>
+                      ) : (
+                        <div className="w-24 h-24 flex items-center justify-center bg-gray-200 rounded-lg">
+                          <p className="text-gray-500">Uploading...</p>
+                        </div>
+                      )}
+                    </div>
+                  ))}
+
+                  <label
+                    className="w-full h-24 flex flex-col items-center justify-center border-2 border-dashed border-gray-300 rounded-lg cursor-pointer hover:border-blue-500 transition-colors"
+                    onDragOver={handleDragOver}
+                    onDrop={handleDrop}
+                  >
+                    <Upload size={24} className="text-gray-400" />
+                    <span className="text-xs text-gray-500 mt-1">
+                      Add Image
+                    </span>
+                    <input
+                      type="file"
+                      accept="image/*"
+                      onChange={handleImageUpload}
+                      className="hidden"
+                      multiple
+                    />
+                  </label>
+                </div>
+              </div>
+
               <button
                 type="submit"
                 className="w-full px-4 py-2 rounded-md font-medium text-white bg-black hover:bg-gray-800"
               >
-                Save Changes
+                {edLoading ? 'Updating...' : 'Save Changes'}
               </button>
             </form>
           </div>

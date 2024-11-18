@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useState, useRef } from 'react'
 import { Store } from 'lucide-react'
 import { useParams } from 'react-router-dom'
 import Header from '../components/Header'
@@ -8,6 +8,7 @@ import { api } from '../utils/api'
 
 const Receipt = () => {
   const [order, setOrder] = useState(null)
+  const divToPrintRef = useRef()
   const { id } = useParams()
 
   useEffect(() => {
@@ -45,6 +46,15 @@ const Receipt = () => {
   const tax = subtotal * taxRate
   const total = subtotal + shipping + tax
 
+  const handlePrint = () => {
+    const originalContents = document.body.innerHTML
+    const printContents = divToPrintRef.current.innerHTML
+    document.body.innerHTML = printContents
+    window.print()
+    document.body.innerHTML = originalContents
+    window.location.reload()
+  }
+
   return (
     <>
       <Header />
@@ -60,7 +70,10 @@ const Receipt = () => {
           Back to Checkout
         </Link>
 
-        <div className="max-w-3xl mx-auto bg-white p-8 shadow-lg rounded-lg relative z-10">
+        <div
+          className="max-w-3xl mx-auto bg-white p-8 shadow-lg rounded-lg relative z-10"
+          ref={divToPrintRef}
+        >
           <div className="flex justify-between items-start mb-8">
             <div className="flex items-center">
               <Store className="text-gray-800 text-4xl h-16 w-16 mr-2" />
@@ -161,7 +174,8 @@ const Receipt = () => {
 
           <div className="mt-8">
             <button
-              onClick={() => window.print()}
+              // onClick={() => window.print()}
+              onClick={handlePrint}
               className="w-full bg-black text-white py-3 rounded-lg hover:bg-gray-800 transition-colors print:hidden text-lg font-medium"
             >
               Print Receipt
