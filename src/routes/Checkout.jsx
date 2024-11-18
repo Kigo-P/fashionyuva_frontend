@@ -14,7 +14,7 @@ const PaymentStatus = {
   ERROR: 'error',
 }
 
-const Modal = ({ isOpen, onClose, status, message }) => {
+const Modal = ({ isOpen, onClose, status, message, orderid }) => {
   const navigate = useNavigate()
   if (!isOpen) return null
 
@@ -36,7 +36,7 @@ const Modal = ({ isOpen, onClose, status, message }) => {
           onClick={() => {
             if (status === PaymentStatus.SUCCESS) {
               onClose()
-              setTimeout(() => navigate('/receipt'), 2000)
+              setTimeout(() => navigate(`/receipt/${orderid}`), 2000)
             } else {
               onClose()
             }
@@ -66,11 +66,14 @@ const Checkout = () => {
   })
   const [status, setStatus] = useState(PaymentStatus.IDLE)
   const [error, setError] = useState('')
+  const [orderid, setOrderId] = useState('')
   const [checkoutRequestId, setCheckoutRequestId] = useState(null)
   const [isModalOpen, setIsModalOpen] = useState(false)
   const cartItems = useAppSelector((state) => state.cart).cart
 
   const dispatch = useAppDispatch()
+
+  const shipping = 300
 
   useEffect(() => {
     let pollInterval
@@ -101,6 +104,7 @@ const Checkout = () => {
               user_id: identity.user.user_id,
             })
             const data = await res.json()
+            setOrderId(data.id)
             await api('/order-products', 'POST', {
               cart: cartItems.map((prod) => {
                 return {
@@ -187,7 +191,7 @@ const Checkout = () => {
   }
 
   const calculateTotal = () => {
-    return calculateSubtotal() + calculateTax()
+    return calculateSubtotal() + calculateTax() + shipping
   }
 
   const format = (amount) => {
@@ -482,6 +486,10 @@ const Checkout = () => {
                     <p>{format(calculateSubtotal().toFixed(2))}</p>
                   </div>
                   <div className="flex justify-between">
+                    <p>Shipping</p>
+                    <p>{format(shipping)}</p>
+                  </div>
+                  <div className="flex justify-between">
                     <p>Tax</p>
                     <p>{format(calculateTax().toFixed(2))}</p>
                   </div>
@@ -515,6 +523,7 @@ const Checkout = () => {
             ? 'Your payment was successful!'
             : error
         }
+        orderid={orderid}
       />
     </>
   )

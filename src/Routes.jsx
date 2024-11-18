@@ -69,7 +69,7 @@ const router = createBrowserRouter(
         errorElement={<ErrorBoundary />}
       />
       <Route
-        path="/receipt"
+        path="/receipt/:id"
         element={<Receipt />}
         errorElement={<ErrorBoundary />}
       />

@@ -1,43 +1,49 @@
-import React from 'react'
+import React, { useEffect, useState } from 'react'
 import { Store } from 'lucide-react'
+import { useParams } from 'react-router-dom'
 import Header from '../components/Header'
 import Footer from '../components/Footer'
 import { Link } from 'react-router-dom'
-import { useAppSelector } from '../store/hooks'
+import { api } from '../utils/api'
 
 const Receipt = () => {
-  const cart = useAppSelector((state) => state.cart).cart
-  const identity = useAppSelector((state) => state.identity)
+  const [order, setOrder] = useState(null)
+  const { id } = useParams()
 
-  const subtotal = cart.reduce((acc, item) => {
-    return acc + item.quantity * item.item.price
-  }, 0)
-  const shipping = 300
-  const taxRate = 0.18
-  const tax = subtotal * taxRate
-  const total = subtotal + shipping + tax
-  const receiptData = {
-    orderNumber: 'REC-2024-001',
-    orderDate: new Date().toLocaleDateString(),
-    customerDetails: {
-      name: identity.user.username,
-      email: identity.user.email,
-      address: identity.address?.address,
-      city: identity.address?.city,
-      pincode: identity.address?.pincode,
-    },
-    items: cart,
-    subtotal: subtotal,
-    shipping: shipping,
-    tax: tax,
-    total: total,
+  useEffect(() => {
+    const fetchOrder = async () => {
+      const res = await api(`/orders/${id}`)
+      const data = await res.json()
+      if (res.ok) {
+        setOrder(data)
+      }
+    }
+    fetchOrder()
+  }, [id])
+
+  if (!order) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <p>Loading...</p>
+      </div>
+    )
   }
+
   const format = (amount) => {
     return new Intl.NumberFormat('en-KE', {
       style: 'currency',
       currency: 'KES',
     }).format(amount)
   }
+
+  const subtotal = order.orderproduct.reduce(
+    (acc, item) => acc + item.quantity * item.product.price,
+    0
+  )
+  const shipping = 300
+  const taxRate = 0.18
+  const tax = subtotal * taxRate
+  const total = subtotal + shipping + tax
 
   return (
     <>
@@ -71,10 +77,10 @@ const Receipt = () => {
             <div className="text-right">
               <h2 className="text-xl font-bold text-gray-800">RECEIPT</h2>
               <p className="text-sm text-black font-bold">
-                Order #{receiptData.orderNumber}
+                Order {order.receipt_no}
               </p>
               <p className="text-sm text-black font-bold">
-                Date: {receiptData.orderDate}
+                Date: {new Date(order.created_at).toLocaleDateString()}
               </p>
             </div>
           </div>
@@ -82,27 +88,16 @@ const Receipt = () => {
           <div className="mb-8 bg-gray-50 p-4 rounded-lg">
             <h3 className="text-black font-semibold mb-2">Bill To:</h3>
             <div className="text-sm">
-              {receiptData.customerDetails.name && (
-                <p className="font-medium">
-                  {receiptData.customerDetails.name}
-                </p>
-              )}
-              {receiptData.customerDetails.email && (
-                <p>{receiptData.customerDetails.email}</p>
-              )}
-              {receiptData.customerDetails.address && (
-                <p>{receiptData.customerDetails.address}</p>
-              )}
-              {(receiptData.customerDetails.city ||
-                receiptData.customerDetails.pincode) && (
+              <p className="font-medium">
+                {order.user.first_name} {order.user.last_name}
+              </p>
+              <p>{order.user.email}</p>
+              {order.user.address.length > 0 && (
                 <p>
-                  {receiptData.customerDetails.city &&
-                    receiptData.customerDetails.city}
-                  {receiptData.customerDetails.city &&
-                    receiptData.customerDetails.pincode &&
-                    ' - '}
-                  {receiptData.customerDetails.pincode &&
-                    receiptData.customerDetails.pincode}
+                  {order.user.address[0].address}, {order.user.address[0].town},{' '}
+                  {order.user.address[0].county},{' '}
+                  {order.user.address[0].country} -{' '}
+                  {order.user.address[0].zip_code}
                 </p>
               )}
             </div>
@@ -119,15 +114,15 @@ const Receipt = () => {
                 </tr>
               </thead>
               <tbody>
-                {receiptData.items.map((item, index) => (
+                {order.orderproduct.map((item, index) => (
                   <tr key={index} className="border-b border-gray-100">
-                    <td className="py-2 px-4">{item.item.title}</td>
+                    <td className="py-2 px-4">{item.product.title}</td>
                     <td className="text-center py-2 px-4">{item.quantity}</td>
                     <td className="text-right py-2 px-4">
-                      {format(item.item.price)}
+                      {format(item.product.price)}
                     </td>
                     <td className="text-right py-2 px-4">
-                      {format(item.quantity * item.item.price)}
+                      {format(item.quantity * item.product.price)}
                     </td>
                   </tr>
                 ))}
@@ -139,19 +134,19 @@ const Receipt = () => {
             <div className="w-64 space-y-3">
               <div className="flex justify-between">
                 <span className="text-black">Subtotal:</span>
-                <span>{format(receiptData.subtotal)}</span>
+                <span>{format(subtotal)}</span>
               </div>
               <div className="flex justify-between">
                 <span className="text-black">Shipping:</span>
-                <span>{format(receiptData.shipping)}</span>
+                <span>{format(shipping)}</span>
               </div>
               <div className="flex justify-between">
                 <span className="text-black">VAT (18%):</span>
-                <span>{format(receiptData.tax)}</span>
+                <span>{format(tax)}</span>
               </div>
               <div className="flex justify-between font-bold text-lg border-t border-gray-200 pt-2">
                 <span>Total:</span>
-                <span>{format(receiptData.total)}</span>
+                <span>{format(total)}</span>
               </div>
             </div>
           </div>
