@@ -73,37 +73,6 @@ const Checkout = () => {
   const dispatch = useAppDispatch()
 
   useEffect(() => {
-    setFormData({
-      ...formData,
-      email: identity.user.email,
-      firstName: identity.user.username.split(' ')[0],
-      lastName: identity.user.username.split(' ')[1],
-    })
-  }, [identity])
-
-  useEffect(() => {
-    if (addressid !== '') {
-      setFormData({
-        ...formData,
-        address: identity.user.addresses[addressid].address,
-        city: identity.user.addresses[addressid].town,
-        postalCode: identity.user.addresses[addressid].zip_code,
-        country: identity.user.addresses[addressid].country,
-        county: identity.user.addresses[addressid].county,
-      })
-    } else {
-      setFormData({
-        ...formData,
-        address: '',
-        city: '',
-        postalCode: '',
-        country: '',
-        county: '',
-      })
-    }
-  }, [identity, addressid])
-
-  useEffect(() => {
     let pollInterval
 
     if (checkoutRequestId) {
@@ -118,7 +87,7 @@ const Checkout = () => {
             dispatch(
               setIdentity({
                 ...identity,
-                adress: {
+                address: {
                   address: formData.address,
                   city: formData.city,
                   pincode: formData.postalCode,
@@ -171,23 +140,24 @@ const Checkout = () => {
   const handleSubmit = async (e) => {
     e.preventDefault()
     try {
+      //save address to address table
+      if (formData.address !== identity.address.address) {
+        await api(`/addresses`, 'POST', {
+          user_id: identity.user.user_id,
+          address: formData.address,
+          county: formData.county,
+          town: formData.city,
+          zip_code: formData.postalCode,
+          country: formData.country,
+        })
+      }
       setStatus(PaymentStatus.PROCESSING)
       setError('')
-
-      const response = await fetch(
-        `${import.meta.env.VITE_BACKEND_URL}/api/payment/initiate`,
-        {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            phone_number: formData.phoneNumber,
-            amount: calculateTotal(),
-            order_id: Math.floor(Math.random() * 1000000),
-          }),
-        }
-      )
+      const response = await api(`/api/payment/initiate`, 'POST', {
+        phone_number: formData.phoneNumber,
+        amount: calculateTotal(),
+        order_id: Math.floor(Math.random() * 1000000),
+      })
 
       const data = await response.json()
 
@@ -226,6 +196,38 @@ const Checkout = () => {
       currency: 'KES',
     }).format(amount)
   }
+
+  useEffect(() => {
+    if (!identity) return
+
+    const updatedFormData = {
+      ...formData,
+      email: identity.user.email,
+      firstName: identity.user.username.split(' ')[0] || '',
+      lastName: identity.user.username.split(' ')[1] || '',
+    }
+
+    if (addressid) {
+      const address = identity.user.addresses[addressid] || {}
+      setFormData({
+        ...updatedFormData,
+        address: address.address || '',
+        city: address.town || '',
+        postalCode: address.zip_code || '',
+        country: address.country || '',
+        county: address.county || '',
+      })
+    } else {
+      setFormData({
+        ...updatedFormData,
+        address: '',
+        city: '',
+        postalCode: '',
+        country: '',
+        county: '',
+      })
+    }
+  }, [identity, addressid])
 
   return (
     <>
