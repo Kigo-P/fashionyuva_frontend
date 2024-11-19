@@ -1,7 +1,7 @@
-import React from 'react'
-import { Building2, Users, Trophy, ShoppingBag } from 'lucide-react'
-import Header from '../components/Header'
-import Footer from '../components/Footer'
+import React from "react";
+import { Building2, Users, Trophy, ShoppingBag } from "lucide-react";
+import Header from "../components/Header";
+import Footer from "../components/Footer";
 
 const AboutUs = () => {
   return (
@@ -109,7 +109,7 @@ const AboutUs = () => {
               <div className="bg-white/80 backdrop-blur-sm p-3 md:p-4 rounded-xl shadow-sm">
                 <img
                   src="./girl.jpg"
-                  alt="Fashionyuva store"
+                  alt="FashionYuva store"
                   className="rounded-lg w-full h-auto"
                 />
               </div>
@@ -119,7 +119,7 @@ const AboutUs = () => {
       </div>
       <Footer />
     </>
-  )
-}
+  );
+};
 
-export default AboutUs
+export default AboutUs;
