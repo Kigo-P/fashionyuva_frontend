@@ -7,6 +7,7 @@ const Admins = () => {
   const [admins, setAdmins] = useState([])
   const [users, setUsers] = useState([])
   const [loading, setLoading] = useState(true)
+  const [promoteLoading, setPromoteLoading] = useState(null)
   const [error, setError] = useState(null)
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [sortConfig, setSortConfig] = useState({
@@ -45,11 +46,14 @@ const Admins = () => {
 
   const handlePromoteUser = async (userId) => {
     try {
+      setPromoteLoading(userId)
       const userToPromote = users.find((user) => user.id === userId)
       if (!userToPromote) return
 
       const updatedAdmin = { ...userToPromote, user_role: 'admin' }
-      const response = await api(`/users/${userId}`, 'PATCH', updatedAdmin)
+      const response = await api(`/users/${userId}`, 'PATCH', {
+        user_role: 'admin',
+      })
       if (!response.ok) throw new Error('Failed to promote user')
 
       const promotedUser = await response.json()
@@ -59,6 +63,8 @@ const Admins = () => {
       fetchUsersAndAdmins()
     } catch (err) {
       toast(err.message, { type: 'error' })
+    } finally {
+      setPromoteLoading(null)
     }
   }
 
@@ -210,7 +216,7 @@ const Admins = () => {
 
       {isModalOpen && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4">
-          <div className="bg-white rounded-lg p-6 w-[80vw] relative h-[80vh]">
+          <div className="bg-white rounded-lg p-6 w-[80vw] relative h-[80vh] overflow-hidden">
             <button
               className="absolute top-2 right-2"
               onClick={() => setIsModalOpen(false)}
@@ -218,7 +224,7 @@ const Admins = () => {
               <X className="w-6 h-6 text-black" />
             </button>
             <h2 className="text-2xl font-bold mb-4">Promote User to Admin</h2>
-            <ul className="space-y-4 h-[70vh] overflow-y-scroll overflow-x-hidden">
+            <ul className="space-y-4 h-full overflow-y-scroll overflow-x-hidden">
               {loading ? (
                 <div className="animate-pulse">Loading...</div>
               ) : (
@@ -234,7 +240,7 @@ const Admins = () => {
                       className="bg-black text-white px-4 py-2 rounded-md"
                       onClick={() => handlePromoteUser(user.id)}
                     >
-                      Promote
+                      {promoteLoading === user.id ? 'promoting...' : 'Promote'}
                     </button>
                   </li>
                 ))
