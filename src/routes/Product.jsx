@@ -10,6 +10,84 @@ import { api } from '../utils/api'
 import { X } from 'lucide-react'
 import StarRating from './StarRating'
 
+function ProductSkeleton() {
+  return (
+    <div className="min-h-screen bg-gray-50">
+      <Header />
+      <div className="max-w-7xl mx-auto px-4 py-8 grid grid-cols-1 md:grid-cols-2 gap-8 mt-24">
+        <div className="relative aspect-square bg-gray-200 rounded-lg overflow-hidden">
+          <div className="w-full h-full bg-gray-300 animate-pulse" />
+          <div className="absolute left-4 top-1/2 -translate-y-1/2 bg-white p-2 rounded-full shadow-md">
+            <div className="w-5 h-5 bg-gray-300 animate-pulse rounded-full" />
+          </div>
+          <div className="absolute right-4 top-1/2 -translate-y-1/2 bg-white p-2 rounded-full shadow-md">
+            <div className="w-5 h-5 bg-gray-300 animate-pulse rounded-full" />
+          </div>
+        </div>
+
+        <div className="space-y-6">
+          <div>
+            <div className="h-8 w-3/4 bg-gray-300 animate-pulse rounded" />
+            <div className="h-6 w-1/4 mt-2 bg-gray-300 animate-pulse rounded" />
+            <div className="flex items-center gap-2 mt-2">
+              <div className="h-4 w-24 bg-gray-300 animate-pulse rounded" />
+              <div className="h-4 w-16 bg-gray-300 animate-pulse rounded" />
+            </div>
+          </div>
+
+          <div>
+            <div className="h-5 w-16 mb-2 bg-gray-300 animate-pulse rounded" />
+            <div className="h-4 w-24 bg-gray-300 animate-pulse rounded" />
+          </div>
+
+          <div>
+            <div className="h-5 w-16 mb-2 bg-gray-300 animate-pulse rounded" />
+            <div className="h-4 w-24 bg-gray-300 animate-pulse rounded" />
+          </div>
+
+          <div>
+            <div className="h-5 w-24 mb-2 bg-gray-300 animate-pulse rounded" />
+            <div className="h-10 w-full bg-gray-300 animate-pulse rounded" />
+          </div>
+
+          <div className="h-12 w-full bg-gray-300 animate-pulse rounded" />
+
+          <div className="border-t pt-6">
+            <div className="h-6 w-36 mb-2 bg-gray-300 animate-pulse rounded" />
+            <div className="h-4 w-full bg-gray-300 animate-pulse rounded" />
+            <div className="h-4 w-full mt-2 bg-gray-300 animate-pulse rounded" />
+            <div className="mt-4 space-y-2">
+              <div className="h-4 w-3/4 bg-gray-300 animate-pulse rounded" />
+              <div className="h-4 w-2/3 bg-gray-300 animate-pulse rounded" />
+            </div>
+          </div>
+
+          <div className="border-t pt-6">
+            <div className="h-10 w-full bg-gray-300 animate-pulse rounded" />
+            <div className="mt-6 space-y-6">
+              <div className="flex justify-between items-center">
+                <div className="h-6 w-40 bg-gray-300 animate-pulse rounded" />
+                <div className="h-6 w-32 bg-gray-300 animate-pulse rounded" />
+              </div>
+              <div className="space-y-4">
+                {[1, 2, 3].map((i) => (
+                  <div key={i} className="border-b pb-4">
+                    <div className="h-4 w-24 mb-2 bg-gray-300 animate-pulse rounded" />
+                    <div className="h-4 w-full bg-gray-300 animate-pulse rounded" />
+                    <div className="h-4 w-full mt-1 bg-gray-300 animate-pulse rounded" />
+                    <div className="h-3 w-32 mt-1 bg-gray-300 animate-pulse rounded" />
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <Footer />
+    </div>
+  )
+}
+
 function Product() {
   const cart = useAppSelector((state) => state.cart).cart
   const identity = useAppDispatch((state) => state.identity)
@@ -67,7 +145,7 @@ function Product() {
     }
   }
 
-  if (!product) return <p>Loading...</p>
+  if (!product) return <ProductSkeleton />
 
   const images = product.images.length ? product.images : ['/girl.jpg']
 

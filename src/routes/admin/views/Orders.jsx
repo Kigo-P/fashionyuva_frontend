@@ -10,6 +10,7 @@ import {
   Search,
 } from 'lucide-react'
 import { api } from '../../../utils/api'
+import { toast } from 'react-toastify'
 
 const SkeletonLoader = () => {
   return (
@@ -46,6 +47,8 @@ const Orders = () => {
   const [error, setError] = useState(null)
   const [searchTerm, setSearchTerm] = useState('')
   const [dateFilter, setDateFilter] = useState('')
+  const [status, setStatus] = useState('')
+  const [statusLoading, setStatusLoading] = useState(false)
 
   useEffect(() => {
     fetchOrders()
@@ -57,6 +60,7 @@ const Orders = () => {
 
   const fetchOrders = async () => {
     try {
+      setLoading(true)
       const res = await api('/orders')
       const data = await res.json()
       if (!res.ok) {
@@ -96,6 +100,10 @@ const Orders = () => {
       })
     }
 
+    filtered
+      .sort((a, b) => new Date(b.updated_at) - new Date(a.updated_at))
+      .reverse()
+
     setFilteredOrders(filtered)
   }
 
@@ -111,6 +119,33 @@ const Orders = () => {
 
   const handleDateFilterChange = (e) => {
     setDateFilter(e.target.value)
+  }
+
+  const format = (amount) => {
+    return new Intl.NumberFormat('en-KE', {
+      style: 'currency',
+      currency: 'KES',
+    }).format(amount)
+  }
+
+  const updateOrder = async (e, order_id) => {
+    e.preventDefault()
+    try {
+      setStatusLoading(true)
+      const res = await api(`/orders/${order_id}`, 'PATCH', { status: status })
+      const data = res.json()
+      fetchOrders()
+      filterOrders()
+      if (res.ok) {
+        toast('Order status updated', { type: 'success' })
+      } else {
+        throw new Error(data.message)
+      }
+    } catch (error) {
+      toast(error.message, { type: 'error' })
+    } finally {
+      setStatusLoading(false)
+    }
   }
 
   if (loading) {
@@ -181,7 +216,7 @@ const Orders = () => {
             </div>
             {selectedOrder && selectedOrder.id === order.id && (
               <div className="p-4 bg-gray-50 border-t border-gray-300">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                   <div>
                     <h3 className="text-lg font-semibold mb-2">
                       Order Details
@@ -192,7 +227,7 @@ const Orders = () => {
                     </p>
                     <p className="flex items-center mb-2">
                       <DollarSign className="w-5 h-5 mr-2" />
-                      Total: ${order.total_price.toFixed(2)}
+                      Total: {format(order.total_price.toFixed(2))}
                     </p>
                     <p className="flex items-center">
                       <Truck className="w-5 h-5 mr-2" />
@@ -209,6 +244,30 @@ const Orders = () => {
                     </p>
                     <p className="mb-2">{order.user.email}</p>
                     <p>{order.user.contact}</p>
+                  </div>
+                  <div>
+                    <h3 className="text-lg font-semibold mb-2">Actions</h3>
+                    <form onSubmit={(e) => updateOrder(e, selectedOrder.id)}>
+                      <div className="">
+                        <h4 className="">Status</h4>
+                        <select
+                          name=""
+                          id=""
+                          className="py-1 px-3 border border-gray-600 rounded-md outline-none"
+                          value={status}
+                          onChange={(e) => setStatus(e.target.value)}
+                        >
+                          <option value="pending">Pending</option>
+                          <option value="processing">Processing</option>
+                          <option value="shipped">Shipped</option>
+                          <option value="delivered">Delivered</option>
+                          <option value="cancelled">Cancelled</option>
+                        </select>
+                      </div>
+                      <button className="text-white bg-black px-4 h-8 mt-4 rounded-md">
+                        {statusLoading ? 'updating...' : 'save'}
+                      </button>
+                    </form>
                   </div>
                 </div>
                 <div className="mt-4">
@@ -227,11 +286,12 @@ const Orders = () => {
                           <td className="p-2">{item.product.title}</td>
                           <td className="p-2">{item.quantity}</td>
                           <td className="p-2">
-                            $
-                            {(
-                              (item.product.price * item.quantity) /
-                              100
-                            ).toFixed(2)}
+                            {format(
+                              (
+                                (item.product.price * item.quantity) /
+                                100
+                              ).toFixed(2)
+                            )}
                           </td>
                         </tr>
                       ))}
