@@ -170,7 +170,7 @@ function Product() {
 
   return (
   <div className="min-h-screen bg-gray-50">
-<Header />
+    <Header />
 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 grid grid-cols-1 md:grid-cols-2 gap-8 mt-16 sm:mt-20 lg:mt-24">
   <div className="relative aspect-square bg-gray-100 rounded-lg overflow-hidden">
     <img
