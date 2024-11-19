@@ -1,50 +1,50 @@
-import React, { useState } from 'react'
-import { Eye, EyeOff } from 'lucide-react'
-import { useNavigate } from 'react-router-dom'
-import Header from '../components/Header'
-import Footer from '../components/Footer'
-import { toast } from 'react-toastify'
-import { useAppDispatch } from '../store/hooks'
-import { setIdentity } from '../store/slices/identitySlice'
+import React, { useState } from "react";
+import { Eye, EyeOff } from "lucide-react";
+import { useNavigate } from "react-router-dom";
+import Header from "../components/Header";
+import Footer from "../components/Footer";
+import { toast } from "react-toastify";
+import { useAppDispatch } from "../store/hooks";
+import { setIdentity } from "../store/slices/identitySlice";
 
 const Login = () => {
   const [formData, setFormData] = useState({
-    first_name: '',
-    last_name: '',
-    email: '',
-    password: '',
-    contact: '',
-    user_role: 'customer',
-  })
-  const [isLogin, setIsLogin] = useState(true)
-  const [showPassword, setShowPassword] = useState(false)
-  const navigate = useNavigate()
-  const toggleForm = () => setIsLogin(!isLogin)
-  const togglePasswordVisibility = () => setShowPassword(!showPassword)
-  const dispatch = useAppDispatch()
-  const [isloading, setIsLoading] = useState(false)
+    first_name: "",
+    last_name: "",
+    email: "",
+    password: "",
+    contact: "",
+    user_role: "customer",
+  });
+  const [isLogin, setIsLogin] = useState(true);
+  const [showPassword, setShowPassword] = useState(false);
+  const navigate = useNavigate();
+  const toggleForm = () => setIsLogin(!isLogin);
+  const togglePasswordVisibility = () => setShowPassword(!showPassword);
+  const dispatch = useAppDispatch();
+  const [isloading, setIsLoading] = useState(false);
 
   const onSubmit = async (e) => {
-    e.preventDefault()
+    e.preventDefault();
     if (isLogin) {
       try {
-        setIsLoading(true)
+        setIsLoading(true);
         const res = await fetch(
           `${import.meta.env.VITE_BACKEND_URL}/auth/login`,
           {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
               email: formData.email,
               password: formData.password,
             }),
           }
-        )
-        const data = await res.json()
-        console.log(data)
-        setIsLoading(false)
+        );
+        const data = await res.json();
+        console.log(data);
+        setIsLoading(false);
         if (res.ok) {
-          toast('Login successful!', { type: 'success' })
+          toast("Login successful!", { type: "success" });
           dispatch(
             setIdentity({
               is_logged: true,
@@ -52,7 +52,7 @@ const Login = () => {
               refresh_token: data.refresh_token,
               user: {
                 username:
-                  data.user_data.first_name + ' ' + data.user_data.last_name,
+                  data.user_data.first_name + " " + data.user_data.last_name,
                 email: data.user_data.email,
                 phone_number: data.user_data.contact,
                 user_role: data.role,
@@ -60,46 +60,46 @@ const Login = () => {
                 addresses: data.user_data.address,
               },
             })
-          )
-          if (data.role === 'customer') {
-            navigate('/listing')
+          );
+          if (data.role === "customer") {
+            navigate("/listing");
           } else {
-            navigate('/dashboard')
+            navigate("/dashboard");
           }
         } else {
-          throw new Error(data.message)
+          throw new Error(data.message);
         }
       } catch (e) {
-        setIsLoading(false)
-        toast(e.message || 'something wrong happened!', {
-          type: 'error',
-        })
+        setIsLoading(false);
+        toast(e.message || "something wrong happened!", {
+          type: "error",
+        });
       }
     } else {
       try {
-        setIsLoading(true)
+        setIsLoading(true);
         const res = await fetch(`${import.meta.env.VITE_BACKEND_URL}/users`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
           body: JSON.stringify(formData),
-        })
-        console.log(res)
-        const data = await res.json()
-        setIsLoading(false)
+        });
+        console.log(res);
+        const data = await res.json();
+        setIsLoading(false);
         if (res.ok) {
-          toast('registration successful!', { type: 'success' })
-          navigate('/')
+          toast("registration successful!", { type: "success" });
+          navigate("/");
         } else {
-          throw new Error(data.message)
+          throw new Error(data.message);
         }
       } catch (e) {
-        setIsLoading(false)
-        toast(e.message || 'something wrong happened!', {
-          type: 'error',
-        })
+        setIsLoading(false);
+        toast(e.message || "something wrong happened!", {
+          type: "error",
+        });
       }
     }
-  }
+  };
 
   return (
     <div>
@@ -108,7 +108,7 @@ const Login = () => {
       <div className="min-h-screen bg-gray-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
         <div className="sm:mx-auto sm:w-full sm:max-w-md">
           <h2 className="text-center text-3xl font-bold tracking-tight text-gray-900">
-            {isLogin ? 'Sign in to your account' : 'Create your account'}
+            {isLogin ? "Sign in to your account" : "Create your account"}
           </h2>
         </div>
 
@@ -233,7 +233,7 @@ const Login = () => {
                   <input
                     id="password"
                     name="password"
-                    type={showPassword ? 'text' : 'password'}
+                    type={showPassword ? "text" : "password"}
                     autoComplete="current-password"
                     required
                     className="block w-full appearance-none rounded-md border border-gray-300 px-3 py-2 placeholder-gray-400 shadow-sm focus:border-black focus:outline-none focus:ring-black sm:text-sm"
@@ -264,7 +264,7 @@ const Login = () => {
                   type="submit"
                   className="flex w-full justify-center rounded-md border border-transparent bg-black py-2 px-4 text-sm font-medium text-white shadow-sm hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-black focus:ring-offset-2"
                 >
-                  {isloading ? 'Sending...' : isLogin ? 'Sign in' : 'Register'}
+                  {isloading ? "Sending..." : isLogin ? "Sign in" : "Register"}
                 </button>
               </div>
             </form>
@@ -278,7 +278,7 @@ const Login = () => {
                   <span className="bg-white px-2 text-gray-500">
                     {isLogin
                       ? "Don't have an account?"
-                      : 'Already have an account?'}
+                      : "Already have an account?"}
                   </span>
                 </div>
               </div>
@@ -289,7 +289,7 @@ const Login = () => {
                   onClick={toggleForm}
                   className="font-medium text-black hover:text-gray-800"
                 >
-                  {isLogin ? 'Register here' : 'Sign in here'}
+                  {isLogin ? "Register here" : "Sign in here"}
                 </button>
               </div>
             </div>
@@ -298,7 +298,7 @@ const Login = () => {
       </div>
       <Footer />
     </div>
-  )
-}
+  );
+};
 
-export default Login
+export default Login;

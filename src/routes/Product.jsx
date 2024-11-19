@@ -1,14 +1,14 @@
-import React, { useEffect, useState } from 'react'
-import { ChevronLeft, ChevronRight, ShoppingCart } from 'lucide-react'
-import Header from '../components/Header'
-import Footer from '../components/Footer'
-import { useParams } from 'react-router-dom'
-import { toast } from 'react-toastify'
-import { useAppDispatch, useAppSelector } from '../store/hooks'
-import { setCart } from '../store/slices/cartSlice'
-import { api } from '../utils/api'
-import { X } from 'lucide-react'
-import StarRating from './StarRating'
+import React, { useEffect, useState } from "react";
+import { ChevronLeft, ChevronRight, ShoppingCart } from "lucide-react";
+import Header from "../components/Header";
+import Footer from "../components/Footer";
+import { useParams } from "react-router-dom";
+import { toast } from "react-toastify";
+import { useAppDispatch, useAppSelector } from "../store/hooks";
+import { setCart } from "../store/slices/cartSlice";
+import { api } from "../utils/api";
+import { X } from "lucide-react";
+import StarRating from "./StarRating";
 
 function ProductSkeleton() {
   return (
@@ -85,93 +85,93 @@ function ProductSkeleton() {
       </div>
       <Footer />
     </div>
-  )
+  );
 }
 
 function Product() {
-  const cart = useAppSelector((state) => state.cart).cart
-  const identity = useAppDispatch((state) => state.identity)
-  const dispatch = useAppDispatch()
-  const [product, setProduct] = useState(null)
-  const [showReviews, setShowReviews] = useState(false)
-  const [showReviewModal, setShowReviewModal] = useState(false)
-  const [quantity, setQuantity] = useState(1)
-  const [reviews, setReviews] = useState([])
-  const [currentImageIndex, setCurrentImageIndex] = useState(0)
-  let { id } = useParams()
-  const [rating, setRating] = useState(0)
-  const [review, setReview] = useState('')
+  const cart = useAppSelector((state) => state.cart).cart;
+  const identity = useAppDispatch((state) => state.identity);
+  const dispatch = useAppDispatch();
+  const [product, setProduct] = useState(null);
+  const [showReviews, setShowReviews] = useState(false);
+  const [showReviewModal, setShowReviewModal] = useState(false);
+  const [quantity, setQuantity] = useState(1);
+  const [reviews, setReviews] = useState([]);
+  const [currentImageIndex, setCurrentImageIndex] = useState(0);
+  let { id } = useParams();
+  const [rating, setRating] = useState(0);
+  const [review, setReview] = useState("");
 
   const getProduct = async () => {
     try {
       const res = await fetch(
         `${import.meta.env.VITE_BACKEND_URL}/products/${id}`
-      )
-      const data = await res.json()
+      );
+      const data = await res.json();
       if (res.ok) {
-        setProduct(data)
-        setReviews(data.reviews)
+        setProduct(data);
+        setReviews(data.reviews);
       } else {
-        toast('Error Getting Product', { type: 'error' })
+        toast("Error Getting Product", { type: "error" });
       }
     } catch (error) {
-      toast('Network Error', { type: 'error' })
+      toast("Network Error", { type: "error" });
     }
-  }
+  };
   useEffect(() => {
-    getProduct()
-  }, [id])
+    getProduct();
+  }, [id]);
 
   const averageRating =
     reviews.reduce((acc, review) => acc + parseInt(review.rating), 0) /
-    (reviews.length || 1)
+    (reviews.length || 1);
 
   const handleSubmitReview = async (e) => {
-    e.preventDefault()
+    e.preventDefault();
     const newReview = {
       id: reviews.length + 1,
       rating,
       comment: review,
-      date: new Date().toISOString().split('T')[0],
+      date: new Date().toISOString().split("T")[0],
       user_id: identity?.user?.user_id || 1,
       product_id: id,
-    }
-    const res = await api(`/reviews`, 'POST', newReview)
+    };
+    const res = await api(`/reviews`, "POST", newReview);
     if (res.ok) {
-      setShowReviewModal(false)
-      getProduct()
+      setShowReviewModal(false);
+      getProduct();
     } else {
-      toast('failed to post review!', { type: 'error' })
+      toast("failed to post review!", { type: "error" });
     }
-  }
+  };
 
-  if (!product) return <ProductSkeleton />
+  if (!product) return <ProductSkeleton />;
 
-  const images = product.images.length ? product.images : ['/girl.jpg']
+  const images = product.images.length ? product.images : ["/girl.jpg"];
 
   const handleNextImage = () => {
     setCurrentImageIndex((prevIndex) =>
       prevIndex === images.length - 1 ? 0 : prevIndex + 1
-    )
-  }
+    );
+  };
 
   const handlePrevImage = () => {
     setCurrentImageIndex((prevIndex) =>
       prevIndex === 0 ? images.length - 1 : prevIndex - 1
-    )
-  }
+    );
+  };
 
   const format = (amount) => {
-    return new Intl.NumberFormat('en-KE', {
-      style: 'currency',
-      currency: 'KES',
-    }).format(amount)
-  }
+    return new Intl.NumberFormat("en-KE", {
+      style: "currency",
+      currency: "KES",
+    }).format(amount);
+  };
 
   return (
     <div className="min-h-screen bg-gray-50">
       <Header />
-      <div className="max-w-7xl mx-auto px-4 py-8 grid grid-cols-1 md:grid-cols-2 gap-8 mt-24">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 grid grid-cols-1 md:grid-cols-2 gap-8 mt-16 sm:mt-20 lg:mt-24">
         <div className="relative aspect-square bg-gray-100 rounded-lg overflow-hidden">
           <img
             src={
@@ -181,30 +181,30 @@ function Product() {
             alt={product.title}
             className="w-full h-full object-cover"
           />
-          {images.length >= 2 ? (
-            <button
-              onClick={handlePrevImage}
-              className="absolute left-4 top-1/2 -translate-y-1/2 bg-white p-2 rounded-full shadow-md hover:bg-gray-100"
-            >
-              <ChevronLeft size={20} />
-            </button>
-          ) : null}
-          {images.length >= 2 ? (
-            <button
-              onClick={handleNextImage}
-              className="absolute right-4 top-1/2 -translate-y-1/2 bg-white p-2 rounded-full shadow-md hover:bg-gray-100"
-            >
-              <ChevronRight size={20} />
-            </button>
-          ) : null}
+          {images.length >= 2 && (
+            <>
+              <button
+                onClick={handlePrevImage}
+                className="absolute left-4 top-1/2 -translate-y-1/2 bg-white p-2 rounded-full shadow-md hover:bg-gray-100"
+              >
+                <ChevronLeft size={20} />
+              </button>
+              <button
+                onClick={handleNextImage}
+                className="absolute right-4 top-1/2 -translate-y-1/2 bg-white p-2 rounded-full shadow-md hover:bg-gray-100"
+              >
+                <ChevronRight size={20} />
+              </button>
+            </>
+          )}
         </div>
 
         <div className="space-y-6">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900">
+            <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">
               {product.title}
             </h1>
-            <p className="text-2xl font-semibold text-gray-900 mt-2">
+            <p className="text-xl sm:text-2xl font-semibold text-gray-900 mt-2">
               {format(product.price)}
             </p>
             <div className="flex items-center gap-2 mt-2">
@@ -238,15 +238,15 @@ function Product() {
             />
           </div>
 
-          <div className="flex gap-4">
+          <div className="flex flex-col sm:flex-row gap-4">
             <button
               onClick={(e) => {
-                e.stopPropagation()
-                const itemExists = cart.some((item) => item.id === product.id)
+                e.stopPropagation();
+                const itemExists = cart.some((item) => item.id === product.id);
                 if (itemExists) {
                   dispatch(
                     setCart(cart.filter((item) => item.id !== product.id))
-                  )
+                  );
                 } else {
                   dispatch(
                     setCart([
@@ -257,20 +257,20 @@ function Product() {
                         item: product,
                       },
                     ])
-                  )
+                  );
                 }
               }}
-              className={`w-full p-2 rounded-md text-white flex items-center justify-center ${
+              className={`w-full sm:w-auto p-2 rounded-md text-white flex items-center justify-center ${
                 cart.some((item) => item.id === product.id)
-                  ? 'bg-red-500'
-                  : 'bg-black'
+                  ? "bg-red-500"
+                  : "bg-black"
               }`}
             >
               <ShoppingCart className="mr-2 h-4 w-4" />
               <span>
                 {cart.some((item) => item.id === product.id)
-                  ? 'Remove from Cart'
-                  : 'Add to Cart'}
+                  ? "Remove from Cart"
+                  : "Add to Cart"}
               </span>
             </button>
           </div>
@@ -291,7 +291,7 @@ function Product() {
               onClick={() => setShowReviews(!showReviews)}
               className="w-full py-2 px-4 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors duration-200 flex items-center justify-center gap-2"
             >
-              {showReviews ? 'Hide' : 'Show'} Reviews & Ratings
+              {showReviews ? "Hide" : "Show"} Reviews & Ratings
             </button>
 
             {showReviews && (
@@ -355,7 +355,7 @@ function Product() {
                 <textarea
                   id="review"
                   rows={4}
-                  className="w-full border rounded-lg p-2  focus:ring-2 focus:ring-black focus:border-gray-700"
+                  className="w-full border rounded-lg p-2 focus:ring-2 focus:ring-black focus:border-gray-700"
                   placeholder="Write your review here..."
                   value={review}
                   onChange={(e) => setReview(e.target.value)}
@@ -376,7 +376,7 @@ function Product() {
       )}
       <Footer />
     </div>
-  )
+  );
 }
 
-export default Product
+export default Product;
