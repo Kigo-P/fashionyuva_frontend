@@ -1,10 +1,10 @@
-import React, { useEffect, useState, useRef } from "react";
-import { Store } from "lucide-react";
-import { useParams } from "react-router-dom";
-import Header from "../components/Header";
-import Footer from "../components/Footer";
-import { Link } from "react-router-dom";
-import { api } from "../utils/api";
+import React, { useEffect, useState, useRef } from 'react'
+import { Store } from 'lucide-react'
+import { useParams } from 'react-router-dom'
+import Header from '../components/Header'
+import Footer from '../components/Footer'
+import { Link } from 'react-router-dom'
+import { api } from '../utils/api'
 
 function ReceiptSkeleton() {
   return (
@@ -41,7 +41,7 @@ function ReceiptSkeleton() {
         <div className="mb-8">
           <div className="w-full bg-gray-50 rounded-lg p-4">
             <div className="flex justify-between mb-2">
-              {["Item", "Quantity", "Price", "Total"].map((header, index) => (
+              {['Item', 'Quantity', 'Price', 'Total'].map((header, index) => (
                 <div
                   key={index}
                   className="bg-gray-300 animate-pulse h-6 w-16 rounded"
@@ -64,7 +64,7 @@ function ReceiptSkeleton() {
 
         <div className="flex justify-end mb-8">
           <div className="w-64 space-y-3">
-            {["Subtotal", "Shipping", "VAT (18%)", "Total"].map(
+            {['Subtotal', 'Shipping', 'VAT (18%)', 'Total'].map(
               (item, index) => (
                 <div key={index} className="flex justify-between">
                   <div className="bg-gray-300 animate-pulse h-4 w-20 rounded"></div>
@@ -86,53 +86,53 @@ function ReceiptSkeleton() {
         </div>
       </div>
     </div>
-  );
+  )
 }
 
 const Receipt = () => {
-  const [order, setOrder] = useState(null);
-  const divToPrintRef = useRef();
-  const { id } = useParams();
+  const [order, setOrder] = useState(null)
+  const divToPrintRef = useRef()
+  const { id } = useParams()
 
   useEffect(() => {
     const fetchOrder = async () => {
-      const res = await api(`/orders/${id}`);
-      const data = await res.json();
+      const res = await api(`/orders/${id}`)
+      const data = await res.json()
       if (res.ok) {
-        setOrder(data);
+        setOrder(data)
       }
-    };
-    fetchOrder();
-  }, [id]);
+    }
+    fetchOrder()
+  }, [id])
 
   if (!order) {
-    return <ReceiptSkeleton />;
+    return <ReceiptSkeleton />
   }
 
   const format = (amount) => {
-    return new Intl.NumberFormat("en-KE", {
-      style: "currency",
-      currency: "KES",
-    }).format(amount);
-  };
+    return new Intl.NumberFormat('en-KE', {
+      style: 'currency',
+      currency: 'KES',
+    }).format(amount)
+  }
 
   const subtotal = order.orderproduct.reduce(
     (acc, item) => acc + item.quantity * item.product.price,
     0
-  );
-  const shipping = 300;
-  const taxRate = 0.18;
-  const tax = subtotal * taxRate;
-  const total = subtotal + shipping + tax;
+  )
+  const shipping = 0
+  const taxRate = 0.18
+  const tax = subtotal * taxRate
+  const total = subtotal + shipping + tax
 
   const handlePrint = () => {
-    const originalContents = document.body.innerHTML;
-    const printContents = divToPrintRef.current.innerHTML;
-    document.body.innerHTML = printContents;
-    window.print();
-    document.body.innerHTML = originalContents;
-    window.location.reload();
-  };
+    const originalContents = document.body.innerHTML
+    const printContents = divToPrintRef.current.innerHTML
+    document.body.innerHTML = printContents
+    window.print()
+    document.body.innerHTML = originalContents
+    window.location.reload()
+  }
 
   return (
     <>
@@ -140,7 +140,7 @@ const Receipt = () => {
       <div className="min-h-screen bg-gray-50 py-8 relative mt-10">
         <div
           className="absolute inset-0 bg-cover bg-center opacity-70"
-          style={{ backgroundImage: "url(/src/assets/ground.jpg)" }}
+          style={{ backgroundImage: 'url(/src/assets/ground.jpg)' }}
         ></div>
         <Link
           to="/checkout"
@@ -186,9 +186,9 @@ const Receipt = () => {
               <p>{order.user.email}</p>
               {order.user.address.length > 0 && (
                 <p>
-                  {order.user.address[0].address}, {order.user.address[0].town},{" "}
-                  {order.user.address[0].county},{" "}
-                  {order.user.address[0].country} -{" "}
+                  {order.user.address[0].address}, {order.user.address[0].town},{' '}
+                  {order.user.address[0].county},{' '}
+                  {order.user.address[0].country} -{' '}
                   {order.user.address[0].zip_code}
                 </p>
               )}
@@ -229,10 +229,6 @@ const Receipt = () => {
                 <span>{format(subtotal)}</span>
               </div>
               <div className="flex justify-between">
-                <span className="text-black">Shipping:</span>
-                <span>{format(shipping)}</span>
-              </div>
-              <div className="flex justify-between">
                 <span className="text-black">VAT (18%):</span>
                 <span>{format(tax)}</span>
               </div>
@@ -264,7 +260,7 @@ const Receipt = () => {
       </div>
       <Footer />
     </>
-  );
-};
+  )
+}
 
-export default Receipt;
+export default Receipt

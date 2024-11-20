@@ -488,10 +488,6 @@ const Checkout = () => {
                     <p>{formatCurrency(calculateSubtotal().toFixed(2))}</p>
                   </div>
                   <div className="flex justify-between">
-                    <p>Shipping</p>
-                    <p>{formatCurrency(shipping)}</p>
-                  </div>
-                  <div className="flex justify-between">
                     <p>Tax</p>
                     <p>{formatCurrency(calculateTax().toFixed(2))}</p>
                   </div>
