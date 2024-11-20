@@ -180,7 +180,7 @@ export default function ProductListing() {
                       {product.categories.name}
                     </span>
                   </div>
-                  <p className="text-gray-700 text-base mb-4">
+                  <p className="text-gray-700 text-base mb-4 overflow-ellipsis line-clamp-3">
                     {product.description}
                   </p>
                   <div className="flex justify-between flex-wrap gap-2 items-center mb-4">
