@@ -6,6 +6,7 @@ import { Link, useNavigate } from 'react-router-dom'
 import { useAppDispatch, useAppSelector } from '../store/hooks'
 import { setIdentity } from '../store/slices/identitySlice'
 import { api } from '../utils/api'
+import { setCart } from '../store/slices/cartSlice'
 
 const PaymentStatus = {
   IDLE: 'idle',
@@ -183,6 +184,7 @@ const Checkout = () => {
           },
         })
       )
+      dispatch(setCart([]))
     } catch (err) {
       console.error('Error saving order:', err)
     }
