@@ -42,7 +42,9 @@ const ProductCard = ({ product, i, tab = 'home' }) => {
       />
       <div className="px-6 py-4">
         <div className="flex justify-between items-start mb-2">
-          <h2 className="font-bold text-xl mb-2">{product.title}</h2>
+          <h2 className="font-bold text-xl mb-2 overflow-ellipsis line-clamp-2">
+            {product.title}
+          </h2>
         </div>
         <div className="">
           <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
