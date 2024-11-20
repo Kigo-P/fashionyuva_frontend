@@ -2,7 +2,7 @@ import store from '../store/store'
 import { setIdentity } from '../store/slices/identitySlice'
 import { toast } from 'react-toastify'
 
-const refreshAccessToken = async (refreshToken) => {
+const refreshAccessToken = async (refreshToken, retries = 3) => {
   try {
     const response = await fetch(
       `${import.meta.env.VITE_BACKEND_URL}/auth/login`,
@@ -20,7 +20,13 @@ const refreshAccessToken = async (refreshToken) => {
     const data = await response.json()
     return data.access_token
   } catch (error) {
-    toast('session expired!', { type: 'info' })
+    if (retries > 0) {
+      console.log(`Retrying... attempts left: ${retries}`)
+      await new Promise((resolve) => setTimeout(resolve, 1000))
+      return refreshAccessToken(refreshToken, retries - 1)
+    }
+
+    toast('Session expired!', { type: 'info' })
     store.dispatch(
       setIdentity({
         is_logged: false,
@@ -34,6 +40,7 @@ const refreshAccessToken = async (refreshToken) => {
         },
       })
     )
+    throw new Error('Failed to refresh access token after multiple attempts')
   }
 }
 
@@ -63,27 +70,31 @@ export const api = async (
       }
     )
 
-    if (response.status === 401) {
-      const newAccessToken = await refreshAccessToken(refreshToken)
+    if (response.status === 401 || response.status === 500) {
+      try {
+        const newAccessToken = await refreshAccessToken(refreshToken)
 
-      if (newAccessToken) {
-        store.dispatch(
-          setIdentity({
-            ...state.identity,
-            access_token: newAccessToken,
+        if (newAccessToken) {
+          store.dispatch(
+            setIdentity({
+              ...state.identity,
+              access_token: newAccessToken,
+            })
+          )
+
+          const retryHeaders = {
+            ...headers,
+            Authorization: `Bearer ${newAccessToken}`,
+          }
+
+          response = await fetch(endpoint, {
+            method,
+            headers: retryHeaders,
+            body: payload ? JSON.stringify(payload) : null,
           })
-        )
-
-        const retryHeaders = {
-          ...headers,
-          Authorization: `Bearer ${newAccessToken}`,
         }
-
-        response = await fetch(endpoint, {
-          method,
-          headers: retryHeaders,
-          body: payload ? JSON.stringify(payload) : null,
-        })
+      } catch (error) {
+        console.log(error.message)
       }
     }
 
