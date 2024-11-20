@@ -203,17 +203,6 @@ const Checkout = () => {
     e.preventDefault()
 
     try {
-      if (formData.address !== identity?.address?.address) {
-        await api(`/addresses`, 'POST', {
-          user_id: identity.user.user_id,
-          address: formData.address,
-          county: formData.county,
-          town: formData.city,
-          zip_code: formData.postalCode,
-          country: formData.country,
-        })
-      }
-
       setStatus(PaymentStatus.PROCESSING)
       const response = await api(`/api/payment/initiate`, 'POST', {
         phone_number: formData.phoneNumber,
@@ -224,6 +213,16 @@ const Checkout = () => {
       const data = await response.json()
       if (response.ok) {
         setCheckoutRequestId(data.CheckoutRequestID)
+        if (formData.address !== identity?.address?.address) {
+          await api(`/addresses`, 'POST', {
+            user_id: identity.user.user_id,
+            address: formData.address,
+            county: formData.county,
+            town: formData.city,
+            zip_code: formData.postalCode,
+            country: formData.country,
+          })
+        }
       } else {
         handlePaymentError(data.error || 'Payment initiation failed')
       }
