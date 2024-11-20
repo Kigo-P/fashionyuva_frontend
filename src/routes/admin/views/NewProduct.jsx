@@ -20,13 +20,14 @@ const NewProduct = () => {
     setImages((prev) => prev.filter((_, i) => i !== index))
   }
 
-  const handleSubmit = async (values) => {
+  const handleSubmit = async (values, {resetForm}) => {
     try {
       const dataToSubmit = { ...values, images }
       const response = await api('/products', 'POST', dataToSubmit)
       const data = await response.json()
       if (response.ok) {
         setImages([])
+        resetForm()
         toast('Product added successfully', { type: 'success' })
       } else {
         throw new Error(data.message)
@@ -77,7 +78,7 @@ const NewProduct = () => {
     }
 
     uploadfile()
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+  
   }, [images.length])
 
   return (
